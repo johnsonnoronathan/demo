@@ -1,0 +1,65 @@
+{
+  "skill_name": "skeleton-loaders",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In my Next.js shop (project is in the shop-grid folder), components/ProductGrid.tsx shows a spinner while /api/products loads. It's usually 1-2 s on mobile and honestly it looks cheap. Can you replace it with a proper skeleton loading state? Keep SWR, and it has to work with our dark mode (we toggle a `.dark` class on <html>).",
+      "expected_output": "Spinner replaced by a grid-shaped skeleton that mirrors the product cards (4:5 image, name/price row, colorway line), ideally the ripple wave effect with cards popping in by distance; global skeleton CSS with tokens mapped to the project's theme including the .dark class; SWR kept; reduced motion and accessibility handled; no new dependencies.",
+      "files": [
+        "evals/files/shop-grid"
+      ],
+      "expectations": [
+        "Spinner removed: ProductGrid no longer renders the spinner and the unused spinner CSS is deleted",
+        "SWR is still used to fetch /api/products",
+        "All TS/TSX files parse without syntax errors",
+        "Renders in the browser without runtime errors; all 8 products appear and no skeleton is left over (mocked API)",
+        "Skeleton mirrors the product card: a 4:5 image placeholder, a name/price row and a colorway line, inside the same grid layout",
+        "Skeleton colours follow dark mode via the project's .dark class (tokens redefined under .dark or derived from the theme variables)",
+        "Animations are disabled or reduced under prefers-reduced-motion",
+        "Skeleton is hidden from assistive tech (aria-hidden) and the region exposes a loading state (aria-busy or role=status)",
+        "Products are revealed with a transition (cross-fade or staggered pop-in), not an instant swap",
+        "The loading effect or the reveal is staggered across the grid by item position (a wave or per-card stagger)",
+        "No new npm dependencies were added"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "our blog post page is plain html + js, no framework (post.html / post.js / styles.css in the blog-post folder). post.js fetches the post json and fills in the page, but for about a second the article area is just empty and then everything jumps in at once. the footer literally jumps from the top of the page to the bottom. add a loading state that looks good and stops the jumping",
+      "expected_output": "Article-shaped skeleton (title, byline, cover image with a fixed aspect ratio, paragraph lines) rendered immediately so the footer no longer jumps; ideally the synced shimmer sweep with blocks rising in reading order; cover image given reserved dimensions; error state still works; reduced motion handled.",
+      "files": [
+        "evals/files/blog-post"
+      ],
+      "expectations": [
+        "Footer jump fixed: with a mocked 1.2 s response, the footer starts at least half-way to its final position",
+        "Cover image space is reserved (aspect-ratio or width/height), so the image load doesn't shift layout",
+        "Error path still works: on a 500 response the error message shows and no skeleton remains visible",
+        "No runtime errors in the browser with mocked data",
+        "Animations respect prefers-reduced-motion",
+        "Skeleton is aria-hidden and the article exposes a loading state (aria-busy or role=status)",
+        "Content is revealed with a transition (fade/rise), not an instant swap",
+        "The reveal runs in reading order (top to bottom), or the shimmer is one continuous band across the page",
+        "Static chrome (site header and footer) stays real and is not turned into skeleton bones"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "In our analytics app (React 18 + Vite, see ai-summary/src/SummaryCard.jsx) there's a 'Generate summary' button that calls our LLM endpoint. It takes 4-8 seconds and right now we just show 'Generating\u2026' and then the whole card pops in. I want it to feel like the AI is actually building the card in front of you, something more special than a spinner. No animation libraries please.",
+      "expected_output": "A generation-style reveal: an animated placeholder while the request is pending (with reserved space), then the real card revealed with a build-up effect driven by its actual structure (ideally the dot wireframe build: dot field while pending, trace and scan reveal on arrival); React-safe lifecycle with cleanup; error state; reduced motion; no animation libraries.",
+      "files": [
+        "evals/files/ai-summary"
+      ],
+      "expectations": [
+        "No animation libraries added (dependencies unchanged; no framer-motion/gsap/react-spring/etc. imports)",
+        "All JS/JSX files parse without syntax errors",
+        "Renders in the browser without runtime errors; the final card shows 3 KPIs and 3 risk rows, and Regenerate works (mocked API)",
+        "The 'Generating\u2026' text placeholder is replaced by a visual generation animation while the request is pending",
+        "Space is reserved while pending (min-height or a sized placeholder), so the card doesn't pop in from nothing",
+        "On arrival the card is revealed progressively (traced, built up, staggered or scanned), not all at once",
+        "The build-up follows the card's real structure (measures the rendered DOM or animates the actual KPI/insight/table elements)",
+        "Animation frames and timers are cleaned up on unmount and on regenerate (safe under React StrictMode)",
+        "Error state still works and stops the animation",
+        "Animations respect prefers-reduced-motion"
+      ]
+    }
+  ]
+}
