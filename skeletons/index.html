@@ -1,0 +1,1729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skeleton Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Four loading-skeleton effects on four real page layouts: pulse and cross-blur, synced shimmer sweep, ripple wave, and a dot wireframe build.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Hanken+Grotesk:wght@400..700&family=JetBrains+Mono:wght@400..600&family=Newsreader:opsz,wght@6..72,400..600&display=swap">
+<style>
+/* ==========================================================================
+   Tokens
+   ========================================================================== */
+:root {
+  /* Layout: a bench of browser specimens, each beside its timing readout */
+  --bg: #eceef2;
+  --panel: #ffffff;
+  --fg: #12151b;
+  --muted: #565e6c;
+  --faint: #7d8491;
+  --line: #dadee5;
+  --chrome: #f3f4f7;
+  --accent: #2a52d8;
+  --accent-soft: rgba(42, 82, 216, 0.12);
+  --wait: #c4c9d2;
+  --bone: #e4e7ec;
+  --bone-hi: #f8f9fb;
+  --good: #1b7f45;
+  --good-soft: rgba(27, 127, 69, 0.1);
+  --bad: #bf3b28;
+  --bad-soft: rgba(191, 59, 40, 0.1);
+  --gen-ink: rgba(18, 21, 27, 0.24);
+  --gen-line: #8a909c;
+  --gen-strong: #363c48;
+  --tile: #efebe5;
+  --shade: rgba(18, 21, 27, 0.08);
+  --lift: 0 1px 2px rgba(18, 21, 27, 0.06), 0 12px 32px -14px rgba(18, 21, 27, 0.22);
+
+  /* Illustration tones: pictures keep their colours in both themes */
+  --ink-on-tone: #1a1d24;
+  --sky-a: #f1c27f; --land-a: #6d8a4d;
+  --sky-b: #b5d3e6; --land-b: #ddd5c3;
+  --sky-c: #cdbfe0; --land-c: #56683f;
+  --sky-d: #f2b1a6; --land-d: #6aa0b8;
+  --night-a: #141a33; --night-b: #3b3f6e; --lamp: #ffd88a; --train: #0a0d1c; --rail: #59607f;
+  --glaze-oat: #d8c9ae; --glaze-celadon: #a7c3b1; --glaze-iron: #b0503a; --glaze-ash: #ebe7df;
+  --glaze-tenmoku: #4b3326; --glaze-rust: #a0623a; --glaze-cobalt: #3a56a6; --clay: #c9a27e;
+  --speck: rgba(70, 48, 28, 0.4);
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Motion, on the transitions.dev token scale. --slow is the slow-motion factor. */
+  --slow: 1;
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-draw: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0e11; --panel: #16181d; --fg: #eceef2; --muted: #a2a8b4; --faint: #767d8a; --line: #2a2e36;
+    --chrome: #1c1f25; --accent: #8ba3ff; --accent-soft: rgba(139, 163, 255, 0.16); --wait: #3b404a;
+    --bone: #23262d; --bone-hi: #383c46; --good: #52c585; --good-soft: rgba(82, 197, 133, 0.14);
+    --bad: #f2806a; --bad-soft: rgba(242, 128, 106, 0.14); --gen-ink: rgba(236, 238, 242, 0.22);
+    --gen-line: #6e7581; --gen-strong: #c5cad4; --tile: #1f2228; --shade: rgba(0, 0, 0, 0.3);
+    --lift: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -14px rgba(0, 0, 0, 0.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0e11; --panel: #16181d; --fg: #eceef2; --muted: #a2a8b4; --faint: #767d8a; --line: #2a2e36;
+  --chrome: #1c1f25; --accent: #8ba3ff; --accent-soft: rgba(139, 163, 255, 0.16); --wait: #3b404a;
+  --bone: #23262d; --bone-hi: #383c46; --good: #52c585; --good-soft: rgba(82, 197, 133, 0.14);
+  --bad: #f2806a; --bad-soft: rgba(242, 128, 106, 0.14); --gen-ink: rgba(236, 238, 242, 0.22);
+  --gen-line: #6e7581; --gen-strong: #c5cad4; --tile: #1f2228; --shade: rgba(0, 0, 0, 0.3);
+  --lift: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -14px rgba(0, 0, 0, 0.7);
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   Page shell
+   ========================================================================== */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 15px/1.55 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 48px 64px;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.masthead { display: grid; gap: 14px; max-width: 720px; }
+.masthead h1 {
+  margin: 0;
+  font: 650 clamp(2.5rem, 6vw, 3.75rem)/0.95 var(--font-display);
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.intro { margin: 0; max-width: 62ch; color: var(--muted); font-size: 1.05rem; text-wrap: pretty; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; font: 12px var(--font-mono); color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: 7px; }
+.key i { width: 18px; height: 6px; border-radius: 3px; background: var(--accent); }
+.key i.is-load { background: var(--wait); }
+
+/* Toolbar */
+.toolbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  margin-top: 28px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  box-shadow: var(--lift);
+}
+.ctl { display: inline-flex; align-items: center; gap: 9px; }
+.ctl-label { font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--fg);
+  font: 500 13.5px var(--font-body);
+  cursor: pointer;
+  transition: border-color 150ms ease-out, transform 150ms var(--ease-smooth-out);
+}
+.btn:hover { border-color: var(--faint); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--fg); border-color: var(--fg); color: var(--panel); }
+.btn.small { height: 30px; padding: 0 11px; font-size: 13px; }
+.btn svg { width: 14px; height: 14px; flex: none; }
+
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--chrome); }
+.seg label { position: relative; display: block; }
+.seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.seg span { display: block; padding: 4px 10px; border-radius: 7px; font: 500 12.5px var(--font-body); color: var(--muted); transition: background-color 150ms ease-out, color 150ms ease-out; }
+.seg input:checked + span { background: var(--panel); color: var(--fg); box-shadow: 0 1px 2px var(--shade); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.switch { display: inline-flex; align-items: center; gap: 9px; padding: 4px 2px; border: 0; background: none; color: var(--fg); font: 500 13.5px var(--font-body); cursor: pointer; }
+.switch .knob { position: relative; width: 32px; height: 18px; border-radius: 99px; background: var(--wait); transition: background-color 200ms ease-out; }
+.switch .knob::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--panel);
+  box-shadow: 0 1px 2px var(--shade);
+  transition: transform 250ms var(--ease-smooth-out);
+}
+.switch[aria-checked="true"] .knob { background: var(--accent); }
+.switch[aria-checked="true"] .knob::after { transform: translateX(14px); }
+
+/* Stages */
+.stages { display: grid; gap: 56px; margin-top: 44px; }
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 32px; align-items: start; scroll-margin-top: 96px; }
+
+.browser { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: var(--lift); }
+.browser-bar { display: flex; align-items: center; gap: 12px; height: 42px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--chrome); }
+.lights { display: flex; gap: 6px; }
+.lights i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel);
+  color: var(--muted);
+  font: 12px var(--font-mono);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.status { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font: 500 11.5px var(--font-mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.status i { width: 7px; height: 7px; border-radius: 50%; background: var(--wait); }
+.status[data-state="loading"] i { background: var(--accent); animation: dot-pulse calc(560ms * var(--slow)) ease-in-out infinite alternate; }
+.status[data-state="done"] i { background: var(--good); }
+.status-text { position: relative; display: inline-block; }
+.status-text.is-in { animation: status-in 150ms ease-in-out; }
+.viewport { position: relative; container-type: inline-size; }
+
+/* Shimmer text: a highlight band clipped to the glyphs of a duplicate layer */
+.shimmer { color: var(--faint); }
+.shimmer::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0 40%, var(--fg) 50%, transparent 60% 100%) 100% 0 / 400% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text calc(2000ms * var(--slow)) linear infinite;
+}
+
+.meta { display: grid; gap: 16px; }
+.meta-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.eyebrow { font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.meta h2 { margin: 0; font: 620 1.6rem/1.1 var(--font-display); letter-spacing: -0.02em; text-wrap: balance; }
+.meta p { margin: 0; color: var(--muted); font-size: 0.95rem; text-wrap: pretty; }
+.meta p.use { color: var(--fg); font-size: 0.9rem; }
+.meta p.use b { font: 500 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); margin-right: 6px; }
+
+/* Timeline: grey waits on data, accent is the reveal. The head is driven from JS. */
+.tl { display: grid; gap: 8px; padding-top: 2px; }
+.tl-track { position: relative; display: flex; height: 8px; }
+.tl-seg { flex-basis: 0; height: 100%; background: var(--accent); }
+.tl-seg + .tl-seg { box-shadow: inset 2px 0 0 var(--bg); }
+.tl-seg:first-child { border-radius: 4px 0 0 4px; }
+.tl-seg:last-of-type { border-radius: 0 4px 4px 0; }
+.tl-seg.is-load, .tl-legend .sw.is-load { background: var(--wait); }
+.tl-seg.is-alt, .tl-legend .sw.is-alt { opacity: 0.55; }
+.tl-head { position: absolute; top: -5px; bottom: -5px; left: 0; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--fg); }
+.is-holding .tl-head { animation: blink 700ms ease-in-out infinite alternate; }
+.tl-scale { display: flex; justify-content: space-between; color: var(--faint); font: 10.5px var(--font-mono); font-variant-numeric: tabular-nums; }
+.tl-legend { display: grid; gap: 7px; margin: 4px 0 0; padding: 0; list-style: none; }
+.tl-legend li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; column-gap: 10px; align-items: baseline; font-size: 13.5px; transition: opacity 200ms ease-out; }
+.tl-legend .sw { align-self: center; width: 10px; height: 10px; border-radius: 3px; background: var(--accent); }
+.tl-legend .ms { font: 500 12px var(--font-mono); font-variant-numeric: tabular-nums; }
+.tl-legend .ease { grid-column: 2 / -1; color: var(--faint); font: 11px var(--font-mono); }
+.is-running .tl-legend li:not(.is-active) { opacity: 0.45; }
+.hold-note { display: none; color: var(--accent); font: 500 11px var(--font-mono); }
+.is-holding .hold-note { display: block; }
+
+.specs { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 12px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13.5px; }
+.specs dt { color: var(--muted); }
+.specs dd { margin: 0; font: 500 12px var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+.credits { display: grid; gap: 8px; max-width: 70ch; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+.credits p { margin: 0; }
+.credits a { color: var(--fg); text-underline-offset: 3px; }
+
+@keyframes dot-pulse { from { transform: scale(0.6); } to { transform: scale(1); } }
+@keyframes status-in { from { opacity: 0; filter: blur(2px); transform: translateY(4px); } }
+@keyframes shimmer-text { to { background-position: 0 0; } }
+@keyframes blink { to { opacity: 0.2; } }
+
+@media (max-width: 920px) {
+  .stage { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .meta { max-width: 640px; }
+}
+@media (max-width: 640px) {
+  .page { padding-block: 32px 48px; }
+  .toolbar { position: static; gap: 10px 16px; }
+  .stages { gap: 48px; }
+  .lights { display: none; }
+}
+
+/* ==========================================================================
+   Mini sites (shared)
+   ========================================================================== */
+.site { display: grid; gap: 16px; padding: 16px 20px 22px; background: var(--panel); color: var(--fg); font-family: var(--font-body); }
+.site h3 { margin: 0; }
+.site-nav { display: flex; align-items: center; gap: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.site-nav nav { display: flex; gap: 14px; color: var(--muted); }
+.site-nav nav .on { color: var(--fg); font-weight: 600; }
+.site-nav .end { margin-left: auto; color: var(--muted); white-space: nowrap; }
+.logo { font: 700 15px var(--font-display); letter-spacing: -0.01em; white-space: nowrap; }
+.chip { padding: 3px 10px; border: 1px solid var(--line); border-radius: 99px; background: var(--chrome); color: var(--muted); font-size: 12px; white-space: nowrap; }
+.chip.on { border-color: var(--fg); background: var(--fg); color: var(--panel); }
+.av { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--av, var(--sky-a)); color: var(--ink-on-tone); font: 600 13px var(--font-body); }
+
+/* A skeleton and its content share one grid cell, so the swap never moves layout */
+.swap { display: grid; }
+.swap > * { grid-area: 1 / 1; min-width: 0; }
+.swap > .ct { position: relative; z-index: 1; opacity: 0; }
+.is-revealed .swap > .ct { opacity: 1; }
+.is-resetting .swap > * { transition: none !important; }
+.sk { pointer-events: none; }
+.sk.stack { display: grid; align-content: start; gap: 10px; }
+.bone { display: block; border-radius: 6px; background-color: var(--bone); }
+.bone.line { height: 10px; border-radius: 5px; }
+.bone.round { border-radius: 50%; }
+
+@container (max-width: 470px) {
+  .site { padding-inline: 14px; }
+  .site-nav nav { display: none; }
+}
+
+/* ==========================================================================
+   01 Pulse and cross-blur (feed)
+   ========================================================================== */
+.feed-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 12px; }
+.feed-head h3 { font: 600 17px var(--font-body); }
+.feed { display: grid; margin: 0; padding: 0; list-style: none; }
+.feed > li { padding-block: 12px; border-bottom: 1px solid var(--line); }
+.feed > li:last-child { border-bottom: 0; }
+.post { display: grid; grid-template-columns: 40px minmax(0, 1fr) 60px; align-items: start; gap: 12px; }
+.post-body { display: grid; gap: 3px; min-width: 0; }
+.sk .post-body { gap: 9px; padding-top: 4px; }
+.post-title { font-size: 14px; }
+.post-title b { font-weight: 600; }
+.post-note { color: var(--muted); font-size: 13.5px; }
+.post-meta { color: var(--faint); font: 11.5px var(--font-mono); }
+.thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 72% 30%, var(--panel) 0 4px, transparent 5px),
+    linear-gradient(180deg, var(--sky) 0 58%, var(--land) 58% 100%);
+}
+.sk .thumb { background: var(--bone); }
+@container (max-width: 470px) {
+  .post { grid-template-columns: 40px minmax(0, 1fr); }
+  .thumb { display: none; }
+}
+
+.fx-pulse.is-loading .sk .bone { animation: pulse calc(1000ms * var(--slow)) ease-in-out infinite; }
+.fx-pulse .swap > * {
+  transition:
+    opacity calc(400ms * var(--slow)) ease-in-out,
+    filter calc(400ms * var(--slow)) ease-in-out;
+}
+.fx-pulse .swap > .ct { filter: blur(2px); }
+.fx-pulse.is-revealed .swap > .sk { opacity: 0; filter: blur(2px); }
+.fx-pulse.is-revealed .swap > .ct { filter: blur(0); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* ==========================================================================
+   02 Synced shimmer sweep (article)
+   ========================================================================== */
+@property --sweep { syntax: "<number>"; inherits: true; initial-value: 0; }
+.logo.serif { font: italic 600 19px var(--font-serif); letter-spacing: -0.01em; }
+.story { display: grid; gap: 14px; max-width: 620px; }
+.kicker { color: var(--accent); font: 600 11px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.headline { font: 600 clamp(22px, 4.6cqi, 30px)/1.12 var(--font-serif); letter-spacing: -0.01em; text-wrap: balance; }
+.dek { margin: 0; color: var(--muted); font: 400 16.5px/1.45 var(--font-serif); }
+.byline { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+.byline b { color: var(--fg); font-weight: 600; }
+.byline .av { width: 28px; height: 28px; font-size: 10.5px; }
+.hero-fig { display: grid; gap: 6px; margin: 0; }
+.hero-img {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 7;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 82% 24%, var(--lamp) 0 7px, transparent 8px),
+    radial-gradient(circle at 20% 18%, var(--glaze-ash) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 46% 30%, var(--glaze-ash) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 64% 12%, var(--glaze-ash) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 34% 40%, var(--glaze-ash) 0 0.8px, transparent 1.4px),
+    linear-gradient(180deg, var(--night-b) 0%, var(--night-a) 72%);
+}
+.hero-img::before {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: 22%;
+  bottom: 24%;
+  height: 15%;
+  border-radius: 0 12px 4px 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 8px, var(--lamp) 8px 20px, transparent 20px 26px) 0 50% / 100% 44% no-repeat,
+    var(--train);
+}
+.hero-img::after { content: ""; position: absolute; inset: auto 0 0 0; height: 24%; background: linear-gradient(180deg, var(--rail) 0 3px, var(--night-a) 3px); }
+.hero-fig figcaption { color: var(--faint); font: 11.5px var(--font-mono); }
+.body { margin: 0; font: 400 16px/1.6 var(--font-serif); }
+.sk.para { gap: 15.6px; padding-top: 8px; }
+.bone.h1 { height: 18px; }
+.bone.text { height: 11px; border-radius: 5px; }
+.bone.hero { width: 100%; aspect-ratio: 16 / 7; border-radius: 10px; }
+.sk.row { display: flex; align-items: center; gap: 10px; }
+
+/* Every bone paints the same page-sized gradient, shifted by its own offset
+   (--bx/--by, measured in JS), so one band crosses the whole layout. */
+.fx-sweep .sweep-root { --sweep: 0; }
+.fx-sweep.is-loading .sweep-root { animation: sweep calc(1500ms * var(--slow)) linear infinite; }
+.fx-sweep .sk .bone {
+  background-image: linear-gradient(105deg, transparent 0 42%, var(--bone-hi) 50%, transparent 58% 100%);
+  background-repeat: no-repeat;
+  background-size: calc(var(--cw, 600) * 1px) calc(var(--ch, 600) * 1px);
+  background-position:
+    calc(((var(--sweep) * 2 - 1) * var(--cw, 600) - var(--bx, 0)) * 1px)
+    calc(var(--by, 0) * -1px);
+}
+.fx-sweep .swap > .sk { transition: opacity calc(240ms * var(--slow)) ease-out calc(var(--i, 0) * 60ms * var(--slow)); }
+.fx-sweep .swap > .ct {
+  transform: translateY(12px);
+  filter: blur(3px);
+  transition:
+    opacity calc(500ms * var(--slow)) var(--ease-smooth-out),
+    transform calc(500ms * var(--slow)) var(--ease-smooth-out),
+    filter calc(500ms * var(--slow)) var(--ease-smooth-out);
+  transition-delay: calc(var(--i, 0) * 60ms * var(--slow));
+}
+.fx-sweep.is-revealed .swap > .sk { opacity: 0; }
+.fx-sweep.is-revealed .swap > .ct { transform: none; filter: blur(0); }
+@keyframes sweep { to { --sweep: 1; } }
+
+/* ==========================================================================
+   03 Ripple wave (shop grid)
+   ========================================================================== */
+.shop-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.shop-head h3 { font: 600 19px var(--font-display); letter-spacing: -0.01em; }
+.shop-head h3 span { margin-left: 6px; color: var(--faint); font: 400 12px var(--font-mono); letter-spacing: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 14px; margin: 0; padding: 0; list-style: none; }
+.card { display: grid; align-content: start; gap: 5px; }
+.tile { display: grid; place-items: center; aspect-ratio: 1; border-radius: 10px; background: var(--tile); }
+.tile svg { width: 78%; height: auto; }
+.card-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 600; }
+.price { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; }
+.detail { color: var(--muted); font-size: 12.5px; }
+.bone.square { width: 100%; aspect-ratio: 1; border-radius: 10px; margin-bottom: 4px; }
+.sk .card-row { padding-top: 2px; }
+@container (max-width: 520px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Each bone flashes on a delay set by its distance (--d, px) from the top-left corner */
+.fx-ripple.is-loading .sk .bone {
+  animation: crest calc(1800ms * var(--slow)) linear infinite;
+  animation-delay: calc(var(--d, 0) * 1.1ms * var(--slow));
+}
+.fx-ripple .swap > .sk {
+  transition:
+    opacity calc(200ms * var(--slow)) ease-out,
+    transform calc(200ms * var(--slow)) ease-out;
+  transition-delay: calc(var(--i, 0) * 70ms * var(--slow));
+}
+.fx-ripple .swap > .ct {
+  transform: translateY(8px) scale(0.97);
+  filter: blur(2px);
+  transition:
+    opacity calc(420ms * var(--slow)) var(--ease-smooth-out),
+    filter calc(420ms * var(--slow)) var(--ease-smooth-out),
+    transform calc(560ms * var(--slow)) var(--ease-bounce);
+  transition-delay: calc(var(--i, 0) * 70ms * var(--slow));
+}
+.fx-ripple.is-revealed .swap > .sk { opacity: 0; transform: scale(0.98); }
+.fx-ripple.is-revealed .swap > .ct { transform: none; filter: blur(0); }
+@keyframes crest {
+  0% { background-color: var(--bone); }
+  13% { background-color: var(--bone-hi); }
+  30%, 100% { background-color: var(--bone); }
+}
+
+/* ==========================================================================
+   04 Dot wireframe build (generated dashboard)
+   ========================================================================== */
+.fx-gen { gap: 24px; }
+.logo.mono { font: 600 13px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.ask { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 13.5px; }
+.ask svg { width: 16px; height: 16px; flex: none; color: var(--accent); }
+.ask .kbd { margin-left: auto; color: var(--faint); font: 11px var(--font-mono); white-space: nowrap; }
+.gen-target { position: relative; }
+.gen-canvas { position: absolute; top: -22px; left: -22px; z-index: 2; pointer-events: none; }
+.fx-gen .gen-ui { display: grid; gap: 12px; opacity: 0; }
+.fx-gen.is-revealed .gen-ui { opacity: 1; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.kpi { display: grid; gap: 2px; min-width: 0; padding: 10px 12px; border-radius: 10px; background: var(--chrome); }
+.kpi-label { color: var(--muted); font-size: 12px; }
+.kpi-value { font: 600 clamp(16px, 4.4cqi, 22px)/1.2 var(--font-body); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.delta { justify-self: start; padding: 1px 6px; border-radius: 5px; font: 500 11px var(--font-mono); }
+.delta.up { background: var(--good-soft); color: var(--good); }
+.delta.down { background: var(--bad-soft); color: var(--bad); }
+.dash-row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 12px; }
+.card-box { display: grid; align-content: start; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; font-size: 13px; font-weight: 600; }
+.card-head .sub { color: var(--faint); font: 400 11px var(--font-mono); }
+.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .grid-line { stroke: var(--line); stroke-width: 1; }
+.chart .lbl { fill: var(--faint); font: 400 9.5px var(--font-mono); }
+.chart .lbl.strong { fill: var(--fg); font-weight: 500; }
+.chart .area { fill: var(--accent-soft); }
+.chart .ln { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chart .end { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.tbl th { padding: 0 0 6px; border-bottom: 1px solid var(--line); color: var(--faint); font: 500 10.5px var(--font-mono); letter-spacing: 0.06em; text-align: left; text-transform: uppercase; }
+.tbl td { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .num { padding-left: 10px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+@container (max-width: 600px) { .dash-row { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 470px) { .chart .lbl { font-size: 12px; } }
+@container (max-width: 400px) { .kpi { padding: 8px; } .ask .kbd { display: none; } }
+
+/* ==========================================================================
+   Reduced motion: no looping skeletons, every swap is a 200ms fade
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .site .sk .bone { animation: none !important; background-image: none !important; }
+  .site .sweep-root { animation: none !important; }
+  .site .swap > * {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 200ms linear !important;
+  }
+  .fx-gen .gen-ui { transition: opacity 200ms linear; }
+  .shimmer::after, .status i, .is-holding .tl-head { animation: none !important; }
+  .shimmer::after { display: none; }
+  .tl-head { transition: none !important; }
+  .status-text.is-in { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <h1>Skeleton Lab</h1>
+    <p class="intro">Four loading skeletons on four real page layouts, timed with the motion tokens from transitions.dev. Each one plays when it scrolls into view. Slow them down, or hold the skeleton to study it before the content lands.</p>
+    <p class="key"><span><i class="is-load"></i>Waiting for data. Hold skeleton keeps it running.</span><span><i></i>Reveal</span></p>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Playback">
+    <button class="btn primary" type="button" id="replay-all">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.46-3.54M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Replay all
+    </button>
+    <div class="ctl">
+      <span class="ctl-label" id="speed-label">Speed</span>
+      <div class="seg" role="radiogroup" aria-labelledby="speed-label">
+        <label><input type="radio" name="speed" id="speed-1" value="1" checked><span>1×</span></label>
+        <label><input type="radio" name="speed" id="speed-2" value="2"><span>½×</span></label>
+        <label><input type="radio" name="speed" id="speed-4" value="4"><span>¼×</span></label>
+      </div>
+    </div>
+    <button class="switch" type="button" id="hold" role="switch" aria-checked="false"><span class="knob" aria-hidden="true"></span>Hold skeleton</button>
+    <div class="ctl">
+      <span class="ctl-label" id="theme-label">Theme</span>
+      <div class="seg" role="radiogroup" aria-labelledby="theme-label">
+        <label><input type="radio" name="theme" id="theme-auto" value="auto" checked><span>Auto</span></label>
+        <label><input type="radio" name="theme" id="theme-light" value="light"><span>Light</span></label>
+        <label><input type="radio" name="theme" id="theme-dark" value="dark"><span>Dark</span></label>
+      </div>
+    </div>
+  </div>
+
+  <main class="stages">
+
+    <!-- ================================================================
+         01 Pulse and cross-blur
+         ================================================================ -->
+    <article class="stage" data-effect="pulse" id="pulse">
+      <div class="browser">
+        <div class="browser-bar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="url">fieldnotes.app/feed</span>
+          <span class="status" data-status aria-live="polite"><i></i><span class="status-text"></span></span>
+        </div>
+        <div class="viewport">
+          <div class="site fx-pulse">
+            <header class="site-nav">
+              <span class="logo">Fieldnotes</span>
+              <nav><span class="on">Feed</span><span>Map</span><span>Lists</span></nav>
+              <span class="end">Ana R.</span>
+            </header>
+            <div class="feed-head">
+              <h3>Recent sightings</h3>
+              <span class="chip">Within 25 km of Lisbon</span>
+            </div>
+            <ul class="feed" aria-busy="true">
+              <li class="swap">
+                <div class="sk post" aria-hidden="true">
+                  <span class="bone round" style="width:40px;height:40px"></span>
+                  <span class="post-body"><span class="bone line" style="width:62%"></span><span class="bone line" style="width:88%"></span><span class="bone line" style="width:38%"></span></span>
+                  <span class="bone thumb"></span>
+                </div>
+                <div class="ct post">
+                  <span class="av" style="--av: var(--sky-a)">MO</span>
+                  <span class="post-body">
+                    <span class="post-title"><b>Marta Okafor</b> logged a Eurasian hoopoe</span>
+                    <span class="post-note">Feeding on the lawn by the north gate, crest up the whole time.</span>
+                    <span class="post-meta">Tapada de Mafra · 2 h ago</span>
+                  </span>
+                  <span class="thumb" style="--sky: var(--sky-a); --land: var(--land-a)"></span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk post" aria-hidden="true">
+                  <span class="bone round" style="width:40px;height:40px"></span>
+                  <span class="post-body"><span class="bone line" style="width:54%"></span><span class="bone line" style="width:80%"></span><span class="bone line" style="width:44%"></span></span>
+                  <span class="bone thumb"></span>
+                </div>
+                <div class="ct post">
+                  <span class="av" style="--av: var(--sky-b)">TF</span>
+                  <span class="post-body">
+                    <span class="post-title"><b>Tomás Ferreira</b> counted 14 white storks</span>
+                    <span class="post-note">All on the old chimneys along the salt pans. Two nests with chicks.</span>
+                    <span class="post-meta">Alcochete salt pans · 3 h ago</span>
+                  </span>
+                  <span class="thumb" style="--sky: var(--sky-b); --land: var(--land-b)"></span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk post" aria-hidden="true">
+                  <span class="bone round" style="width:40px;height:40px"></span>
+                  <span class="post-body"><span class="bone line" style="width:58%"></span><span class="bone line" style="width:92%"></span><span class="bone line" style="width:36%"></span></span>
+                  <span class="bone thumb"></span>
+                </div>
+                <div class="ct post">
+                  <span class="av" style="--av: var(--sky-c)">ID</span>
+                  <span class="post-body">
+                    <span class="post-title"><b>Inês Duarte</b> logged a Bonelli’s eagle</span>
+                    <span class="post-note">A pair soaring over the ridge for ten minutes, then gone west.</span>
+                    <span class="post-meta">Serra da Arrábida · 5 h ago</span>
+                  </span>
+                  <span class="thumb" style="--sky: var(--sky-c); --land: var(--land-c)"></span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk post" aria-hidden="true">
+                  <span class="bone round" style="width:40px;height:40px"></span>
+                  <span class="post-body"><span class="bone line" style="width:66%"></span><span class="bone line" style="width:76%"></span><span class="bone line" style="width:40%"></span></span>
+                  <span class="bone thumb"></span>
+                </div>
+                <div class="ct post">
+                  <span class="av" style="--av: var(--sky-d)">JP</span>
+                  <span class="post-body">
+                    <span class="post-title"><b>Jun Park</b> counted 230 greater flamingos</span>
+                    <span class="post-note">Low tide, the whole flock on the mudflats south of the bridge.</span>
+                    <span class="post-meta">Tagus estuary · 6 h ago</span>
+                  </span>
+                  <span class="thumb" style="--sky: var(--sky-d); --land: var(--land-d)"></span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head">
+          <span class="eyebrow">Feed · list rows</span>
+          <button class="btn small replay" type="button">Replay</button>
+        </div>
+        <h2>Pulse and cross-blur</h2>
+        <p>Each bone breathes from full to half opacity. When the data lands, skeleton and content swap in one cross-fade with a shared 2&nbsp;px blur. Both layers sit in the same grid cell, so nothing below them moves.</p>
+        <p class="use"><b>Use for</b>Rows and cards that a single request fills at once.</p>
+        <div class="tl" data-tl></div>
+        <dl class="specs">
+          <dt>Pulse floor</dt><dd>opacity 0.5</dd>
+          <dt>Swap blur</dt><dd>2 px</dd>
+          <dt>Layout shift on swap</dt><dd>0 px</dd>
+        </dl>
+      </div>
+    </article>
+
+    <!-- ================================================================
+         02 Synced shimmer sweep
+         ================================================================ -->
+    <article class="stage" data-effect="sweep" id="sweep">
+      <div class="browser">
+        <div class="browser-bar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="url">theplatform.news/rail/night-trains-are-back</span>
+          <span class="status" data-status aria-live="polite"><i></i><span class="status-text"></span></span>
+        </div>
+        <div class="viewport">
+          <div class="site fx-sweep">
+            <header class="site-nav">
+              <span class="logo serif">The Platform</span>
+              <nav><span class="on">Rail</span><span>Cities</span><span>Climate</span></nav>
+              <span class="end">Subscribe</span>
+            </header>
+            <article class="story sweep-root" aria-busy="true">
+              <div class="swap">
+                <div class="sk" aria-hidden="true"><span class="bone line" style="width:44px;height:9px"></span></div>
+                <div class="ct kicker">Rail</div>
+              </div>
+              <div class="swap">
+                <div class="sk stack" aria-hidden="true"><span class="bone h1" style="width:94%"></span><span class="bone h1" style="width:58%"></span></div>
+                <h3 class="ct headline">Night trains are back, and on most nights every berth is taken</h3>
+              </div>
+              <div class="swap">
+                <div class="sk stack" aria-hidden="true"><span class="bone text" style="width:100%"></span><span class="bone text" style="width:72%"></span></div>
+                <p class="ct dek">Sleeper routes across Europe sold out most summer nights this year. Operators are now hunting for carriages.</p>
+              </div>
+              <div class="swap">
+                <div class="sk row" aria-hidden="true"><span class="bone round" style="width:28px;height:28px"></span><span class="bone line" style="width:200px;max-width:60%"></span></div>
+                <div class="ct byline"><span class="av" style="--av: var(--sky-b)">LV</span><span>By <b>Lena Vogel</b> · 7 min read · 12 Oct 2026</span></div>
+              </div>
+              <div class="swap">
+                <div class="sk stack" aria-hidden="true"><span class="bone hero"></span><span class="bone line" style="width:46%;height:9px"></span></div>
+                <figure class="ct hero-fig">
+                  <div class="hero-img" role="img" aria-label="A sleeper train with lit windows waiting at a platform at night"></div>
+                  <figcaption>The Vienna–Hamburg sleeper at Linz, 23:41</figcaption>
+                </figure>
+              </div>
+              <div class="swap">
+                <div class="sk stack para" aria-hidden="true"><span class="bone text" style="width:100%"></span><span class="bone text" style="width:98%"></span><span class="bone text" style="width:58%"></span></div>
+                <p class="ct body">The 21:04 from Vienna to Hamburg left with every couchette taken on 61 of 62 nights this summer. Its operator added a second set of coaches in July and sold those out within a week. A third set is on order for 2027.</p>
+              </div>
+              <div class="swap">
+                <div class="sk stack para" aria-hidden="true"><span class="bone text" style="width:100%"></span><span class="bone text" style="width:96%"></span><span class="bone text" style="width:70%"></span></div>
+                <p class="ct body">Demand is not the problem. Most sleeper cars in service were built in the 1980s, and a new one takes about three years from order to track. Until the new fleets arrive, every extra departure runs on borrowed carriages.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head">
+          <span class="eyebrow">Article · long read</span>
+          <button class="btn small replay" type="button">Replay</button>
+        </div>
+        <h2>Synced shimmer sweep</h2>
+        <p>One band of light crosses the whole page. Every bone paints the same page-sized gradient, offset by its own position, so the band stays continuous across gaps instead of restarting in each bar. Blocks then rise in reading order.</p>
+        <p class="use"><b>Use for</b>Long pages that arrive in one payload but should read top to bottom.</p>
+        <div class="tl" data-tl></div>
+        <dl class="specs">
+          <dt>Band angle</dt><dd>105°</dd>
+          <dt>Rise distance</dt><dd>12 px</dd>
+          <dt>Rise blur</dt><dd>3 px</dd>
+          <dt>Stagger per block</dt><dd>60 ms</dd>
+        </dl>
+      </div>
+    </article>
+
+    <!-- ================================================================
+         03 Ripple wave
+         ================================================================ -->
+    <article class="stage" data-effect="ripple" id="ripple">
+      <div class="browser">
+        <div class="browser-bar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="url">kilnandco.shop/stoneware</span>
+          <span class="status" data-status aria-live="polite"><i></i><span class="status-text"></span></span>
+        </div>
+        <div class="viewport">
+          <div class="site fx-ripple">
+            <header class="site-nav">
+              <span class="logo">Kiln &amp; Co.</span>
+              <nav><span class="on">Shop</span><span>Studio</span><span>Journal</span></nav>
+              <span class="end">Bag (2)</span>
+            </header>
+            <div class="shop-head">
+              <h3>Stoneware<span>6 pieces</span></h3>
+              <div class="chips"><span class="chip on">All</span><span class="chip">Mugs</span><span class="chip">Bowls</span><span class="chip">Vases</span></div>
+            </div>
+            <ul class="grid ripple-root" aria-busy="true">
+              <li class="swap">
+                <div class="sk card" aria-hidden="true"><span class="bone square"></span><span class="card-row"><span class="bone line" style="width:58%"></span><span class="bone line" style="width:18%"></span></span><span class="bone line" style="width:46%"></span></div>
+                <div class="ct card">
+                  <div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="48" cy="81" rx="27" ry="3.5" fill="var(--shade)"/><path d="M66 40h5a10 10 0 0 1 0 20h-5" fill="none" stroke="var(--glaze-oat)" stroke-width="6"/><rect x="28" y="30" width="40" height="50" rx="7" fill="var(--glaze-oat)"/><path d="M28 70h40v3a7 7 0 0 1-7 7H35a7 7 0 0 1-7-7z" fill="var(--clay)"/><g fill="var(--speck)"><circle cx="37" cy="42" r="1.1"/><circle cx="52" cy="38" r="0.9"/><circle cx="58" cy="52" r="1.2"/><circle cx="41" cy="58" r="0.9"/><circle cx="49" cy="49" r="0.8"/><circle cx="61" cy="63" r="1"/></g></svg></div>
+                  <div class="card-row"><span>Speckled mug</span><span class="price">€32</span></div>
+                  <span class="detail">Oatmeal glaze · 350 ml</span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk card" aria-hidden="true"><span class="bone square"></span><span class="card-row"><span class="bone line" style="width:50%"></span><span class="bone line" style="width:18%"></span></span><span class="bone line" style="width:40%"></span></div>
+                <div class="ct card">
+                  <div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="79" rx="22" ry="3.5" fill="var(--shade)"/><path d="M40 73h20l-2 5H42z" fill="var(--clay)"/><path d="M16 46h68c0 17-15 30-34 30S16 63 16 46z" fill="var(--glaze-celadon)"/><ellipse cx="50" cy="46" rx="34" ry="7" fill="var(--glaze-celadon)"/><ellipse cx="50" cy="46" rx="30" ry="5" fill="var(--shade)"/></svg></div>
+                  <div class="card-row"><span>Ridge bowl</span><span class="price">€44</span></div>
+                  <span class="detail">Celadon · Ø 16 cm</span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk card" aria-hidden="true"><span class="bone square"></span><span class="card-row"><span class="bone line" style="width:46%"></span><span class="bone line" style="width:18%"></span></span><span class="bone line" style="width:38%"></span></div>
+                <div class="ct card">
+                  <div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="83" rx="18" ry="3" fill="var(--shade)"/><path d="M45 20h10v9c0 5 15 11 15 30 0 15-8 23-20 23S30 74 30 59c0-19 15-25 15-30z" fill="var(--glaze-iron)"/><ellipse cx="50" cy="20.5" rx="5" ry="1.6" fill="var(--shade)"/></svg></div>
+                  <div class="card-row"><span>Bud vase</span><span class="price">€38</span></div>
+                  <span class="detail">Iron red · 14 cm</span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk card" aria-hidden="true"><span class="bone square"></span><span class="card-row"><span class="bone line" style="width:60%"></span><span class="bone line" style="width:18%"></span></span><span class="bone line" style="width:44%"></span></div>
+                <div class="ct card">
+                  <div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="63" rx="38" ry="14" fill="var(--shade)"/><ellipse cx="50" cy="58" rx="38" ry="14" fill="var(--glaze-ash)" stroke="var(--clay)" stroke-width="1"/><ellipse cx="50" cy="57" rx="25" ry="8.5" fill="none" stroke="var(--shade)" stroke-width="2"/></svg></div>
+                  <div class="card-row"><span>Serving plate</span><span class="price">€56</span></div>
+                  <span class="detail">Ash white · Ø 27 cm</span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk card" aria-hidden="true"><span class="bone square"></span><span class="card-row"><span class="bone line" style="width:54%"></span><span class="bone line" style="width:18%"></span></span><span class="bone line" style="width:42%"></span></div>
+                <div class="ct card">
+                  <div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="75" rx="36" ry="3.5" fill="var(--shade)"/><path d="M16 46h30v12a15 15 0 0 1-30 0z" fill="var(--glaze-tenmoku)"/><path d="M54 46h30v12a15 15 0 0 1-30 0z" fill="var(--glaze-tenmoku)"/><rect x="16" y="44.5" width="30" height="3" rx="1.5" fill="var(--glaze-rust)"/><rect x="54" y="44.5" width="30" height="3" rx="1.5" fill="var(--glaze-rust)"/></svg></div>
+                  <div class="card-row"><span>Tea cup pair</span><span class="price">€48</span></div>
+                  <span class="detail">Tenmoku · 180 ml each</span>
+                </div>
+              </li>
+              <li class="swap">
+                <div class="sk card" aria-hidden="true"><span class="bone square"></span><span class="card-row"><span class="bone line" style="width:52%"></span><span class="bone line" style="width:18%"></span></span><span class="bone line" style="width:48%"></span></div>
+                <div class="ct card">
+                  <div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="85" rx="22" ry="3.5" fill="var(--shade)"/><path d="M34 38c-8 0-10 6-10 12s4 11 10 12" fill="none" stroke="var(--glaze-ash)" stroke-width="5"/><path d="M34 22h28l8-4v6c-3 2-6 5-6 9 5 7 8 15 8 25 0 15-9 26-22 26S28 73 28 58c0-10 3-18 8-25 0-4-1-8-2-11z" fill="var(--glaze-ash)" stroke="var(--clay)" stroke-width="1"/><path d="M34 22h28l8-4v6c-3 2-6 5-6 9H36c0-4-1-8-2-11z" fill="var(--glaze-cobalt)"/></svg></div>
+                  <div class="card-row"><span>Pouring jug</span><span class="price">€62</span></div>
+                  <span class="detail">Cobalt rim · 600 ml</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head">
+          <span class="eyebrow">Shop · product grid</span>
+          <button class="btn small replay" type="button">Replay</button>
+        </div>
+        <h2>Ripple wave</h2>
+        <p>Each bone lights up on a delay set by its distance from the top-left corner, so a crest rolls diagonally through the grid. When the products arrive, the cards pop in following the same wave.</p>
+        <p class="use"><b>Use for</b>Grids of similar items, like products, photos or search results.</p>
+        <div class="tl" data-tl></div>
+        <dl class="specs">
+          <dt>Wave delay</dt><dd>1.1 ms per px</dd>
+          <dt>Crest period</dt><dd>1800 ms</dd>
+          <dt>Pop scale</dt><dd>0.97 → 1</dd>
+          <dt>Stagger per card</dt><dd>70 ms</dd>
+        </dl>
+      </div>
+    </article>
+
+    <!-- ================================================================
+         04 Dot wireframe build
+         ================================================================ -->
+    <article class="stage" data-effect="gen" id="generate">
+      <div class="browser">
+        <div class="browser-bar">
+          <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="url">ledger.app/reports/new</span>
+          <span class="status" data-status aria-live="polite"><i></i><span class="status-text"></span></span>
+        </div>
+        <div class="viewport">
+          <div class="site fx-gen">
+            <header class="site-nav">
+              <span class="logo mono">Ledger</span>
+              <nav><span class="on">Reports</span><span>Stock</span><span>Payouts</span></nav>
+              <span class="end">Kiln &amp; Co. · Lisbon</span>
+            </header>
+            <div class="ask">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l1.6 4.2 4.4 1.3-4.4 1.3L8 12.5 6.4 8.3 2 7l4.4-1.3z" fill="currentColor"/></svg>
+              <span>Summarize Q3 sales for the Lisbon store</span>
+              <span class="kbd">Q3 2026</span>
+            </div>
+            <section class="gen-target" aria-busy="true" aria-label="Generated Q3 report">
+              <canvas class="gen-canvas" aria-hidden="true"></canvas>
+              <div class="gen-ui">
+                <div class="kpis">
+                  <div class="kpi"><span class="kpi-label">Revenue</span><span class="kpi-value">€48,210</span><span class="delta up">+12.4%</span></div>
+                  <div class="kpi"><span class="kpi-label">Orders</span><span class="kpi-value">1,284</span><span class="delta up">+6.1%</span></div>
+                  <div class="kpi"><span class="kpi-label">Avg. basket</span><span class="kpi-value">€37.55</span><span class="delta down">−1.8%</span></div>
+                </div>
+                <div class="dash-row">
+                  <div class="card-box">
+                    <div class="card-head"><span>Weekly revenue</span><span class="sub">13 weeks to 29 Sep</span></div>
+                    <svg class="chart" viewBox="0 0 360 156" role="img" aria-label="Weekly revenue over 13 weeks, rising from €3,150 to €4,440"></svg>
+                  </div>
+                  <div class="card-box">
+                    <div class="card-head"><span>Top products</span><span class="sub">by revenue</span></div>
+                    <table class="tbl">
+                      <thead><tr><th>Product</th><th class="num">Sold</th><th class="num">Revenue</th></tr></thead>
+                      <tbody>
+                        <tr><td>Speckled mug</td><td class="num">214</td><td class="num">€6,848</td></tr>
+                        <tr><td>Ridge bowl</td><td class="num">131</td><td class="num">€5,764</td></tr>
+                        <tr><td>Pouring jug</td><td class="num">72</td><td class="num">€4,464</td></tr>
+                        <tr><td>Bud vase</td><td class="num">96</td><td class="num">€3,648</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head">
+          <span class="eyebrow">Dashboard · generated report</span>
+          <button class="btn small replay" type="button">Replay</button>
+        </div>
+        <h2>Dot wireframe build</h2>
+        <p>For UI that an AI feature produces. A dot field ripples out from the centre, then the report is traced in dots from its real DOM: tiles, text lines, table rules and the chart line itself. A scan line hands over to the finished UI.</p>
+        <p class="use"><b>Use for</b>One-off generated results. It runs too long for routine loading.</p>
+        <div class="tl" data-tl></div>
+        <dl class="specs">
+          <dt>Dot spacing on lines</dt><dd>4.6 px</dd>
+          <dt>Field grid</dt><dd>14 px</dd>
+          <dt>Parts traced from the DOM</dt><dd data-parts>–</dd>
+          <dt>Scan blur</dt><dd>3 px → 0</dd>
+        </dl>
+      </div>
+    </article>
+  </main>
+
+  <footer class="credits">
+    <p>Patterns adapted from <a href="https://github.com/Jakubantalik/transitions.dev">transitions.dev</a> by Jakub Antalik: skeleton loader and reveal, texts reveal, shimmer text and UI generation. Durations, distances, blurs and easings follow its motion tokens.</p>
+    <p>This page is a fresh, dependency-free implementation in CSS and vanilla JavaScript. With reduced motion turned on, every skeleton holds still and each swap is a 200&nbsp;ms fade.</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const root = document.documentElement;
+  const RM = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const DARK = window.matchMedia("(prefers-color-scheme: dark)");
+  const TAU = Math.PI * 2;
+  const state = { slow: 1, hold: false, waiters: new Set() };
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const reflow = (el) => void el.offsetWidth;
+  const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  const secs = (ms) => `${(ms / 1000).toFixed(1)} s`;
+  const quick = (ms) => (RM.matches ? 200 : ms);
+
+  function bezier(x1, y1, x2, y2) {
+    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    const sx = (t) => ((ax * t + bx) * t + cx) * t;
+    const sy = (t) => ((ay * t + by) * t + cy) * t;
+    const dx = (t) => (3 * ax * t + 2 * bx) * t + cx;
+    return (x) => {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      let t = x;
+      for (let i = 0; i < 8; i++) {
+        const e = sx(t) - x, d = dx(t);
+        if (Math.abs(e) < 1e-5 || Math.abs(d) < 1e-6) break;
+        t -= e / d;
+      }
+      return sy(clamp01(t));
+    };
+  }
+  const easeDraw = bezier(0.16, 1, 0.3, 1);
+  const easeSmooth = bezier(0.22, 1, 0.36, 1);
+
+  function observeSize(el, fn) {
+    let raf = 0;
+    new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(fn);
+    }).observe(el);
+  }
+
+  // Restart the CSS-driven loading state from frame 0 without animating back.
+  function restart(site) {
+    site.classList.add("is-resetting");
+    site.classList.remove("is-revealed", "is-loading");
+    reflow(site);
+    site.classList.remove("is-resetting");
+    site.classList.add("is-loading");
+  }
+
+  // 02: hand every bone its offset inside the article so one gradient spans them all.
+  function measureSweep(site) {
+    const box = site.querySelector(".sweep-root");
+    const r = box.getBoundingClientRect();
+    box.style.setProperty("--cw", r.width.toFixed(1));
+    box.style.setProperty("--ch", r.height.toFixed(1));
+    box.querySelectorAll(".sk .bone").forEach((b) => {
+      const br = b.getBoundingClientRect();
+      b.style.setProperty("--bx", (br.left - r.left).toFixed(1));
+      b.style.setProperty("--by", (br.top - r.top).toFixed(1));
+    });
+  }
+
+  // 03: distance of each bone from the grid's top-left corner, and the card order by distance.
+  function measureRipple(site) {
+    const box = site.querySelector(".ripple-root");
+    const r = box.getBoundingClientRect();
+    const dist = (el) => {
+      const b = el.getBoundingClientRect();
+      return Math.hypot(b.left + b.width / 2 - r.left, b.top + b.height / 2 - r.top);
+    };
+    box.querySelectorAll(".sk .bone").forEach((b) => b.style.setProperty("--d", dist(b).toFixed(0)));
+    [...box.children]
+      .map((li) => [li, dist(li)])
+      .sort((a, b) => a[1] - b[1])
+      .forEach(([li], i) => li.style.setProperty("--i", i));
+  }
+
+  // ------------------------------------------------------------------------
+  // 04: dot wireframe, measured from the element's own DOM
+  // ------------------------------------------------------------------------
+  function linePts(x0, y0, x1, y1, gap) {
+    const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / gap));
+    const out = new Float32Array((n + 1) * 2);
+    for (let i = 0; i <= n; i++) {
+      out[i * 2] = x0 + ((x1 - x0) * i) / n;
+      out[i * 2 + 1] = y0 + ((y1 - y0) * i) / n;
+    }
+    return out;
+  }
+
+  // Rounded rect, clockwise from the top centre.
+  function rrPts(x, y, w, h, r, gap) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    const q = (r * Math.PI) / 2;
+    const segs = [
+      ["L", x + w / 2, y, x + w - r, y],
+      ["A", x + w - r, y + r, -90],
+      ["L", x + w, y + r, x + w, y + h - r],
+      ["A", x + w - r, y + h - r, 0],
+      ["L", x + w - r, y + h, x + r, y + h],
+      ["A", x + r, y + h - r, 90],
+      ["L", x, y + h - r, x, y + r],
+      ["A", x + r, y + r, 180],
+      ["L", x + r, y, x + w / 2, y],
+    ].map((s) => ({ s, len: s[0] === "L" ? Math.hypot(s[3] - s[1], s[4] - s[2]) : q }));
+    const total = segs.reduce((a, s) => a + s.len, 0);
+    const n = Math.max(4, Math.round(total / gap));
+    const out = new Float32Array(n * 2);
+    let si = 0, acc = 0;
+    for (let i = 0; i < n; i++) {
+      const d = (i * total) / n;
+      while (si < segs.length - 1 && d > acc + segs[si].len) acc += segs[si++].len;
+      const { s, len } = segs[si], f = len ? (d - acc) / len : 0;
+      if (s[0] === "L") {
+        out[i * 2] = s[1] + (s[3] - s[1]) * f;
+        out[i * 2 + 1] = s[2] + (s[4] - s[2]) * f;
+      } else {
+        const a = ((s[3] + 90 * f) * Math.PI) / 180;
+        out[i * 2] = s[1] + r * Math.cos(a);
+        out[i * 2 + 1] = s[2] + r * Math.sin(a);
+      }
+    }
+    return out;
+  }
+
+  function pathPts(path, ox, oy, gap) {
+    const m = path.getScreenCTM();
+    if (!m) return new Float32Array(0);
+    const len = path.getTotalLength(), step = gap / (Math.hypot(m.a, m.b) || 1);
+    const n = Math.max(1, Math.floor(len / step)), out = new Float32Array((n + 1) * 2);
+    for (let i = 0; i <= n; i++) {
+      const p = path.getPointAtLength(Math.min(len, i * step));
+      out[i * 2] = m.a * p.x + m.c * p.y + m.e - ox;
+      out[i * 2 + 1] = m.b * p.x + m.d * p.y + m.f - oy;
+    }
+    return out;
+  }
+
+  const alphaOf = (c) => {
+    if (!c || c === "transparent") return 0;
+    const n = c.match(/[\d.]+/g);
+    return n && n.length > 3 ? parseFloat(n[3]) : 1;
+  };
+
+  function dotRun(g, pts, from, to, r) {
+    for (let i = from; i < to; i++) {
+      const x = pts[i * 2], y = pts[i * 2 + 1];
+      g.moveTo(x + r, y);
+      g.arc(x, y, r, 0, TAU);
+    }
+  }
+
+  class Gen {
+    constructor(site) {
+      this.site = site;
+      this.target = site.querySelector(".gen-target");
+      this.ui = site.querySelector(".gen-ui");
+      this.cv = site.querySelector(".gen-canvas");
+      this.g = this.cv.getContext("2d");
+      this.count = site.closest(".stage").querySelector("[data-parts]");
+      this.B = 22;      // bleed around the element for guides and labels
+      this.GAP = 4.6;   // dot spacing along traced lines
+      this.GRID = 14;   // dot field spacing
+      this.state = "idle";
+      this.raf = 0;
+      this.finish = null;
+      this.ret = null;
+      this.t0 = 0;
+    }
+
+    tokens() {
+      const cs = getComputedStyle(this.site);
+      const v = (n) => cs.getPropertyValue(n).trim();
+      return { ink: v("--gen-ink"), line: v("--gen-line"), strong: v("--gen-strong"), surface: v("--panel"), mono: v("--font-mono") };
+    }
+
+    measure() {
+      const { B, GAP } = this;
+      const tr = this.target.getBoundingClientRect();
+      const tw = tr.width, th = tr.height, W = Math.ceil(tw + B * 2), H = Math.ceil(th + B * 2);
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      this.cv.width = Math.round(W * dpr);
+      this.cv.height = Math.round(H * dpr);
+      this.cv.style.width = `${W}px`;
+      this.cv.style.height = `${H}px`;
+      this.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      Object.assign(this, { W, H, tw, th });
+
+      const ox = tr.left - B, oy = tr.top - B;
+      const boxOf = (el) => {
+        const r = el.getBoundingClientRect();
+        return [r.left - ox, r.top - oy, r.width, r.height];
+      };
+      this.outline = { pts: rrPts(B, B, tw, th, 12, GAP), box: [B, B, tw, th] };
+
+      // Boxes, rules, text lines, SVG text and traced paths, in document order.
+      const parts = [];
+      const add = (pts, box) => { if (pts.length >= 4) parts.push({ pts, box }); };
+      const walker = document.createTreeWalker(this.ui, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+      const range = document.createRange();
+      for (let n = walker.nextNode(); n && parts.length < 90; n = walker.nextNode()) {
+        if (n.nodeType === Node.TEXT_NODE) {
+          if (!n.data.trim() || n.parentElement.closest("svg")) continue;
+          range.selectNodeContents(n);
+          for (const r of range.getClientRects()) {
+            if (r.width < 3) continue;
+            const x = r.left - ox, y = r.top - oy + r.height / 2;
+            add(linePts(x, y, x + r.width, y, GAP), [x, r.top - oy, r.width, r.height]);
+          }
+          continue;
+        }
+        if (n instanceof SVGElement) {
+          if (n.matches("path[data-trace]")) add(pathPts(n, ox, oy, GAP), boxOf(n));
+          else if (n.tagName.toLowerCase() === "text") {
+            const b = boxOf(n), y = b[1] + b[3] / 2;
+            add(linePts(b[0], y, b[0] + b[2], y, GAP), b);
+          }
+          continue;
+        }
+        if (n.hasAttribute("data-gen-skip")) continue;
+        const cs = getComputedStyle(n), b = boxOf(n);
+        if (b[2] < 2 || b[3] < 2) continue;
+        const edge = (side) => parseFloat(cs[`border${side}Width`]) > 0 && cs[`border${side}Style`] !== "none";
+        if (alphaOf(cs.backgroundColor) > 0.02 || (edge("Top") && edge("Left"))) {
+          add(rrPts(b[0], b[1], b[2], b[3], parseFloat(cs.borderTopLeftRadius) || 0, GAP), b);
+        } else if (edge("Bottom")) {
+          const y = b[1] + b[3] - 0.5;
+          add(linePts(b[0], y, b[0] + b[2], y, GAP), [b[0], y - 1, b[2], 2]);
+        }
+      }
+      this.parts = parts;
+      if (this.count) this.count.textContent = String(parts.length);
+
+      // Dot field inside the element, with each dot's distance from the centre.
+      const G = this.GRID, x0 = B + 8, y0 = B + 8, x1 = B + tw - 8, y1 = B + th - 8;
+      const cols = Math.max(1, Math.floor((x1 - x0) / G) + 1), rows = Math.max(1, Math.floor((y1 - y0) / G) + 1);
+      const sx = x0 + (x1 - x0 - (cols - 1) * G) / 2, sy = y0 + (y1 - y0 - (rows - 1) * G) / 2;
+      const cx = B + tw / 2, cy = B + th / 2, N = cols * rows;
+      this.fx = new Float32Array(N);
+      this.fy = new Float32Array(N);
+      this.fd = new Float32Array(N);
+      this.lit = new Float32Array(N);
+      this.maxD = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const i = r * cols + c, x = sx + c * G, y = sy + r * G, d = Math.hypot(x - cx, y - cy);
+          this.fx[i] = x;
+          this.fy[i] = y;
+          this.fd[i] = d;
+          if (d > this.maxD) this.maxD = d;
+        }
+      }
+    }
+
+    twinkle(rate) {
+      const lit = this.lit, n = lit.length;
+      for (let i = 0; i < n; i++) lit[i] *= 0.9;
+      if (Math.random() < rate) for (let j = 0; j < 2; j++) lit[(Math.random() * n) | 0] = 1;
+    }
+
+    clear() { this.g.clearRect(0, 0, this.W || this.cv.width, this.H || this.cv.height); }
+
+    draw(o) {
+      const g = this.g, c = this.tokens(), B = this.B;
+      this.clear();
+      const scan = o.scanY != null;
+      if (scan) {
+        g.save();
+        g.beginPath();
+        g.rect(0, B + o.scanY, this.W, this.H);
+        g.clip();
+      }
+      if (o.field > 0) this.drawField(g, c, o);
+      if (o.trace > 0) this.drawTrace(g, c, o.trace, !o.still);
+      if (scan) {
+        g.restore();
+        this.drawScan(g, c, B + o.scanY);
+      }
+      if (!o.still) this.drawLabels(g, c, o);
+    }
+
+    drawField(g, c, o) {
+      const { fx, fy, fd, lit } = this, n = fx.length, R = o.ripple;
+      g.globalAlpha = o.field;
+      g.fillStyle = c.ink;
+      g.beginPath();
+      for (let i = 0; i < n; i++) {
+        let r = 0.95;
+        if (R !== undefined) {
+          const k = (R - fd[i]) / 60;
+          if (k <= 0) continue;
+          if (k < 1) r *= k;
+        }
+        g.moveTo(fx[i] + r, fy[i]);
+        g.arc(fx[i], fy[i], r, 0, TAU);
+      }
+      g.fill();
+      // Lit dots: the ripple front, plus a few that twinkle while waiting.
+      g.fillStyle = c.strong;
+      g.beginPath();
+      for (let i = 0; i < n; i++) {
+        let l = lit[i];
+        if (R !== undefined) {
+          const k = R - fd[i];
+          if (k <= 0) continue;
+          if (k < 36) l = Math.max(l, 1 - k / 36);
+        }
+        if (l < 0.15) continue;
+        const r = 0.8 + 0.7 * l;
+        g.moveTo(fx[i] + r, fy[i]);
+        g.arc(fx[i], fy[i], r, 0, TAU);
+      }
+      g.fill();
+      g.globalAlpha = 1;
+    }
+
+    drawTrace(g, c, u, live) {
+      const R = 1.05, parts = this.parts, P = parts.length, O = this.outline.pts, ON = O.length / 2;
+      const op = easeDraw(clamp01(u / 0.34)), half = Math.ceil(ON / 2), k = Math.min(half, Math.round(op * half));
+      const heads = [];
+      let current = -1;
+
+      g.fillStyle = c.line;
+      g.beginPath();
+      // The outline grows from the top centre in both directions.
+      dotRun(g, O, 0, k, R);
+      dotRun(g, O, Math.max(k, ON - k), ON, R);
+      if (live && op < 1 && k > 0) heads.push([O, k - 1], [O, ON - k]);
+      // Parts start in document order and each traces from its own start point.
+      for (let i = 0; i < P; i++) {
+        const s = 0.16 + (P > 1 ? (0.62 * i) / (P - 1) : 0);
+        const p = easeDraw(clamp01((u - s) / 0.2));
+        if (p <= 0) break;
+        const pts = parts[i].pts, m = Math.max(1, Math.round((p * pts.length) / 2));
+        dotRun(g, pts, 0, m, R);
+        if (p < 1) {
+          current = i;
+          heads.push([pts, m - 1]);
+        }
+      }
+      g.fill();
+
+      if (heads.length) {
+        g.fillStyle = c.strong;
+        g.beginPath();
+        for (const [pts, i] of heads) dotRun(g, pts, i, i + 1, 1.8);
+        g.fill();
+      }
+
+      // Corner handles pop in once the outline is half drawn.
+      const hs = easeDraw(clamp01((op - 0.5) / 0.3));
+      if (hs > 0) {
+        const [x, y, w, h] = this.outline.box, s = 5 * hs;
+        g.fillStyle = c.surface;
+        g.strokeStyle = c.strong;
+        g.lineWidth = 1;
+        for (const [hx, hy] of [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]) {
+          g.fillRect(hx - s / 2, hy - s / 2, s, s);
+          g.strokeRect(hx - s / 2, hy - s / 2, s, s);
+        }
+      }
+
+      // A reticle follows whichever part is being drawn.
+      if (live) {
+        const box = current >= 0 ? parts[current].box : op < 1 ? this.outline.box : null;
+        if (box) {
+          const r = this.ret || box.slice();
+          for (let j = 0; j < 4; j++) r[j] += (box[j] - r[j]) * 0.28;
+          this.ret = r;
+          this.drawReticle(g, c, r);
+        }
+      }
+    }
+
+    drawReticle(g, c, r) {
+      const [x, y, w, h] = r, pad = 4, X = x - pad, Y = y - pad, Wd = w + pad * 2, Hd = h + pad * 2;
+      const a = Math.min(7, Wd / 3, Hd / 3);
+      g.strokeStyle = c.strong;
+      g.lineWidth = 1.2;
+      g.lineCap = "round";
+      g.beginPath();
+      g.moveTo(X, Y + a); g.lineTo(X, Y); g.lineTo(X + a, Y);
+      g.moveTo(X + Wd - a, Y); g.lineTo(X + Wd, Y); g.lineTo(X + Wd, Y + a);
+      g.moveTo(X + Wd, Y + Hd - a); g.lineTo(X + Wd, Y + Hd); g.lineTo(X + Wd - a, Y + Hd);
+      g.moveTo(X + a, Y + Hd); g.lineTo(X, Y + Hd); g.lineTo(X, Y + Hd - a);
+      g.stroke();
+      const label = `${Math.round(x - this.B)}, ${Math.round(y - this.B)} · ${Math.round(w)}×${Math.round(h)}`;
+      g.font = `500 8.5px ${c.mono}`;
+      g.fillStyle = c.strong;
+      g.textBaseline = "alphabetic";
+      const lw = g.measureText(label).width;
+      const lx = Math.max(2, Math.min(X, this.W - lw - 2));
+      g.fillText(label, lx, Y - 4 < 10 ? Y + Hd + 11 : Y - 4);
+    }
+
+    drawScan(g, c, y) {
+      const B = this.B;
+      const grad = g.createLinearGradient(0, y - 28, 0, y);
+      grad.addColorStop(0, "rgba(128, 128, 128, 0)");
+      grad.addColorStop(1, c.ink);
+      g.fillStyle = grad;
+      g.fillRect(B, y - 28, this.tw, 28);
+      g.fillStyle = c.strong;
+      g.beginPath();
+      for (let x = B - 12; x <= B + this.tw + 12; x += 4) {
+        g.moveTo(x + 1, y);
+        g.arc(x, y, 1, 0, TAU);
+      }
+      g.fill();
+    }
+
+    drawLabels(g, c, o) {
+      const B = this.B;
+      g.font = `500 9px ${c.mono}`;
+      g.fillStyle = c.strong;
+      g.textBaseline = "alphabetic";
+      g.textAlign = "left";
+      if (o.tag) g.fillText(o.tag, B, B - 8);
+      if (o.size) {
+        g.textAlign = "right";
+        g.fillText(`${Math.round(this.tw * o.size)} × ${Math.round(this.th * o.size)}`, B + this.tw, B - 8);
+        g.textAlign = "left";
+      }
+    }
+
+    scanUI(sy, v, k) {
+      const s = this.ui.style;
+      s.opacity = String(Math.min(1, v * 2.4));
+      s.clipPath = `inset(0 0 ${Math.max(0, this.th - sy).toFixed(1)}px 0)`;
+      s.filter = k < 0.995 ? `blur(${((1 - k) * 3).toFixed(2)}px)` : "";
+    }
+
+    resetUI() {
+      for (const p of ["opacity", "clip-path", "filter"]) this.ui.style.removeProperty(p);
+    }
+
+    stop() {
+      cancelAnimationFrame(this.raf);
+      this.raf = 0;
+      const f = this.finish;
+      this.finish = null;
+      if (f) f();
+    }
+
+    // The resting frame: the finished wireframe, with the real UI still hidden.
+    idle() {
+      this.stop();
+      this.state = "idle";
+      this.resetUI();
+      this.measure();
+      this.draw({ field: 1, trace: 1, still: true });
+    }
+
+    reset() {
+      this.stop();
+      this.state = "running";
+      this.resetUI();
+      this.clear();
+    }
+
+    // Loading: the dot field ripples out from the centre, then idles until data arrives.
+    field(S) {
+      this.stop();
+      this.state = "running";
+      this.measure();
+      this.ret = null;
+      if (RM.matches) {
+        this.draw({ field: 1, trace: 1, still: true });
+        return;
+      }
+      const t0 = (this.t0 = performance.now());
+      const tick = (now) => {
+        const t = (now - t0) / S;
+        this.twinkle(0.6);
+        this.draw({ field: 1, ripple: easeDraw(clamp01(t / 800)) * (this.maxD + 60), trace: 0, tag: `FIELD  ${(t / 1000).toFixed(2)}s` });
+        this.raf = requestAnimationFrame(tick);
+      };
+      this.raf = requestAnimationFrame(tick);
+    }
+
+    // Reveal: trace every part, then hand over to the real UI behind a scan line.
+    build(S) {
+      cancelAnimationFrame(this.raf);
+      return new Promise((resolve) => {
+        this.finish = resolve;
+        if (RM.matches) {
+          this.clear();
+          this.site.classList.add("is-revealed");
+          setTimeout(() => this.done(), 200);
+          return;
+        }
+        this.measure();
+        this.ret = null;
+        const T = 1500 * S, V = 800 * S, start = performance.now(), base = this.t0 || start;
+        const P = this.parts.length;
+        const tick = (now) => {
+          const e = now - start, clock = `${((now - base) / S / 1000).toFixed(2)}s`;
+          if (e < T) {
+            const u = e / T;
+            const idx = Math.min(P, Math.max(0, Math.floor(((u - 0.16) / 0.62) * (P - 1)) + 1));
+            this.twinkle(0.25);
+            this.draw({ field: 0.75, trace: u, tag: `TRACE ${String(idx).padStart(2, "0")}/${P}  ${clock}`, size: easeDraw(clamp01(u / 0.34)) });
+          } else if (e < T + V) {
+            const v = (e - T) / V, k = easeSmooth(v), sy = k * (this.th + 8);
+            this.scanUI(sy, v, k);
+            this.draw({ field: 0.75 * (1 - v), trace: 1, scanY: sy, tag: `SCAN  ${clock}`, size: 1 });
+          } else {
+            this.done();
+            return;
+          }
+          this.raf = requestAnimationFrame(tick);
+        };
+        this.raf = requestAnimationFrame(tick);
+      });
+    }
+
+    done() {
+      cancelAnimationFrame(this.raf);
+      this.raf = 0;
+      this.clear();
+      this.site.classList.add("is-revealed");
+      this.resetUI();
+      this.state = "done";
+      const f = this.finish;
+      this.finish = null;
+      if (f) f();
+    }
+  }
+
+  // Weekly revenue for Q3; the 13 weeks sum to the €48,210 revenue tile.
+  function buildChart(svg) {
+    const data = [3150, 3320, 3410, 3280, 3590, 3760, 3880, 3640, 3820, 3970, 4060, 3890, 4440];
+    const L = 46, R = 350, T = 14, Bt = 126, lo = 3000, hi = 4600, last = data.length - 1;
+    const x = (i) => L + (i * (R - L)) / last;
+    const y = (v) => Bt - ((v - lo) / (hi - lo)) * (Bt - T);
+    const f = (n) => n.toFixed(1);
+    const line = data.map((v, i) => `${i ? "L" : "M"}${f(x(i))} ${f(y(v))}`).join(" ");
+    let out = "";
+    for (const v of [3000, 3500, 4000, 4500]) {
+      out += `<line class="grid-line" x1="${L}" x2="${R}" y1="${f(y(v))}" y2="${f(y(v))}"/>`;
+      out += `<text class="lbl" x="${L - 8}" y="${f(y(v) + 3.5)}" text-anchor="end">€${(v / 1000).toFixed(1)}k</text>`;
+    }
+    for (const [i, m] of [[0, "Jul"], [5, "Aug"], [9, "Sep"]]) {
+      out += `<text class="lbl" x="${f(x(i))}" y="146" text-anchor="${i ? "middle" : "start"}">${m}</text>`;
+    }
+    out += `<path class="area" d="${line} L${f(x(last))} ${Bt} L${f(x(0))} ${Bt} Z"/>`;
+    out += `<path class="ln" data-trace d="${line}"/>`;
+    out += `<circle class="end" cx="${f(x(last))}" cy="${f(y(data[last]))}" r="3.5"/>`;
+    out += `<text class="lbl strong" x="${f(x(last) - 8)}" y="${f(y(data[last]) - 8)}" text-anchor="end">€4,440</text>`;
+    svg.innerHTML = out;
+  }
+
+  // ------------------------------------------------------------------------
+  // Effects. Each one owns its reset and reveal; load phases are CSS-driven
+  // except the generation canvas.
+  // ------------------------------------------------------------------------
+  const blocks = (site, sel) => site.querySelectorAll(sel).length;
+
+  const FX = {
+    pulse: {
+      loading: "Loading sightings",
+      done: (t) => `4 sightings · ${t}`,
+      segments: () => [
+        { label: "Pulse ×2", ms: 2000, load: true, ease: "ease-in-out · 1000 ms per breath" },
+        { label: "Cross-blur swap", ms: 400, ease: "ease-in-out" },
+      ],
+      reset: restart,
+      reveal(site, S) {
+        site.classList.add("is-revealed");
+        return sleep(quick(400) * S);
+      },
+    },
+    sweep: {
+      loading: "Loading article",
+      done: (t) => `Loaded in ${t}`,
+      segments: (site) => {
+        const n = blocks(site, ".sweep-root > .swap");
+        return [
+          { label: "Shimmer sweep", ms: 2400, load: true, ease: "linear · 1500 ms per pass" },
+          { label: `Rise in reading order, ${n} blocks`, ms: (n - 1) * 60 + 500, ease: "cubic-bezier(0.22, 1, 0.36, 1)" },
+        ];
+      },
+      init(site) {
+        site.querySelectorAll(".sweep-root > .swap").forEach((el, i) => el.style.setProperty("--i", i));
+        observeSize(site.querySelector(".sweep-root"), () => measureSweep(site));
+      },
+      reset(site) {
+        measureSweep(site);
+        restart(site);
+      },
+      reveal(site, S) {
+        site.classList.add("is-revealed");
+        const n = blocks(site, ".sweep-root > .swap");
+        return sleep(quick((n - 1) * 60 + 500) * S);
+      },
+    },
+    ripple: {
+      loading: "Loading products",
+      done: (t) => `6 products · ${t}`,
+      segments: (site) => {
+        const n = blocks(site, ".ripple-root > .swap");
+        return [
+          { label: "Ripple wave", ms: 2200, load: true, ease: "linear · 1800 ms per crest" },
+          { label: `Pop in by distance, ${n} cards`, ms: (n - 1) * 70 + 560, ease: "cubic-bezier(0.34, 1.36, 0.64, 1)" },
+        ];
+      },
+      init(site) {
+        observeSize(site.querySelector(".ripple-root"), () => measureRipple(site));
+      },
+      reset(site) {
+        measureRipple(site);
+        restart(site);
+      },
+      reveal(site, S) {
+        site.classList.add("is-revealed");
+        const n = blocks(site, ".ripple-root > .swap");
+        return sleep(quick((n - 1) * 70 + 560) * S);
+      },
+    },
+    gen: {
+      loading: "Generating report",
+      done: (t) => `Report ready · ${t}`,
+      segments: () => [
+        { label: "Dot field", ms: 900, load: true, ease: "ripples out from the centre" },
+        { label: "Trace parts", ms: 1500, ease: "cubic-bezier(0.16, 1, 0.3, 1)" },
+        { label: "Scan reveal", ms: 800, ease: "cubic-bezier(0.22, 1, 0.36, 1)" },
+      ],
+      init(site) {
+        const gen = (site._gen = new Gen(site));
+        gen.idle();
+        observeSize(site.querySelector(".gen-target"), () => { if (gen.state === "idle") gen.idle(); });
+      },
+      reset(site) {
+        restart(site);
+        site._gen.reset();
+      },
+      load(site, S) { site._gen.field(S); },
+      reveal(site, S) { return site._gen.build(S); },
+    },
+  };
+
+  // ------------------------------------------------------------------------
+  // Stage runner: timeline, status pill, hold and replay
+  // ------------------------------------------------------------------------
+  const stages = [...document.querySelectorAll(".stage")];
+  const inView = new Set();
+
+  function buildTimeline(stage, segs) {
+    const tl = stage.querySelector("[data-tl]");
+    const total = segs.reduce((a, s) => a + s.ms, 0);
+    let reveals = 0;
+    const cls = segs.map((s) => (s.load ? " is-load" : reveals++ % 2 ? " is-alt" : ""));
+    tl.innerHTML =
+      `<div class="tl-track">${segs.map((s, i) => `<span class="tl-seg${cls[i]}" style="flex-grow:${s.ms}"></span>`).join("")}<i class="tl-head"></i></div>` +
+      `<div class="tl-scale"><span>0</span><span>${(total / 1000).toFixed(2)} s</span></div>` +
+      `<ol class="tl-legend">${segs
+        .map((s, i) => `<li><i class="sw${cls[i]}"></i><span class="nm">${s.label}</span><span class="ms">${s.ms} ms</span><span class="ease">${s.ease}</span></li>`)
+        .join("")}</ol>` +
+      `<span class="hold-note">Holding the skeleton. Turn off Hold skeleton to reveal.</span>`;
+    stage._segs = segs;
+    stage._total = total;
+    stage._head = tl.querySelector(".tl-head");
+    stage._legend = [...tl.querySelectorAll(".tl-legend li")];
+  }
+
+  function moveHead(stage, frac, ms) {
+    const h = stage._head;
+    h.style.transition = ms ? `left ${ms}ms linear` : "none";
+    h.style.left = `${(frac * 100).toFixed(3)}%`;
+    if (!ms) reflow(h);
+  }
+
+  function activate(stage, idx) {
+    stage._legend.forEach((li, i) => li.classList.toggle("is-active", i === idx));
+  }
+
+  function setStatus(stage, kind, text) {
+    const el = stage._status, label = el.querySelector(".status-text");
+    el.dataset.state = kind;
+    label.textContent = text;
+    label.dataset.text = text;
+    label.classList.toggle("shimmer", kind === "loading");
+    label.classList.remove("is-in");
+    reflow(label);
+    label.classList.add("is-in");
+  }
+
+  function setBusy(site, on) {
+    const el = site.querySelector("[aria-busy]");
+    if (el) el.setAttribute("aria-busy", String(on));
+  }
+
+  async function play(stage) {
+    const site = stage._site, fx = stage._fx, S = state.slow;
+    const token = (stage._token = (stage._token || 0) + 1);
+    const alive = () => stage._token === token;
+    const segs = stage._segs, total = stage._total;
+    const loadMs = segs.filter((s) => s.load).reduce((a, s) => a + s.ms, 0);
+    const t0 = performance.now();
+
+    stage.dataset.played = "true";
+    stage.classList.remove("is-holding");
+    stage.classList.add("is-running");
+    stage._timers.forEach(clearTimeout);
+    stage._timers = [];
+    fx.reset(site, S);
+    setBusy(site, true);
+    setStatus(stage, "loading", fx.loading);
+    moveHead(stage, 0, 0);
+    moveHead(stage, loadMs / total, loadMs * S);
+    activate(stage, 0);
+    if (fx.load) fx.load(site, S);
+
+    await sleep(loadMs * S);
+    if (!alive()) return;
+    if (state.hold) {
+      stage.classList.add("is-holding");
+      await new Promise((r) => state.waiters.add(r));
+      if (!alive()) return;
+      stage.classList.remove("is-holding");
+    }
+
+    moveHead(stage, 1, (total - loadMs) * S);
+    let at = 0;
+    segs.forEach((s, i) => {
+      if (s.load) return;
+      const delay = at;
+      at += s.ms;
+      stage._timers.push(setTimeout(() => alive() && activate(stage, i), delay * S));
+    });
+
+    await fx.reveal(site, S);
+    if (!alive()) return;
+    site.classList.remove("is-loading");
+    setBusy(site, false);
+    stage.classList.remove("is-running");
+    activate(stage, -1);
+    setStatus(stage, "done", fx.done(secs(performance.now() - t0)));
+  }
+
+  // Replay what is on screen now; everything else replays when it scrolls in.
+  function replayVisible() {
+    stages.forEach((s) => {
+      if (inView.has(s)) play(s);
+      else delete s.dataset.played;
+    });
+  }
+
+  stages.forEach((stage) => {
+    const site = stage.querySelector(".site");
+    stage._site = site;
+    stage._fx = FX[stage.dataset.effect];
+    stage._status = stage.querySelector("[data-status]");
+    stage._timers = [];
+    buildTimeline(stage, stage._fx.segments(site));
+    setStatus(stage, "idle", stage._fx.loading);
+    stage.querySelector(".replay").addEventListener("click", () => play(stage));
+  });
+  buildChart(document.querySelector(".chart"));
+
+  document.getElementById("replay-all").addEventListener("click", replayVisible);
+
+  document.querySelectorAll('input[name="speed"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      state.slow = Number(input.value);
+      root.style.setProperty("--slow", input.value);
+      replayVisible();
+    });
+  });
+
+  const hold = document.getElementById("hold");
+  hold.addEventListener("click", () => {
+    const on = hold.getAttribute("aria-checked") !== "true";
+    hold.setAttribute("aria-checked", String(on));
+    state.hold = on;
+    if (on) replayVisible();
+    else {
+      state.waiters.forEach((release) => release());
+      state.waiters.clear();
+    }
+  });
+
+  // Theme: Auto follows the system (or the host page); Light and Dark pin it.
+  const themeInputs = [...document.querySelectorAll('input[name="theme"]')];
+  const preset = themeInputs.find((i) => i.value === (root.getAttribute("data-theme") || "auto"));
+  if (preset) preset.checked = true;
+  themeInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      if (input.value === "auto") root.removeAttribute("data-theme");
+      else root.setAttribute("data-theme", input.value);
+    });
+  });
+  const redrawIdle = () => stages.forEach((s) => { if (s._site._gen && s._site._gen.state === "idle") s._site._gen.idle(); });
+  DARK.addEventListener("change", redrawIdle);
+  new MutationObserver(redrawIdle).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const stage = e.target.closest(".stage");
+        if (e.isIntersecting) {
+          inView.add(stage);
+          if (!stage.dataset.played) play(stage);
+        } else inView.delete(stage);
+      }
+    },
+    { threshold: 0.35 }
+  );
+
+  // Measure only after the web fonts settle, or text lines land in the wrong place.
+  (async () => {
+    try { await Promise.race([document.fonts.ready, sleep(2500)]); } catch (e) { /* use fallback metrics */ }
+    stages.forEach((s) => s._fx.init && s._fx.init(s._site));
+    document.querySelectorAll(".browser").forEach((b) => io.observe(b));
+  })();
+})();
+</script>
+</body>
+</html>
