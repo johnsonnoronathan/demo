@@ -91,7 +91,11 @@ root: effect class + .is-loading + aria-busy=true          root: + .is-revealed 
 
 1. Copy the files you need from `assets/` into the project (for example `src/lib/skeleton/` or `public/vendor/`). Keep them as they are. The durations, distances and easings are tuned together, so change only the tokens.
 2. Load `skeleton.css` **globally** once. The `sk-` classes must not be hashed, so don't import the file as a CSS module. In Next.js, import it from `app/layout.tsx` (App Router) or `pages/_app.tsx` (Pages Router), or `@import` it from the global stylesheet.
-3. Map the tokens to the project's theme. Set `--sk-bone` one step darker than the surface the bones sit on, and `--sk-bone-hi` one step lighter. If the project switches dark mode with a class (for example Tailwind's `.dark`), copy the dark values to that selector, because the bundled file uses `prefers-color-scheme` and `[data-theme="dark"]`.
+3. Connect the colours to the project's dark mode. The bundled tokens use `light-dark()`, so they follow the page's `color-scheme`, whatever switches the theme. Check that the dark theme sets it, and add it if not:
+   - **Class or attribute themes** (Tailwind's `.dark`, `[data-theme="dark"]`): add `color-scheme: dark` to that selector. Without it, dark pages show light bones.
+   - **OS-setting themes** (`@media (prefers-color-scheme: dark)`): add `:root { color-scheme: light dark; }`.
+
+   Don't add dark selectors for the `--sk-` tokens yourself. A selector that doesn't match the project's real switch (for example `prefers-color-scheme` on a class-themed site) shows dark bones on a light page for visitors whose OS is dark. If the project has neutral tokens that already change with its theme, you can map onto them instead: `--sk-bone` one step off the surface the bones sit on, `--sk-bone-hi` a step closer to the surface.
 4. Import the helpers only in client code. They touch `window` and the DOM; in Next.js, use them in a `"use client"` component inside effects.
 
 ## Checklist

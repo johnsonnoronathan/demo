@@ -201,12 +201,15 @@ export function Article({ post }) {                       // post: undefined whi
 
 ```jsx
 // lib/skeleton/useDotWireframe.js
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { createDotWireframe } from "./dot-wireframe.js";
 
 // status: "idle" | "pending" | "done" | "error"; `result` changes when a new result renders.
+// Returns { building }: true while the request runs AND while the result is traced and scanned
+// in, so the trigger can stay disabled and aria-busy set until the card is fully there.
 export function useDotWireframe(targetRef, contentRef, { status, result, labels = true }) {
   const wf = useRef(null);
+  const [revealing, setRevealing] = useState(false);
 
   useLayoutEffect(() => {
     wf.current = createDotWireframe(targetRef.current, { labels });
@@ -220,8 +223,22 @@ export function useDotWireframe(targetRef, contentRef, { status, result, labels 
 
   // Layout effect: reveal() must hide the new content before the browser paints it.
   useLayoutEffect(() => {
-    if (status === "done" && result && contentRef.current) wf.current?.reveal(contentRef.current);
+    const el = contentRef.current, w = wf.current;
+    if (status !== "done" || !result || !el || !w) return;
+    let live = true;
+    const run = () => w.reveal(el).then(() => { if (live) setRevealing(false); });
+    setRevealing(true);
+    if (document.fonts?.status === "loading") {
+      // Text lines are measured from the rendered text: wait for web fonts, hidden meanwhile.
+      el.style.opacity = "0";
+      document.fonts.ready.then(() => { if (live) run(); });
+    } else {
+      run();
+    }
+    return () => { live = false; setRevealing(false); };
   }, [status, result, contentRef]);
+
+  return { building: status === "pending" || revealing };
 }
 ```
 
@@ -230,13 +247,18 @@ export function useDotWireframe(targetRef, contentRef, { status, result, labels 
 import { useRef, useState } from "react";
 import { useDotWireframe } from "@/lib/skeleton/useDotWireframe";
 
+const FIELD_HEIGHT = 320; // about a typical result's height, never more
+
 export function SummaryCard() {
   const [state, setState] = useState({ status: "idle", summary: null });
+  const [fieldHeight, setFieldHeight] = useState(FIELD_HEIGHT);
   const targetRef = useRef(null);
   const contentRef = useRef(null);
-  useDotWireframe(targetRef, contentRef, { status: state.status, result: state.summary });
+  const { building } = useDotWireframe(targetRef, contentRef, { status: state.status, result: state.summary });
 
   async function generate() {
+    // Regenerate keeps the current card's height, so the area doesn't collapse while waiting.
+    setFieldHeight(state.status === "done" ? targetRef.current.offsetHeight : FIELD_HEIGHT);
     setState({ status: "pending", summary: null });
     try {
       const res = await fetch("/api/summarize", { method: "POST" });
@@ -249,13 +271,16 @@ export function SummaryCard() {
 
   return (
     <>
-      <button onClick={generate} disabled={state.status === "pending"}>Generate summary</button>
+      <button onClick={generate} disabled={building}>
+        {building ? "Generating…" : state.summary ? "Regenerate" : "Generate summary"}
+      </button>
       <section
         ref={targetRef}
         className="summary-card"
-        style={{ minHeight: state.status === "pending" ? 320 : undefined }}
-        aria-busy={state.status === "pending"}
+        style={{ minHeight: state.status === "pending" ? fieldHeight : undefined }}
+        aria-busy={building}
       >
+        {state.status === "error" && <p className="summary-error">Something went wrong. Please try again.</p>}
         {state.summary && <div ref={contentRef}>{/* KPI tiles, insights, table */}</div>}
       </section>
     </>
@@ -264,5 +289,7 @@ export function SummaryCard() {
 ```
 
 - The canvas is appended inside the target outside React's control. React leaves nodes it didn't create alone, so this is safe. Don't render the target conditionally, or the canvas goes with it.
-- `min-height` while pending gives the dot field room. Use roughly the height of a typical result.
+- `min-height` while pending gives the dot field room. Keep it at or under a typical result's height, so the card never shrinks when the result lands.
+- The labels sit in the 22 px above the target. Leave about 20 px of space there, or pass `labels: false`.
+- Write the result's JSX as you normally would. Adjacent text pieces on one line (for example `{sign}{value}%`) are traced as a single line.
 - In React Strict Mode (development), the hook creates, destroys and recreates the canvas once on mount. That's expected.

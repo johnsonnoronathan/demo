@@ -121,14 +121,28 @@ export function createDotWireframe(target, options = {}) {
   let fx = new Float32Array(0), fy = fx, fd = fx, lit = fx, maxD = 0;
 
   const slow = () => parseFloat(getComputedStyle(target).getPropertyValue("--sk-slow")) || 1;
-  const tokens = () => {
-    const cs = getComputedStyle(target);
-    const v = (n, d) => cs.getPropertyValue(n).trim() || d;
-    return {
-      ink: v("--sk-gen-ink", "rgba(128,128,128,0.3)"), line: v("--sk-gen-line", "#8a909c"),
-      strong: v("--sk-gen-strong", "#363c48"), surface: v("--sk-gen-surface", "#ffffff"),
-      font: v("--sk-gen-font", "ui-monospace, monospace"),
-    };
+
+  // Colours are resolved through a probe inside the canvas (fallback content: styled, never
+  // rendered), so light-dark(), var() and color-mix() values reach the canvas as plain rgb().
+  // Re-read at most every 250 ms, which also picks up a theme switch mid-run.
+  const probe = document.createElement("span");
+  cv.appendChild(probe);
+  const COLOR_TOKENS = [
+    ["ink", "--sk-gen-ink", "rgba(128, 128, 128, 0.3)"], ["line", "--sk-gen-line", "#8a909c"],
+    ["strong", "--sk-gen-strong", "#363c48"], ["surface", "--sk-gen-surface", "#ffffff"],
+  ];
+  let cached = null, cachedAt = -Infinity;
+  const tokens = (force) => {
+    const now = performance.now();
+    if (!force && cached && now - cachedAt < 250) return cached;
+    const out = {};
+    for (const [key, name, fallback] of COLOR_TOKENS) {
+      probe.style.color = `var(${name}, ${fallback})`;
+      out[key] = getComputedStyle(probe).color || fallback;
+    }
+    out.font = getComputedStyle(target).getPropertyValue("--sk-gen-font").trim() || "ui-monospace, monospace";
+    cached = out; cachedAt = now;
+    return out;
   };
   const clear = () => g.clearRect(0, 0, W || cv.width, H || cv.height);
 
@@ -151,6 +165,17 @@ export function createDotWireframe(target, options = {}) {
     parts = [];
     if (contentEl) {
       const add = (pts, box) => { if (pts.length >= 4) parts.push({ pts, box }); };
+      // A text piece that continues the previous line joins it (adjacent JSX text nodes like
+      // {"+"}{6.4}{"%"}, or inline elements), so a line of text traces as one line, not dashes.
+      const addText = (x0, x1, top, h) => {
+        const last = parts[parts.length - 1], cy = top + h / 2;
+        if (last && last.text && Math.abs(last.text.cy - cy) < 3 && x0 >= last.text.x0 - 1 && x0 - last.text.x1 <= 6) {
+          last.text.x1 = Math.max(last.text.x1, x1);
+          last.text.h = Math.max(last.text.h, h);
+        } else {
+          parts.push({ text: { x0, x1, cy, top, h } });
+        }
+      };
       const walker = document.createTreeWalker(contentEl, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
       const range = document.createRange();
       for (let n = walker.nextNode(); n && parts.length < o.maxParts; n = walker.nextNode()) {
@@ -158,9 +183,7 @@ export function createDotWireframe(target, options = {}) {
           if (!n.data.trim() || !n.parentElement || n.parentElement.closest("svg, [data-sk-skip]")) continue;
           range.selectNodeContents(n);
           for (const r of range.getClientRects()) {
-            if (r.width < 3) continue;
-            const x = r.left - ox, y = r.top - oy + r.height / 2;
-            add(linePts(x, y, x + r.width, y, o.gap), [x, r.top - oy, r.width, r.height]);
+            if (r.width >= 1) addText(r.left - ox, r.right - ox, r.top - oy, r.height);
           }
           continue;
         }
@@ -182,6 +205,12 @@ export function createDotWireframe(target, options = {}) {
           add(linePts(b[0], y, b[0] + b[2], y, o.gap), [b[0], y - 1, b[2], 2]);
         }
       }
+      // Merged text pieces become dotted lines through their vertical centre.
+      parts = parts.filter((p) => !p.text || p.text.x1 - p.text.x0 >= 3).map((p) => {
+        if (!p.text) return p;
+        const { x0, x1, cy, top, h } = p.text;
+        return { pts: linePts(x0, cy, x1, cy, o.gap), box: [x0, top, x1 - x0, h] };
+      });
     }
 
     // Dot field inside the target, each dot's distance from the centre.
@@ -309,7 +338,7 @@ export function createDotWireframe(target, options = {}) {
     wait() {
       stop(); clear();
       if (reducedMotion()) return;
-      measure(null); ret = null; t0 = performance.now();
+      measure(null); ret = null; t0 = performance.now(); tokens(true);
       const S = slow();
       const tick = (now) => {
         const t = (now - t0) / S;
@@ -336,7 +365,7 @@ export function createDotWireframe(target, options = {}) {
           setTimeout(() => { restoreContent(); const f = finish; finish = null; if (f) f(); }, 200);
           return;
         }
-        measure(content); ret = null;
+        measure(content); ret = null; tokens(true);
         const S = slow(), T = o.traceMs * S, V = o.scanMs * S, start = performance.now(), base = t0 || start;
         const P = parts.length;
         const ui = content.style;

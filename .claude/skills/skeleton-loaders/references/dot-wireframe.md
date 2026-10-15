@@ -45,8 +45,9 @@ Mark a child `data-sk-skip` to leave it out of the trace (a live chart canvas, a
 
 - **The target needs a size while waiting.** Before the result exists it is often empty, so give it a `min-height` close to the result's height while pending, and drop it when the result renders. The field fills whatever box the target has.
 - **Call `reveal()` in the same frame the content mounts.** In React that means `useLayoutEffect`; in vanilla JS, right after inserting the HTML. It hides the content first, so a later call lets the finished UI flash for one frame.
-- **Wait for fonts before revealing** if the result uses web fonts (`await document.fonts.ready`). Text lines are measured from the rendered text.
-- **Colours:** set `--sk-gen-ink`, `--sk-gen-line`, `--sk-gen-strong` and `--sk-gen-surface` (from `skeleton.css`) on `:root` or the target. Keep them neutral greys close to the project's text colours, and let the real UI bring the colour.
+- **Wait for fonts before revealing** if the result uses web fonts (`await document.fonts.ready`). Text lines are measured from the rendered text. The React hook in `react.md` already does this.
+- **Write the markup normally.** Text pieces that sit next to each other on one line (adjacent JSX text nodes like `{sign}{value}%`, or inline elements) are merged and traced as one line, so don't restructure the user's JSX for the trace.
+- **Colours:** the `--sk-gen-*` tokens in `skeleton.css` follow the page's `color-scheme`, like the bones (see install step 3 in SKILL.md). The runtime resolves them through the browser, so `light-dark()`, `var()` and `color-mix()` values all work. Keep them neutral greys close to the project's text colours, and let the real UI bring the colour.
 
 ## Wiring (vanilla)
 

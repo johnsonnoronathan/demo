@@ -6,31 +6,35 @@
 /* ==========================================================================
    SHARED
    ========================================================================== */
+/* THEME. Each colour is light-dark(<light>, <dark>), so it follows the page's
+   `color-scheme`, not one particular dark-mode switch. That works with a .dark class,
+   a [data-theme] attribute or the OS setting, as long as the dark theme sets
+   `color-scheme: dark`. (OS-only themes: `:root { color-scheme: light dark; }`.)
+   To use the project's own tokens instead, set e.g. --sk-bone: var(--surface-muted). */
 :root {
-  /* Bones: one step off the surface they sit on. Map these to the project's
-     own neutral tokens when it has them (e.g. var(--muted) / var(--accent)). */
-  --sk-bone: #e4e7ec;
-  --sk-bone-hi: #f8f9fb;          /* sweep band and ripple crest */
-  /* Dot wireframe (effect 4) */
+  --sk-bone: #e4e7ec;             /* plain light values for browsers without light-dark() */
+  --sk-bone-hi: #f8f9fb;
   --sk-gen-ink: rgba(18, 21, 27, 0.24);
   --sk-gen-line: #8a909c;
   --sk-gen-strong: #363c48;
-  --sk-gen-surface: #ffffff;      /* fill of the corner handles: the page background */
+  --sk-gen-surface: #ffffff;
   --sk-gen-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* Motion */
   --sk-slow: 1;                   /* multiplies every duration; set 4 to debug in slow motion */
   --sk-ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
   --sk-ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --sk-bone: #23262d; --sk-bone-hi: #383c46;
-    --sk-gen-ink: rgba(236, 238, 242, 0.22); --sk-gen-line: #6e7581; --sk-gen-strong: #c5cad4; --sk-gen-surface: #16181d;
+@supports (color: light-dark(#000, #fff)) {
+  :root {
+    /* Bones: one step off the surface they sit on. */
+    --sk-bone: light-dark(#e4e7ec, #23262d);
+    --sk-bone-hi: light-dark(#f8f9fb, #383c46);        /* sweep band and ripple crest */
+    /* Dot wireframe (effect 4) */
+    --sk-gen-ink: light-dark(rgba(18, 21, 27, 0.24), rgba(236, 238, 242, 0.22));
+    --sk-gen-line: light-dark(#8a909c, #6e7581);
+    --sk-gen-strong: light-dark(#363c48, #c5cad4);
+    --sk-gen-surface: light-dark(#ffffff, #16181d);     /* corner handles: the page background */
   }
-}
-:root[data-theme="dark"] {
-  --sk-bone: #23262d; --sk-bone-hi: #383c46;
-  --sk-gen-ink: rgba(236, 238, 242, 0.22); --sk-gen-line: #6e7581; --sk-gen-strong: #c5cad4; --sk-gen-surface: #16181d;
 }
 
 /* A skeleton and its content share one grid cell, so swapping them never
