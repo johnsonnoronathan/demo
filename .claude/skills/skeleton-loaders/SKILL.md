@@ -1,6 +1,6 @@
 ---
 name: skeleton-loaders
-description: Add polished skeleton loading states to web pages and apps (vanilla JS or React/Next.js). Placeholder "bones" animate while data loads, then the real content is revealed without layout shift. Bundles four tuned effects and a guide for choosing between them. Pulse + cross-blur suits rows and cards. A page-synced shimmer sweep suits articles and whole pages. A ripple wave suits grids. A dot-wireframe "AI is building this" reveal suits generated results. Use this skill whenever the user mentions skeleton screens or loaders, loading placeholders, shimmer, replacing a spinner, a page that is blank, flashes or jumps while data loads, layout shift on load, or loading states for lists, grids, articles, dashboards or feeds. Also use it when an AI-generated result should feel like it is being built, even if the user never says "skeleton".
+description: Add polished skeleton loading states to web pages and apps (vanilla JS or React/Next.js). Placeholder "bones" animate while data loads, then the real content is revealed without layout shift. Bundles four tuned effects and a guide for choosing between them. Pulse + cross-blur suits rows and cards. A page-synced shimmer sweep suits articles and whole pages. A ripple wave suits grids. A dot-wireframe "AI is building this" reveal suits generated results. Use this skill whenever the user mentions skeleton screens or loaders, loading placeholders, shimmer, replacing a spinner, a page that is blank, flashes or jumps while data loads, layout shift on load, or loading states for lists, grids, articles, dashboards or feeds, and when they want to preview or compare loading effects. Also use it when an AI-generated result should feel like it is being built, even if the user never says "skeleton".
 ---
 
 # Skeleton loaders
@@ -14,17 +14,27 @@ A skeleton is a placeholder in the shape of the content that is on its way. Done
 | 3 | Ripple wave | `sk-ripple` | CSS + `syncRipple()` | [references/ripple.md](references/ripple.md) |
 | 4 | Dot wireframe build | none | `createDotWireframe()` (canvas) | [references/dot-wireframe.md](references/dot-wireframe.md) |
 
-Bundled files: [assets/skeleton.css](assets/skeleton.css) (tokens, shared layer rules, effects 1–3, reduced motion), [assets/skeleton.js](assets/skeleton.js) (measuring and reveal helpers for effects 1–3), [assets/dot-wireframe.js](assets/dot-wireframe.js) (effect 4). For React or Next.js, also read [references/react.md](references/react.md).
+Bundled files: [assets/skeleton.css](assets/skeleton.css) (tokens, shared layer rules, effects 1–3, reduced motion), [assets/skeleton.js](assets/skeleton.js) (measuring and reveal helpers for effects 1–3), [assets/dot-wireframe.js](assets/dot-wireframe.js) (effect 4). For React or Next.js, also read [references/react.md](references/react.md). [preview.html](preview.html) plays all four effects live (see **Previewing the effects**).
 
 ## Workflow
 
 1. **Read how the data loads.** Find the fetch (fetch/SWR/React Query/server action/LLM call), the typical wait, and what shows today (a spinner, a blank area, content that jumps in). Also note which parts of the UI don't depend on the data: headings, filters, nav. Those keep rendering immediately.
 2. **Decide whether it needs a skeleton** (next section).
-3. **Pick the effect** with the table below.
+3. **Pick the effect** with the table below. If the user wants to see the options before choosing, show them the preview first.
 4. **Build the skeleton from the real component's layout**, following the layout rules.
 5. **Wire the states**: loading, reveal, then done. Use the effect's reference file, plus `references/react.md` for React.
 6. **Check it** against the checklist at the end.
 7. **Tell the user** in two or three sentences which effect you used and why, and what they might tune (for example, the number of skeleton cards).
+
+## Previewing the effects
+
+When the user asks to see, preview or compare the effects, or can't decide between them, open `preview.html` from this skill's folder. It plays all four effects on sample pages using the bundled assets unchanged, with the same lifecycle the skill installs. Its controls are replay, response time (1.5 s, 3.5 s, or hold until "Deliver data now"), slow motion and light/dark. ES modules don't load from `file://`, so serve the folder over http:
+
+```bash
+python3 -m http.server 8000 --directory <path-to-this-skill>   # then open http://localhost:8000/preview.html
+```
+
+If you can't open a browser for the user, give them that command. The preview is for looking only; don't copy `preview.html` into their project.
 
 ## Does it need a skeleton?
 

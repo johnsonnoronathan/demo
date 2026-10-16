@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skeleton Loaders Preview</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Live preview of the four effects in the skeleton-loaders skill, running on the skill's own assets.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Hanken+Grotesk:wght@400..700&family=JetBrains+Mono:wght@400..600&family=Newsreader:opsz,wght@6..72,400..600&display=swap">
+<!-- The skill's own stylesheet, unchanged: everything below is just the page around it. -->
+<link rel="stylesheet" href="assets/skeleton.css">
+<style>
+/* Preview page for the skeleton-loaders skill. Serve this folder over http and open preview.html
+   (ES modules don't load from file://). Colours use light-dark(), like the skill's tokens, so the
+   theme switch below only has to change `color-scheme`. */
+:root {
+  /* Layout: four browser specimens, each beside how the skill wires it */
+  color-scheme: light dark;
+  --bg: #eceef2; --panel: #ffffff; --fg: #12151b; --muted: #565e6c; --faint: #7d8491; --line: #dadee5;
+  --chrome: #f3f4f7; --accent: #2a52d8; --accent-soft: rgba(42, 82, 216, 0.12); --code: #f6f7f9;
+  --good: #1b7f45; --good-soft: rgba(27, 127, 69, 0.1); --bad: #bf3b28; --bad-soft: rgba(191, 59, 40, 0.1);
+  --tile: #efebe5; --shade: rgba(18, 21, 27, 0.08);
+  --lift: 0 1px 2px rgba(18, 21, 27, 0.06), 0 12px 32px -14px rgba(18, 21, 27, 0.22);
+  /* Illustration tones: pictures keep their colours in both themes */
+  --ink-on-tone: #1a1d24;
+  --sky-a: #f1c27f; --land-a: #6d8a4d; --sky-b: #b5d3e6; --land-b: #ddd5c3;
+  --sky-c: #cdbfe0; --land-c: #56683f; --sky-d: #f2b1a6; --land-d: #6aa0b8;
+  --night-a: #141a33; --night-b: #3b3f6e; --lamp: #ffd88a; --train: #0a0d1c; --rail: #59607f; --star: #ebe7df;
+  --glaze-oat: #d8c9ae; --glaze-celadon: #a7c3b1; --glaze-iron: #b0503a; --glaze-ash: #ebe7df;
+  --glaze-tenmoku: #4b3326; --glaze-rust: #a0623a; --glaze-cobalt: #3a56a6; --clay: #c9a27e; --speck: rgba(70, 48, 28, 0.4);
+  --font-display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sk-gen-font: var(--font-mono);
+}
+@supports (color: light-dark(#000, #fff)) {
+  :root {
+    --bg: light-dark(#eceef2, #0d0e11); --panel: light-dark(#ffffff, #16181d); --fg: light-dark(#12151b, #eceef2);
+    --muted: light-dark(#565e6c, #a2a8b4); --faint: light-dark(#7d8491, #767d8a); --line: light-dark(#dadee5, #2a2e36);
+    --chrome: light-dark(#f3f4f7, #1c1f25); --accent: light-dark(#2a52d8, #8ba3ff); --code: light-dark(#f6f7f9, #121418);
+    --accent-soft: light-dark(rgba(42, 82, 216, 0.12), rgba(139, 163, 255, 0.16));
+    --good: light-dark(#1b7f45, #52c585); --good-soft: light-dark(rgba(27, 127, 69, 0.1), rgba(82, 197, 133, 0.14));
+    --bad: light-dark(#bf3b28, #f2806a); --bad-soft: light-dark(rgba(191, 59, 40, 0.1), rgba(242, 128, 106, 0.14));
+    --tile: light-dark(#efebe5, #1f2228); --shade: light-dark(rgba(18, 21, 27, 0.08), rgba(0, 0, 0, 0.3));
+    --lift: light-dark(0 1px 2px rgba(18, 21, 27, 0.06), 0 1px 2px rgba(0, 0, 0, 0.4)), light-dark(0 12px 32px -14px rgba(18, 21, 27, 0.22), 0 12px 32px -14px rgba(0, 0, 0, 0.7));
+  }
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 15px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
+.page { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 44px 64px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.masthead { display: grid; gap: 12px; max-width: 760px; }
+.masthead .tag { font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.masthead h1 { margin: 0; font: 650 clamp(2.3rem, 5.5vw, 3.4rem)/0.98 var(--font-display); letter-spacing: -0.035em; text-wrap: balance; }
+.intro { margin: 0; max-width: 64ch; color: var(--muted); font-size: 1.02rem; text-wrap: pretty; }
+.intro code, .meta code { font: 12.5px var(--font-mono); background: var(--chrome); border: 1px solid var(--line); border-radius: 5px; padding: 0 4px; }
+
+.toolbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; margin-top: 26px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); box-shadow: var(--lift); }
+.ctl { display: inline-flex; align-items: center; gap: 9px; }
+.ctl-label { font: 500 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel); color: var(--fg); font: 500 13.5px var(--font-body); cursor: pointer; transition: border-color 150ms ease-out, transform 150ms var(--sk-ease-smooth-out); }
+.btn:hover { border-color: var(--faint); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--fg); border-color: var(--fg); color: var(--panel); }
+.btn.accent { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.btn.small { height: 30px; padding: 0 11px; font-size: 13px; }
+.btn svg { width: 14px; height: 14px; flex: none; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--chrome); }
+.seg label { position: relative; display: block; }
+.seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.seg span { display: block; padding: 4px 10px; border-radius: 7px; font: 500 12.5px var(--font-body); color: var(--muted); }
+.seg input:checked + span { background: var(--panel); color: var(--fg); box-shadow: 0 1px 2px var(--shade); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.stages { display: grid; gap: 52px; margin-top: 40px; }
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 30px; align-items: start; scroll-margin-top: 96px; }
+.browser { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: var(--lift); }
+.browser-bar { display: flex; align-items: center; gap: 12px; height: 42px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--chrome); }
+.lights { display: flex; gap: 6px; }
+.lights i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+.url { flex: 1; min-width: 0; overflow: hidden; padding: 3px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--muted); font: 12px var(--font-mono); white-space: nowrap; text-overflow: ellipsis; }
+.status { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font: 500 11.5px var(--font-mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.status i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.status[data-state="waiting"] i { background: var(--accent); animation: dot-pulse 560ms ease-in-out infinite alternate; }
+.status[data-state="revealing"] i { background: var(--accent); }
+.status[data-state="done"] i { background: var(--good); }
+.viewport { position: relative; container-type: inline-size; }
+
+.meta { display: grid; gap: 14px; }
+.meta-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.eyebrow { font: 500 11px var(--font-mono); letter-spacing: 0.06em; color: var(--faint); }
+.meta h2 { margin: 0; font: 620 1.55rem/1.1 var(--font-display); letter-spacing: -0.02em; text-wrap: balance; }
+.meta p { margin: 0; color: var(--muted); font-size: 0.95rem; text-wrap: pretty; }
+.meta p.use { color: var(--fg); font-size: 0.9rem; }
+.meta p.use b { margin-right: 6px; color: var(--faint); font: 500 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.phases { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13.5px; }
+.phases li { display: grid; grid-template-columns: 10px minmax(0, 1fr); column-gap: 10px; align-items: baseline; color: var(--muted); transition: color 200ms ease-out; }
+.phases li::before { content: ""; align-self: center; width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: background-color 200ms ease-out; }
+.phases li.is-on { color: var(--fg); }
+.phases li.is-on::before { background: var(--accent); }
+.phases li.is-past::before { background: var(--good); }
+details.wiring { border-top: 1px solid var(--line); padding-top: 12px; }
+details.wiring summary { cursor: pointer; font: 500 13px var(--font-body); color: var(--fg); }
+details.wiring pre { margin: 10px 0 0; padding: 12px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--code); font: 11.5px/1.55 var(--font-mono); color: var(--fg); }
+
+.credits { display: grid; gap: 8px; max-width: 72ch; margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+.credits p { margin: 0; }
+.credits a { color: var(--fg); text-underline-offset: 3px; }
+
+@keyframes dot-pulse { from { transform: scale(0.6); } to { transform: scale(1); } }
+@media (max-width: 940px) { .stage { grid-template-columns: minmax(0, 1fr); gap: 18px; } .meta { max-width: 640px; } }
+@media (max-width: 640px) { .page { padding-block: 30px 48px; } .toolbar { position: static; } .lights { display: none; } }
+
+/* ---------- Mini sites (page styling only; every skeleton class comes from assets/skeleton.css) ---------- */
+.site { display: grid; gap: 16px; padding: 16px 20px 22px; background: var(--panel); color: var(--fg); font-family: var(--font-body); }
+.site h3 { margin: 0; }
+.site-nav { display: flex; align-items: center; gap: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.site-nav nav { display: flex; gap: 14px; color: var(--muted); }
+.site-nav nav .on { color: var(--fg); font-weight: 600; }
+.site-nav .end { margin-left: auto; color: var(--muted); white-space: nowrap; }
+.logo { font: 700 15px var(--font-display); letter-spacing: -0.01em; white-space: nowrap; }
+.logo.serif { font: italic 600 19px var(--font-serif); }
+.logo.mono { font: 600 13px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.chip { padding: 3px 10px; border: 1px solid var(--line); border-radius: 99px; background: var(--chrome); color: var(--muted); font-size: 12px; white-space: nowrap; }
+.chip.on { border-color: var(--fg); background: var(--fg); color: var(--panel); }
+.av { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--av, var(--sky-a)); color: var(--ink-on-tone); font: 600 13px var(--font-body); }
+@container (max-width: 470px) { .site { padding-inline: 14px; } .site-nav nav { display: none; } }
+
+/* 1 feed */
+.feed-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 12px; }
+.feed-head h3 { font: 600 17px var(--font-body); }
+.feed { display: grid; margin: 0; padding: 0; list-style: none; }
+.feed > li { padding-block: 12px; border-bottom: 1px solid var(--line); }
+.feed > li:last-child { border-bottom: 0; }
+.row-layout { display: grid; grid-template-columns: 40px minmax(0, 1fr) 60px; align-items: start; gap: 12px; }
+.post-body { display: grid; gap: 3px; min-width: 0; }
+.post-title { font-size: 14px; }
+.post-title b { font-weight: 600; }
+.post-note { color: var(--muted); font-size: 13.5px; }
+.post-meta { color: var(--faint); font: 11.5px var(--font-mono); }
+.thumb { width: 60px; height: 60px; border-radius: 10px; background: radial-gradient(circle at 72% 30%, var(--panel) 0 4px, transparent 5px), linear-gradient(180deg, var(--sky) 0 58%, var(--land) 58% 100%); }
+@container (max-width: 470px) { .row-layout { grid-template-columns: 40px minmax(0, 1fr); } .row-layout > :nth-child(3) { display: none; } }
+
+/* 2 article */
+.story { display: grid; gap: 14px; max-width: 620px; }
+.kicker { color: var(--accent); font: 600 11px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
+.headline { margin: 0; font: 600 clamp(22px, 4.6cqi, 30px)/1.12 var(--font-serif); letter-spacing: -0.01em; text-wrap: balance; }
+.dek { margin: 0; color: var(--muted); font: 400 16.5px/1.45 var(--font-serif); }
+.byline { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+.byline b { color: var(--fg); font-weight: 600; }
+.byline .av { width: 28px; height: 28px; font-size: 10.5px; }
+.hero-fig { display: grid; gap: 6px; margin: 0; }
+.hero-img { position: relative; overflow: hidden; aspect-ratio: 16 / 7; border-radius: 10px;
+  background: radial-gradient(circle at 82% 24%, var(--lamp) 0 7px, transparent 8px), radial-gradient(circle at 20% 18%, var(--star) 0 1px, transparent 1.6px), radial-gradient(circle at 46% 30%, var(--star) 0 1px, transparent 1.6px), radial-gradient(circle at 64% 12%, var(--star) 0 1px, transparent 1.6px), linear-gradient(180deg, var(--night-b) 0%, var(--night-a) 72%); }
+.hero-img::before { content: ""; position: absolute; left: -4%; right: 22%; bottom: 24%; height: 15%; border-radius: 0 12px 4px 0; background: repeating-linear-gradient(90deg, transparent 0 8px, var(--lamp) 8px 20px, transparent 20px 26px) 0 50% / 100% 44% no-repeat, var(--train); }
+.hero-img::after { content: ""; position: absolute; inset: auto 0 0 0; height: 24%; background: linear-gradient(180deg, var(--rail) 0 3px, var(--night-a) 3px); }
+.hero-fig figcaption { color: var(--faint); font: 11.5px var(--font-mono); }
+.body { margin: 0; font: 400 16px/1.6 var(--font-serif); }
+.para-bones { gap: 15.6px; padding-top: 8px; }
+
+/* 3 shop */
+.shop-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.shop-head h3 { font: 600 19px var(--font-display); letter-spacing: -0.01em; }
+.shop-head h3 span { margin-left: 6px; color: var(--faint); font: 400 12px var(--font-mono); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 14px; margin: 0; padding: 0; list-style: none; }
+.card { display: grid; align-content: start; gap: 5px; }
+.tile { display: grid; place-items: center; aspect-ratio: 1; border-radius: 10px; background: var(--tile); }
+.tile svg { width: 78%; height: auto; }
+.card-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 600; }
+.price { font: 500 13px var(--font-mono); font-variant-numeric: tabular-nums; }
+.detail { color: var(--muted); font-size: 12.5px; }
+@container (max-width: 520px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* 4 dashboard */
+.site.dash { gap: 26px; }
+.ask { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 13.5px; }
+.ask svg { width: 16px; height: 16px; flex: none; color: var(--accent); }
+.ask .kbd { margin-left: auto; color: var(--faint); font: 11px var(--font-mono); white-space: nowrap; }
+.report { display: grid; gap: 12px; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.kpi { display: grid; gap: 2px; min-width: 0; padding: 10px 12px; border-radius: 10px; background: var(--chrome); }
+.kpi-label { color: var(--muted); font-size: 12px; }
+.kpi-value { font: 600 clamp(16px, 4.4cqi, 22px)/1.2 var(--font-body); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.delta { justify-self: start; padding: 1px 6px; border-radius: 5px; font: 500 11px var(--font-mono); }
+.delta.up { background: var(--good-soft); color: var(--good); }
+.delta.down { background: var(--bad-soft); color: var(--bad); }
+.dash-row { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 12px; }
+.card-box { display: grid; align-content: start; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; font-size: 13px; font-weight: 600; }
+.card-head .sub { color: var(--faint); font: 400 11px var(--font-mono); }
+.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .grid-line { stroke: var(--line); stroke-width: 1; }
+.chart .lbl { fill: var(--faint); font: 400 9.5px var(--font-mono); }
+.chart .lbl.strong { fill: var(--fg); font-weight: 500; }
+.chart .area { fill: var(--accent-soft); }
+.chart .ln { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chart .end { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.tbl th { padding: 0 0 6px; border-bottom: 1px solid var(--line); color: var(--faint); font: 500 10.5px var(--font-mono); letter-spacing: 0.06em; text-align: left; text-transform: uppercase; }
+.tbl td { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .num { padding-left: 10px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+@container (max-width: 600px) { .dash-row { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 470px) { .chart .lbl { font-size: 12px; } }
+@container (max-width: 400px) { .kpi { padding: 8px; } .ask .kbd { display: none; } }
+
+@media (prefers-reduced-motion: reduce) { .status i { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <span class="tag">skeleton-loaders skill · live preview</span>
+    <h1>Skeleton Loaders Preview</h1>
+    <p class="intro">The four effects in the skill, playing live. Every animation on this page runs on the skill's own <code>assets/skeleton.css</code>, <code>skeleton.js</code> and <code>dot-wireframe.js</code>, unchanged, and follows the same lifecycle the skill installs: the skeleton shows, the data arrives, the content goes in, and the reveal runs. Each one plays when it scrolls into view.</p>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Playback">
+    <button class="btn primary" type="button" id="replay-all">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.46-3.54M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Replay all
+    </button>
+    <div class="ctl">
+      <span class="ctl-label" id="latency-label">Data arrives</span>
+      <div class="seg" role="radiogroup" aria-labelledby="latency-label">
+        <label><input type="radio" name="latency" id="latency-1500" value="1500" checked><span>1.5 s</span></label>
+        <label><input type="radio" name="latency" id="latency-3500" value="3500"><span>3.5 s</span></label>
+        <label><input type="radio" name="latency" id="latency-hold" value="hold"><span>Hold</span></label>
+      </div>
+    </div>
+    <button class="btn accent" type="button" id="deliver" hidden>Deliver data now</button>
+    <div class="ctl">
+      <span class="ctl-label" id="speed-label">Speed</span>
+      <div class="seg" role="radiogroup" aria-labelledby="speed-label">
+        <label><input type="radio" name="speed" id="speed-1" value="1" checked><span>1×</span></label>
+        <label><input type="radio" name="speed" id="speed-2" value="2"><span>½×</span></label>
+        <label><input type="radio" name="speed" id="speed-4" value="4"><span>¼×</span></label>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label" id="theme-label">Theme</span>
+      <div class="seg" role="radiogroup" aria-labelledby="theme-label">
+        <label><input type="radio" name="theme" id="theme-auto" value="auto" checked><span>Auto</span></label>
+        <label><input type="radio" name="theme" id="theme-light" value="light"><span>Light</span></label>
+        <label><input type="radio" name="theme" id="theme-dark" value="dark"><span>Dark</span></label>
+      </div>
+    </div>
+  </div>
+
+  <main class="stages">
+    <article class="stage" data-effect="pulse" id="pulse">
+      <div class="browser">
+        <div class="browser-bar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="url">fieldnotes.app/feed</span><span class="status" data-status aria-live="polite"><i></i><span></span></span></div>
+        <div class="viewport">
+          <div class="site">
+            <header class="site-nav"><span class="logo">Fieldnotes</span><nav><span class="on">Feed</span><span>Map</span><span>Lists</span></nav><span class="end">Ana R.</span></header>
+            <div class="feed-head"><h3>Recent sightings</h3><span class="chip">Within 25 km of Lisbon</span></div>
+            <ul class="feed sk-pulse" data-root aria-busy="true"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head"><span class="eyebrow">Effect 1 · .sk-pulse</span><button class="btn small replay" type="button">Replay</button></div>
+        <h2>Pulse and cross-blur</h2>
+        <p>Bones breathe from full to half opacity. When the data lands, skeleton and content swap in one 400&nbsp;ms cross-fade with a shared 2&nbsp;px blur, in the same grid cell, so nothing moves.</p>
+        <p class="use"><b>Use for</b>Rows and cards that one request fills. The default.</p>
+        <ol class="phases" data-phases><li><span>Skeleton pulses while waiting</span></li><li><span>Data arrives, rows mount hidden</span></li><li><span><code>reveal()</code>: cross-blur swap</span></li></ol>
+        <details class="wiring"><summary>How the skill wires it</summary><pre>&lt;ul class="feed sk-pulse is-loading" aria-busy="true"&gt;
+  &lt;li class="sk-swap"&gt;
+    &lt;div class="sk-skeleton row-layout" aria-hidden="true"&gt;…bones…&lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+// data arrives: content joins each slot, then
+slot.insertAdjacentHTML("beforeend",
+  `&lt;div class="sk-content row-layout"&gt;${row}&lt;/div&gt;`);
+await reveal(list);   // 400 ms
+list.querySelectorAll(".sk-skeleton").forEach((s) =&gt; s.remove());</pre></details>
+      </div>
+    </article>
+
+    <article class="stage" data-effect="sweep" id="sweep">
+      <div class="browser">
+        <div class="browser-bar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="url">theplatform.news/rail/night-trains-are-back</span><span class="status" data-status aria-live="polite"><i></i><span></span></span></div>
+        <div class="viewport">
+          <div class="site">
+            <header class="site-nav"><span class="logo serif">The Platform</span><nav><span class="on">Rail</span><span>Cities</span><span>Climate</span></nav><span class="end">Subscribe</span></header>
+            <article class="story sk-sweep" data-root aria-busy="true"></article>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head"><span class="eyebrow">Effect 2 · .sk-sweep + syncSweep()</span><button class="btn small replay" type="button">Replay</button></div>
+        <h2>Synced shimmer sweep</h2>
+        <p>One 105° band crosses the whole page instead of restarting in each bar: every bone paints the same page-sized gradient, offset by its own position. Then the blocks rise in reading order, 60&nbsp;ms apart.</p>
+        <p class="use"><b>Use for</b>Articles, docs and product pages that load in one payload.</p>
+        <ol class="phases" data-phases><li><span>One band sweeps the page while waiting</span></li><li><span>Data arrives, blocks mount hidden</span></li><li><span><code>reveal()</code>: blocks rise top to bottom</span></li></ol>
+        <details class="wiring"><summary>How the skill wires it</summary><pre>const sync = syncSweep(article);   // measures bone offsets
+
+// data arrives: each block gets its content, then
+block.insertAdjacentHTML("beforeend",
+  `&lt;h1 class="sk-content"&gt;${title}&lt;/h1&gt;`);
+await reveal(article);   // (blocks − 1) × 60 + 500 ms
+article.querySelectorAll(".sk-skeleton").forEach((s) =&gt; s.remove());
+sync.disconnect();</pre></details>
+      </div>
+    </article>
+
+    <article class="stage" data-effect="ripple" id="ripple">
+      <div class="browser">
+        <div class="browser-bar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="url">kilnandco.shop/stoneware</span><span class="status" data-status aria-live="polite"><i></i><span></span></span></div>
+        <div class="viewport">
+          <div class="site">
+            <header class="site-nav"><span class="logo">Kiln &amp; Co.</span><nav><span class="on">Shop</span><span>Studio</span><span>Journal</span></nav><span class="end">Bag (2)</span></header>
+            <div class="shop-head"><h3>Stoneware<span>6 pieces</span></h3><div class="chips"><span class="chip on">All</span><span class="chip">Mugs</span><span class="chip">Bowls</span><span class="chip">Vases</span></div></div>
+            <ul class="grid sk-ripple" data-root aria-busy="true"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head"><span class="eyebrow">Effect 3 · .sk-ripple + syncRipple()</span><button class="btn small replay" type="button">Replay</button></div>
+        <h2>Ripple wave</h2>
+        <p>Each bone flashes on a delay of 1.1&nbsp;ms per pixel from the top-left corner, so a crest rolls diagonally through the grid. Cards then pop in nearest-first, with a slight overshoot.</p>
+        <p class="use"><b>Use for</b>Grids of similar items: products, photos, results.</p>
+        <ol class="phases" data-phases><li><span>A crest rolls through the grid while waiting</span></li><li><span>Data arrives, cards mount hidden</span></li><li><span><code>reveal()</code>: cards pop in by distance</span></li></ol>
+        <details class="wiring"><summary>How the skill wires it</summary><pre>const sync = syncRipple(grid);   // distance of every bone
+
+// data arrives: each slot gets its card, then
+slot.insertAdjacentHTML("beforeend",
+  `&lt;article class="sk-content card"&gt;${card}&lt;/article&gt;`);
+await reveal(grid);   // (cards − 1) × 70 + 560 ms
+grid.querySelectorAll(".sk-skeleton").forEach((s) =&gt; s.remove());
+sync.disconnect();</pre></details>
+      </div>
+    </article>
+
+    <article class="stage" data-effect="gen" id="generate">
+      <div class="browser">
+        <div class="browser-bar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="url">ledger.app/reports/new</span><span class="status" data-status aria-live="polite"><i></i><span></span></span></div>
+        <div class="viewport">
+          <div class="site dash">
+            <header class="site-nav"><span class="logo mono">Ledger</span><nav><span class="on">Reports</span><span>Stock</span><span>Payouts</span></nav><span class="end">Kiln &amp; Co. · Lisbon</span></header>
+            <div class="ask"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5l1.6 4.2 4.4 1.3-4.4 1.3L8 12.5 6.4 8.3 2 7l4.4-1.3z" fill="currentColor"/></svg><span>Summarize Q3 sales for the Lisbon store</span><span class="kbd">Q3 2026</span></div>
+            <section class="gen-target" data-root aria-busy="true" aria-label="Generated Q3 report"></section>
+          </div>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-head"><span class="eyebrow">Effect 4 · createDotWireframe()</span><button class="btn small replay" type="button">Replay</button></div>
+        <h2>Dot wireframe build</h2>
+        <p>For UI an AI feature returns. A dot field ripples out while the request runs. When the result lands, its real DOM is traced in dots (tiles, text lines, table rules, the chart line), then a scan line hands over to the finished report.</p>
+        <p class="use"><b>Use for</b>One-off generated results. It adds about 2.3&nbsp;s after the data arrives.</p>
+        <ol class="phases" data-phases><li><span><code>wait()</code>: dot field while the request runs</span></li><li><span><code>reveal()</code>: trace the real layout</span></li><li><span>Scan line hands over to the report</span></li></ol>
+        <details class="wiring"><summary>How the skill wires it</summary><pre>const wf = createDotWireframe(target);
+target.style.minHeight = "330px";
+wf.wait();                       // request pending
+
+// result rendered inside target, then
+target.append(report);
+target.style.minHeight = "";
+await wf.reveal(report);         // ~1.5 s trace + 0.8 s scan</pre></details>
+      </div>
+    </article>
+  </main>
+
+  <footer class="credits">
+    <p>The effects are the <code>skeleton-loaders</code> skill's bundled assets, loaded unchanged. Patterns and timings are adapted from <a href="https://github.com/Jakubantalik/transitions.dev">transitions.dev</a> by Jakub Antalik.</p>
+    <p>With reduced motion turned on, skeletons hold still and every reveal is a 200&nbsp;ms fade, exactly as the skill ships them.</p>
+  </footer>
+</div>
+
+<script type="module">
+import { syncSweep, syncRipple, reveal, restart } from "./assets/skeleton.js";
+import { createDotWireframe } from "./assets/dot-wireframe.js";
+
+const root = document.documentElement;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const state = { latency: 1500, hold: false, waiters: new Set() };
+
+// ---------------------------------------------------------------- content
+const FEED = [
+  { av: "MO", tone: "a", who: "Marta Okafor", what: "logged a Eurasian hoopoe", note: "Feeding on the lawn by the north gate, crest up the whole time.", where: "Tapada de Mafra · 2 h ago", w: [62, 88, 38] },
+  { av: "TF", tone: "b", who: "Tomás Ferreira", what: "counted 14 white storks", note: "All on the old chimneys along the salt pans. Two nests with chicks.", where: "Alcochete salt pans · 3 h ago", w: [54, 80, 44] },
+  { av: "ID", tone: "c", who: "Inês Duarte", what: "logged a Bonelli’s eagle", note: "A pair soaring over the ridge for ten minutes, then gone west.", where: "Serra da Arrábida · 5 h ago", w: [58, 92, 36] },
+  { av: "JP", tone: "d", who: "Jun Park", what: "counted 230 greater flamingos", note: "Low tide, the whole flock on the mudflats south of the bridge.", where: "Tagus estuary · 6 h ago", w: [66, 76, 40] },
+];
+const ARTICLE = [
+  { bones: `<span class="sk-bone sk-line" style="width:44px;height:9px"></span>`, html: `<div class="sk-content kicker">Rail</div>` },
+  { bones: `<div class="sk-stack"><span class="sk-bone" style="height:18px;width:94%"></span><span class="sk-bone" style="height:18px;width:58%"></span></div>`, html: `<h3 class="sk-content headline">Night trains are back, and on most nights every berth is taken</h3>` },
+  { bones: `<div class="sk-stack"><span class="sk-bone sk-line" style="height:11px;width:100%"></span><span class="sk-bone sk-line" style="height:11px;width:72%"></span></div>`, html: `<p class="sk-content dek">Sleeper routes across Europe sold out most summer nights this year. Operators are now hunting for carriages.</p>` },
+  { bones: `<div class="byline"><span class="sk-bone sk-round" style="width:28px;height:28px"></span><span class="sk-bone sk-line" style="width:200px;max-width:60%"></span></div>`, html: `<div class="sk-content byline"><span class="av" style="--av: var(--sky-b)">LV</span><span>By <b>Lena Vogel</b> · 7 min read · 12 Oct 2026</span></div>` },
+  { bones: `<div class="sk-stack"><span class="sk-bone" style="width:100%;aspect-ratio:16/7;border-radius:10px"></span><span class="sk-bone sk-line" style="width:46%;height:9px"></span></div>`, html: `<figure class="sk-content hero-fig"><div class="hero-img" role="img" aria-label="A sleeper train with lit windows at a platform at night"></div><figcaption>The Vienna–Hamburg sleeper at Linz, 23:41</figcaption></figure>` },
+  { bones: `<div class="sk-stack para-bones"><span class="sk-bone sk-line" style="height:11px;width:100%"></span><span class="sk-bone sk-line" style="height:11px;width:98%"></span><span class="sk-bone sk-line" style="height:11px;width:58%"></span></div>`, html: `<p class="sk-content body">The 21:04 from Vienna to Hamburg left with every couchette taken on 61 of 62 nights this summer. Its operator added a second set of coaches in July and sold those out within a week. A third set is on order for 2027.</p>` },
+  { bones: `<div class="sk-stack para-bones"><span class="sk-bone sk-line" style="height:11px;width:100%"></span><span class="sk-bone sk-line" style="height:11px;width:96%"></span><span class="sk-bone sk-line" style="height:11px;width:70%"></span></div>`, html: `<p class="sk-content body">Demand is not the problem. Most sleeper cars in service were built in the 1980s, and a new one takes about three years from order to track. Until the new fleets arrive, every extra departure runs on borrowed carriages.</p>` },
+];
+const SVG = {
+  mug: `<ellipse cx="48" cy="81" rx="27" ry="3.5" fill="var(--shade)"/><path d="M66 40h5a10 10 0 0 1 0 20h-5" fill="none" stroke="var(--glaze-oat)" stroke-width="6"/><rect x="28" y="30" width="40" height="50" rx="7" fill="var(--glaze-oat)"/><path d="M28 70h40v3a7 7 0 0 1-7 7H35a7 7 0 0 1-7-7z" fill="var(--clay)"/><g fill="var(--speck)"><circle cx="37" cy="42" r="1.1"/><circle cx="52" cy="38" r="0.9"/><circle cx="58" cy="52" r="1.2"/><circle cx="41" cy="58" r="0.9"/><circle cx="61" cy="63" r="1"/></g>`,
+  bowl: `<ellipse cx="50" cy="79" rx="22" ry="3.5" fill="var(--shade)"/><path d="M40 73h20l-2 5H42z" fill="var(--clay)"/><path d="M16 46h68c0 17-15 30-34 30S16 63 16 46z" fill="var(--glaze-celadon)"/><ellipse cx="50" cy="46" rx="34" ry="7" fill="var(--glaze-celadon)"/><ellipse cx="50" cy="46" rx="30" ry="5" fill="var(--shade)"/>`,
+  vase: `<ellipse cx="50" cy="83" rx="18" ry="3" fill="var(--shade)"/><path d="M45 20h10v9c0 5 15 11 15 30 0 15-8 23-20 23S30 74 30 59c0-19 15-25 15-30z" fill="var(--glaze-iron)"/><ellipse cx="50" cy="20.5" rx="5" ry="1.6" fill="var(--shade)"/>`,
+  plate: `<ellipse cx="50" cy="63" rx="38" ry="14" fill="var(--shade)"/><ellipse cx="50" cy="58" rx="38" ry="14" fill="var(--glaze-ash)" stroke="var(--clay)" stroke-width="1"/><ellipse cx="50" cy="57" rx="25" ry="8.5" fill="none" stroke="var(--shade)" stroke-width="2"/>`,
+  cups: `<ellipse cx="50" cy="75" rx="36" ry="3.5" fill="var(--shade)"/><path d="M16 46h30v12a15 15 0 0 1-30 0z" fill="var(--glaze-tenmoku)"/><path d="M54 46h30v12a15 15 0 0 1-30 0z" fill="var(--glaze-tenmoku)"/><rect x="16" y="44.5" width="30" height="3" rx="1.5" fill="var(--glaze-rust)"/><rect x="54" y="44.5" width="30" height="3" rx="1.5" fill="var(--glaze-rust)"/>`,
+  jug: `<ellipse cx="50" cy="85" rx="22" ry="3.5" fill="var(--shade)"/><path d="M34 38c-8 0-10 6-10 12s4 11 10 12" fill="none" stroke="var(--glaze-ash)" stroke-width="5"/><path d="M34 22h28l8-4v6c-3 2-6 5-6 9 5 7 8 15 8 25 0 15-9 26-22 26S28 73 28 58c0-10 3-18 8-25 0-4-1-8-2-11z" fill="var(--glaze-ash)" stroke="var(--clay)" stroke-width="1"/><path d="M34 22h28l8-4v6c-3 2-6 5-6 9H36c0-4-1-8-2-11z" fill="var(--glaze-cobalt)"/>`,
+};
+const PRODUCTS = [
+  { name: "Speckled mug", price: "€32", detail: "Oatmeal glaze · 350 ml", svg: "mug", w: [58, 46] },
+  { name: "Ridge bowl", price: "€44", detail: "Celadon · Ø 16 cm", svg: "bowl", w: [50, 40] },
+  { name: "Bud vase", price: "€38", detail: "Iron red · 14 cm", svg: "vase", w: [46, 38] },
+  { name: "Serving plate", price: "€56", detail: "Ash white · Ø 27 cm", svg: "plate", w: [60, 44] },
+  { name: "Tea cup pair", price: "€48", detail: "Tenmoku · 180 ml each", svg: "cups", w: [54, 42] },
+  { name: "Pouring jug", price: "€62", detail: "Cobalt rim · 600 ml", svg: "jug", w: [52, 48] },
+];
+const WEEKS = [3150, 3320, 3410, 3280, 3590, 3760, 3880, 3640, 3820, 3970, 4060, 3890, 4440]; // sums to €48,210
+
+function chartSvg() {
+  const L = 46, R = 350, T = 14, Bt = 126, lo = 3000, hi = 4600, last = WEEKS.length - 1, f = (n) => n.toFixed(1);
+  const x = (i) => L + (i * (R - L)) / last, y = (v) => Bt - ((v - lo) / (hi - lo)) * (Bt - T);
+  const line = WEEKS.map((v, i) => `${i ? "L" : "M"}${f(x(i))} ${f(y(v))}`).join(" ");
+  let out = "";
+  for (const v of [3000, 3500, 4000, 4500]) out += `<line class="grid-line" x1="${L}" x2="${R}" y1="${f(y(v))}" y2="${f(y(v))}"/><text class="lbl" x="${L - 8}" y="${f(y(v) + 3.5)}" text-anchor="end">€${(v / 1000).toFixed(1)}k</text>`;
+  for (const [i, m] of [[0, "Jul"], [5, "Aug"], [9, "Sep"]]) out += `<text class="lbl" x="${f(x(i))}" y="146" text-anchor="${i ? "middle" : "start"}">${m}</text>`;
+  out += `<path class="area" d="${line} L${f(x(last))} ${Bt} L${f(x(0))} ${Bt} Z"/><path class="ln" d="${line}"/>`;
+  out += `<circle class="end" cx="${f(x(last))}" cy="${f(y(WEEKS[last]))}" r="3.5"/><text class="lbl strong" x="${f(x(last) - 8)}" y="${f(y(WEEKS[last]) - 8)}" text-anchor="end">€4,440</text>`;
+  return `<svg class="chart" viewBox="0 0 360 156" role="img" aria-label="Weekly revenue over 13 weeks, rising from €3,150 to €4,440">${out}</svg>`;
+}
+function reportHtml() {
+  const kpi = (label, value, sign, delta, dir) => `<div class="kpi"><span class="kpi-label">${label}</span><span class="kpi-value">${value}</span><span class="delta ${dir}">${sign}${delta}%</span></div>`;
+  const rows = [["Speckled mug", 214, "€6,848"], ["Ridge bowl", 131, "€5,764"], ["Pouring jug", 72, "€4,464"], ["Bud vase", 96, "€3,648"]]
+    .map(([p, n, r]) => `<tr><td>${p}</td><td class="num">${n}</td><td class="num">${r}</td></tr>`).join("");
+  return `<div class="kpis">${kpi("Revenue", "€48,210", "+", "12.4", "up")}${kpi("Orders", "1,284", "+", "6.1", "up")}${kpi("Avg. basket", "€37.55", "−", "1.8", "down")}</div>
+    <div class="dash-row">
+      <div class="card-box"><div class="card-head"><span>Weekly revenue</span><span class="sub">13 weeks to 29 Sep</span></div>${chartSvg()}</div>
+      <div class="card-box"><div class="card-head"><span>Top products</span><span class="sub">by revenue</span></div>
+        <table class="tbl"><thead><tr><th>Product</th><th class="num">Sold</th><th class="num">Revenue</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------- effects (the skill's lifecycle)
+function removeSkeletons(el) { el.querySelectorAll(".sk-skeleton").forEach((s) => s.remove()); el.classList.remove("is-loading"); }
+
+const EFFECTS = {
+  pulse: {
+    start(stage, el) {
+      el.innerHTML = FEED.map((p) => `<li class="sk-swap"><div class="sk-skeleton row-layout" aria-hidden="true">
+        <span class="sk-bone sk-round" style="width:40px;height:40px"></span>
+        <span class="sk-stack" style="gap:9px;padding-top:4px">${p.w.map((w) => `<span class="sk-bone sk-line" style="width:${w}%"></span>`).join("")}</span>
+        <span class="sk-bone" style="width:60px;height:60px;border-radius:10px"></span></div></li>`).join("");
+      restart(el);
+    },
+    async finish(stage, el, alive) {
+      el.querySelectorAll(".sk-swap").forEach((slot, i) => {
+        const p = FEED[i];
+        slot.insertAdjacentHTML("beforeend", `<div class="sk-content row-layout"><span class="av" style="--av: var(--sky-${p.tone})">${p.av}</span>
+          <span class="post-body"><span class="post-title"><b>${p.who}</b> ${p.what}</span><span class="post-note">${p.note}</span><span class="post-meta">${p.where}</span></span>
+          <span class="thumb" style="--sky: var(--sky-${p.tone}); --land: var(--land-${p.tone})"></span></div>`);
+      });
+      await reveal(el);
+      if (alive()) removeSkeletons(el);
+    },
+  },
+  sweep: {
+    start(stage, el) {
+      stage._sync?.disconnect();
+      el.innerHTML = ARTICLE.map((b) => `<div class="sk-swap"><div class="sk-skeleton" aria-hidden="true">${b.bones}</div></div>`).join("");
+      restart(el);
+      stage._sync = syncSweep(el);
+    },
+    async finish(stage, el, alive) {
+      el.querySelectorAll(".sk-swap").forEach((block, i) => block.insertAdjacentHTML("beforeend", ARTICLE[i].html));
+      await reveal(el);
+      if (!alive()) return;
+      removeSkeletons(el);
+      stage._sync.disconnect();
+    },
+  },
+  ripple: {
+    start(stage, el) {
+      stage._sync?.disconnect();
+      el.innerHTML = PRODUCTS.map((p) => `<li class="sk-swap"><div class="sk-skeleton card" aria-hidden="true">
+        <span class="sk-bone" style="width:100%;aspect-ratio:1;border-radius:10px;margin-bottom:4px"></span>
+        <span class="card-row" style="padding-top:2px"><span class="sk-bone sk-line" style="width:${p.w[0]}%"></span><span class="sk-bone sk-line" style="width:18%"></span></span>
+        <span class="sk-bone sk-line" style="width:${p.w[1]}%"></span></div></li>`).join("");
+      restart(el);
+      stage._sync = syncRipple(el);
+    },
+    async finish(stage, el, alive) {
+      el.querySelectorAll(".sk-swap").forEach((slot, i) => {
+        const p = PRODUCTS[i];
+        slot.insertAdjacentHTML("beforeend", `<article class="sk-content card"><div class="tile"><svg viewBox="0 0 100 100" aria-hidden="true">${SVG[p.svg]}</svg></div>
+          <div class="card-row"><span>${p.name}</span><span class="price">${p.price}</span></div><span class="detail">${p.detail}</span></article>`);
+      });
+      await reveal(el);
+      if (!alive()) return;
+      removeSkeletons(el);
+      stage._sync.disconnect();
+    },
+  },
+  gen: {
+    start(stage, el) {
+      stage._wf ||= createDotWireframe(el);
+      stage._wf.cancel();
+      el.querySelector(".report")?.remove();
+      el.style.minHeight = "330px";
+      el.setAttribute("aria-busy", "true");
+      stage._wf.wait();
+    },
+    async finish(stage, el, alive) {
+      const report = document.createElement("div");
+      report.className = "report";
+      report.innerHTML = reportHtml();
+      el.append(report);
+      el.style.minHeight = "";
+      await document.fonts.ready;
+      if (!alive()) return;
+      await stage._wf.reveal(report);
+      if (alive()) el.setAttribute("aria-busy", "false");
+    },
+  },
+};
+
+// ---------------------------------------------------------------- runner
+const stages = [...document.querySelectorAll(".stage")];
+const inView = new Set();
+
+function setStatus(stage, kind, text) {
+  const s = stage.querySelector("[data-status]");
+  s.dataset.state = kind;
+  s.lastElementChild.textContent = text;
+}
+function setPhase(stage, i) {
+  stage.querySelectorAll("[data-phases] li").forEach((li, j) => {
+    li.classList.toggle("is-on", j === i);
+    li.classList.toggle("is-past", i === -1 || j < i);
+  });
+}
+function waitForData(alive) {
+  if (state.hold) return new Promise((r) => state.waiters.add(r));
+  return sleep(state.latency);
+}
+
+async function play(stage) {
+  const token = (stage._token = (stage._token || 0) + 1);
+  const alive = () => stage._token === token;
+  const fx = EFFECTS[stage.dataset.effect];
+  const el = stage.querySelector("[data-root]");
+  const t0 = performance.now();
+  stage.dataset.played = "true";
+  fx.start(stage, el);
+  setPhase(stage, 0);
+  setStatus(stage, "waiting", state.hold ? "Waiting for data (held)" : "Waiting for data");
+  await waitForData(alive);
+  if (!alive()) return;
+  setPhase(stage, 1);
+  setStatus(stage, "revealing", "Data arrived, revealing");
+  if (stage.dataset.effect === "gen") setTimeout(() => alive() && setPhase(stage, 2), 1500 * slow());
+  else setTimeout(() => alive() && setPhase(stage, 2), 16);
+  await fx.finish(stage, el, alive);
+  if (!alive()) return;
+  setPhase(stage, -1);
+  setStatus(stage, "done", `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s`);
+}
+const slow = () => parseFloat(getComputedStyle(root).getPropertyValue("--sk-slow")) || 1;
+
+function replayVisible() {
+  stages.forEach((s) => { if (inView.has(s)) play(s); else delete s.dataset.played; });
+}
+
+stages.forEach((stage) => {
+  stage.querySelector(".replay").addEventListener("click", () => play(stage));
+  EFFECTS[stage.dataset.effect].start(stage, stage.querySelector("[data-root]"));  // resting state: the skeleton
+  setStatus(stage, "idle", "Ready");
+});
+document.getElementById("replay-all").addEventListener("click", replayVisible);
+
+const deliver = document.getElementById("deliver");
+function release() { state.waiters.forEach((r) => r()); state.waiters.clear(); }
+deliver.addEventListener("click", release);
+document.querySelectorAll('input[name="latency"]').forEach((input) => input.addEventListener("change", () => {
+  state.hold = input.value === "hold";
+  deliver.hidden = !state.hold;
+  if (state.hold) replayVisible();
+  else { state.latency = Number(input.value); release(); }
+}));
+document.querySelectorAll('input[name="speed"]').forEach((input) => input.addEventListener("change", () => {
+  root.style.setProperty("--sk-slow", input.value);
+  replayVisible();
+}));
+
+// Theme: the skill's tokens follow color-scheme, so the switch only sets that (and data-theme for hosts).
+const themeInputs = [...document.querySelectorAll('input[name="theme"]')];
+const preset = themeInputs.find((i) => i.value === (root.getAttribute("data-theme") || "auto"));
+if (preset) preset.checked = true;
+themeInputs.forEach((input) => input.addEventListener("change", () => {
+  if (input.value === "auto") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", input.value);
+}));
+
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    const stage = e.target.closest(".stage");
+    if (e.isIntersecting) { inView.add(stage); if (!stage.dataset.played) play(stage); }
+    else inView.delete(stage);
+  }
+}, { threshold: 0.35 });
+document.fonts.ready.then(() => document.querySelectorAll(".browser").forEach((b) => io.observe(b)));
+</script>
+</body>
+</html>
