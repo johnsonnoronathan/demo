@@ -19,7 +19,8 @@
         "Skeleton is hidden from assistive tech (aria-hidden) and the region exposes a loading state (aria-busy or role=status)",
         "Products are revealed with a transition (cross-fade or staggered pop-in), not an instant swap",
         "The loading effect or the reveal is staggered across the grid by item position (a wave or per-card stagger)",
-        "No new npm dependencies were added"
+        "No new npm dependencies were added",
+        "Skeleton bones follow the site's theme, not the OS: light bones on the light site even when the OS is dark, dark bones under .dark"
       ]
     },
     {
@@ -38,7 +39,8 @@
         "Skeleton is aria-hidden and the article exposes a loading state (aria-busy or role=status)",
         "Content is revealed with a transition (fade/rise), not an instant swap",
         "The reveal runs in reading order (top to bottom), or the shimmer is one continuous band across the page",
-        "Static chrome (site header and footer) stays real and is not turned into skeleton bones"
+        "Static chrome (site header and footer) stays real and is not turned into skeleton bones",
+        "Skeleton bones follow the theme: light bones in light mode and dark bones in dark mode"
       ]
     },
     {
@@ -58,7 +60,8 @@
         "The build-up follows the card's real structure (measures the rendered DOM or animates the actual KPI/insight/table elements)",
         "Animation frames and timers are cleaned up on unmount and on regenerate (safe under React StrictMode)",
         "Error state still works and stops the animation",
-        "Animations respect prefers-reduced-motion"
+        "Animations respect prefers-reduced-motion",
+        "The Generate button stays disabled until the card has fully appeared, not just until the data arrives"
       ]
     }
   ]
