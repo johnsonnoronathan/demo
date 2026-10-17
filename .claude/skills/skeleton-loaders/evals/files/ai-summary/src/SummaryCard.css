@@ -1,0 +1,20 @@
+.summary { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.summary-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.summary-head h2 { margin: 0; font-size: 18px; }
+.summary-btn { background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 8px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.summary-btn:disabled { opacity: 0.6; cursor: default; }
+.summary-wait, .summary-error { color: var(--muted); margin: 16px 0 0; }
+.summary-body { margin-top: 16px; display: grid; gap: 12px; }
+.summary-body h3 { margin: 8px 0 0; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: var(--bg); border-radius: 10px; padding: 12px; display: grid; gap: 2px; }
+.kpi-label { font-size: 12px; color: var(--muted); }
+.kpi-value { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.kpi-delta { font-size: 12px; font-weight: 600; }
+.kpi-delta.up { color: var(--good); }
+.kpi-delta.down { color: var(--bad); }
+.insights { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.risks { width: 100%; border-collapse: collapse; font-size: 14px; }
+.risks th, .risks td { text-align: left; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.sev { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--bg); }
+.sev-high { color: var(--bad); }

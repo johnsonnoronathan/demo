@@ -1,0 +1,24 @@
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 16px;
+}
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; } }
+
+.card { display: grid; gap: 6px; }
+.imageWrap { position: relative; aspect-ratio: 4 / 5; border-radius: 12px; overflow: hidden; background: var(--surface-muted); }
+.image { object-fit: cover; }
+.row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.name { margin: 0; font-size: 15px; font-weight: 600; }
+.price { font-size: 15px; font-variant-numeric: tabular-nums; }
+.colorway { margin: 0; font-size: 13px; color: var(--text-muted); }
+
+.spinnerWrap { display: grid; place-items: center; min-height: 320px; }
+.spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 800ms linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error { color: var(--text-muted); }
