@@ -207,12 +207,14 @@ import { createDotWireframe } from "./dot-wireframe.js";
 // status: "idle" | "pending" | "done" | "error"; `result` changes when a new result renders.
 // Returns { building }: true while the request runs AND while the result is traced and scanned
 // in, so the trigger can stay disabled and aria-busy set until the card is fully there.
-export function useDotWireframe(targetRef, contentRef, { status, result, labels = true }) {
+// Extra options (texts, steps, done, code, title, traceMs…) go to createDotWireframe once, on mount.
+export function useDotWireframe(targetRef, contentRef, { status, result, labels = true, ...options }) {
   const wf = useRef(null);
+  const optionsRef = useRef(options);
   const [revealing, setRevealing] = useState(false);
 
   useLayoutEffect(() => {
-    wf.current = createDotWireframe(targetRef.current, { labels });
+    wf.current = createDotWireframe(targetRef.current, { labels, ...optionsRef.current });
     return () => { wf.current.destroy(); wf.current = null; };
   }, [targetRef, labels]);
 
@@ -290,6 +292,7 @@ export function SummaryCard() {
 
 - The canvas is appended inside the target outside React's control. React leaves nodes it didn't create alone, so this is safe. Don't render the target conditionally, or the canvas goes with it.
 - `min-height` while pending gives the dot field room. Keep it at or under a typical result's height, so the card never shrinks when the result lands.
+- For the texts mode, pass its options to the hook: `useDotWireframe(targetRef, contentRef, { status, result, texts: true, done: "Summary ready" })`. Give the target empty space on both sides for the side panels (see `dot-wireframe.md`, Texts mode).
 - The labels sit in the 22 px above the target. Leave about 20 px of space there, or pass `labels: false`.
 - Write the result's JSX as you normally would. Adjacent text pieces on one line (for example `{sign}{value}%`) are traced as a single line.
 - In React Strict Mode (development), the hook creates, destroys and recreates the canvas once on mount. That's expected.

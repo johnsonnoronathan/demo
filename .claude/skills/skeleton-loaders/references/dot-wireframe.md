@@ -81,3 +81,40 @@ button.addEventListener("click", async () => {
 ```
 
 The canvas lives inside `target`, so never clear the target with `innerHTML = ""` or `replaceChildren()`. Remove only the previous content element.
+
+## Texts mode
+
+The same build, narrated: generation texts appear around the element while it is drawn. Use it for showcase moments where the "an agent built this" story is the point: launch pages, demos, onboarding and product videos. For a generated result inside a busy app screen, use the plain build. It is a stylistic choice, so ask before adding the texts.
+
+```js
+const wf = createDotWireframe(card, {
+  texts: true,
+  steps: ["Reading the brief", "Picking components", "Writing styles", "Adding motion"],
+  done: "Pricing card ready",
+});
+wf.wait();
+// …result rendered inside card…
+await wf.reveal(content);
+```
+
+| Text | Where | What it shows |
+| --- | --- | --- |
+| Agent log | Left of the element | `AGENT.LOG // PARTS 12/33`. While waiting: the request and the model "thinking" with a clock. Then one line per traced part: number, type (BOX, TEXT, RULE, PATH, MEDIA), selector, size, and a progress bar that ends in `[ ok ]`. |
+| Motion CSS | Right of the element | `MOTION.CSS // 0300 TOKENS`. Motion tokens are typed while waiting, then one rule per selector with the element's real radius, fill, rule or type and the transition it would get, typed at a steady rate with a caret. The footer shows tokens per second, line count and WRITING / READY. |
+| Step line | The label row above the element | One step at a time with a pulsing dot: `steps` in turn, then `done` during the scan. |
+
+| Option | Default | Notes |
+| --- | --- | --- |
+| `texts` | `false` | Turns the texts on. |
+| `steps` | `["Planning layout", "Drawing structure", "Writing styles", "Adding motion"]` | Write them for the product, for example "Reading the brief", "Picking components". |
+| `done` | `"Ready"` | The last step, shown as the UI comes in. Name the result: "Invite modal ready". |
+| `code` | derived | An array of lines to type in the CSS panel instead of the derived rules. Keep it under about 60 lines. |
+| `title` | derived | The name in the CSS comment; otherwise the target's `aria-label` or the result's first heading. |
+
+**Placement.** The texts are drawn only where the page is empty, checked inside the nearest clipping ancestor and the viewport with `document.elementFromPoint` when `wait()` runs (or `reveal()`, if `wait()` was skipped):
+
+1. **Beside**: the log on the left and the CSS on the right, when at least ~200 px of empty space is free on both sides.
+2. **Under**: one strip under the element with the log and the CSS side by side, when about 140 px below it is empty. Under elements narrower than 520 px they stack, log above CSS, and need about 180 px.
+3. **Steps only**: otherwise just the step line above the element.
+
+So the texts degrade on their own on narrow screens and in dense layouts. For the full version, centre the element in a section with empty space on either side, and call `wait()` when it is in view. The panels are `aria-hidden`, take no pointer input and are removed after the reveal. Under reduced motion nothing is drawn, the same as the plain build.

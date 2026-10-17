@@ -13,8 +13,9 @@ A skeleton is a placeholder in the shape of the content that is on its way. Done
 | 2 | Synced shimmer sweep | `sk-sweep` | CSS + `syncSweep()` | [references/sweep.md](references/sweep.md) |
 | 3 | Ripple wave | `sk-ripple` | CSS + `syncRipple()` | [references/ripple.md](references/ripple.md) |
 | 4 | Dot wireframe build | none | `createDotWireframe()` (canvas) | [references/dot-wireframe.md](references/dot-wireframe.md) |
+| 4 + texts | Dot wireframe build with generation texts | none | `createDotWireframe(target, { texts: true })` | [references/dot-wireframe.md](references/dot-wireframe.md#texts-mode) |
 
-Bundled files: [assets/skeleton.css](assets/skeleton.css) (tokens, shared layer rules, effects 1–3, reduced motion), [assets/skeleton.js](assets/skeleton.js) (measuring and reveal helpers for effects 1–3), [assets/dot-wireframe.js](assets/dot-wireframe.js) (effect 4). For React or Next.js, also read [references/react.md](references/react.md). [preview.html](preview.html) plays all four effects live (see **Previewing the effects**).
+Bundled files: [assets/skeleton.css](assets/skeleton.css) (tokens, shared layer rules, effects 1–3, reduced motion), [assets/skeleton.js](assets/skeleton.js) (measuring and reveal helpers for effects 1–3), [assets/dot-wireframe.js](assets/dot-wireframe.js) (effect 4). For React or Next.js, also read [references/react.md](references/react.md). [preview.html](preview.html) plays all four effects live, plus the texts mode (see **Previewing the effects**).
 
 ## Workflow
 
@@ -51,12 +52,14 @@ If you can't open a browser for the user, give them that command. The preview is
 | One request fills a region: list rows, cards, a panel, a profile header, an inbox, comments | **1 Pulse and cross-blur** (the default) |
 | A whole content page loads: article, docs page, product detail, first load of a route | **2 Synced shimmer sweep** |
 | Many items with the same shape in a grid: catalogue, gallery, thumbnails, marketplace, file browser | **3 Ripple wave** |
-| An AI feature returns UI (a generated report, card, chart or component), or a demo or launch moment | **4 Dot wireframe build** |
+| An AI feature returns UI (a generated report, card, chart or component) | **4 Dot wireframe build** |
+| A launch page, demo, onboarding step or product video where the "agent at work" story is the point | **4 with texts** (`texts: true`) |
 
 - **Unsure?** Use 1. It is calm, cheap (opacity only) and fits anywhere.
 - **A site can mix effects,** one per region. A shop might use 3 on the catalogue, 2 on product pages and 1 for the reviews list. Don't stack two effects on the same region.
 - **Effect 2's sweep is only worth it over a large area.** For one small widget, use 1.
 - **Effect 3 needs a real grid.** In a single-column list the wave just reads as a slow pulse; use 1.
+- **Texts mode is a showcase.** It adds an agent log, the CSS being written and a step line beside one element. Those need empty space around it, and the panels drop away on their own where there is none. Ask before adding the texts.
 - **Effect 4 is a moment, not a loading state.** It idles while the request runs, then spends about 2.3 s tracing and scanning *after* the data arrives, so it delays the result on purpose. Use it on one element at a time, never on things that load often (route changes, list rows) or on small elements (under ~120 px). When you use it, tell the user about the 2.3 s cost.
 
 ## Layout rules

@@ -213,6 +213,24 @@ details.wiring pre { margin: 10px 0 0; padding: 12px; overflow-x: auto; border: 
 @container (max-width: 470px) { .chart .lbl { font-size: 12px; } }
 @container (max-width: 400px) { .kpi { padding: 8px; } .ask .kbd { display: none; } }
 
+/* 5 showcase: dot wireframe with generation texts (needs empty space beside the card) */
+.stage.wide { grid-template-columns: minmax(0, 1fr); }
+.wide-meta { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); column-gap: 36px; align-items: start; }
+.wide-meta > div { display: grid; gap: 14px; }
+.site.showcase { padding: 44px 20px 56px; background: var(--bg); }
+.site.showcase .site-nav { margin-bottom: 6px; }
+.ai-card { width: min(460px, 100%); margin: 0 auto; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); box-shadow: var(--lift); }
+.ai-body { display: grid; gap: 12px; }
+.ai-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 10px; }
+.ai-head b { font: 600 16px var(--font-display); letter-spacing: -0.01em; }
+.ai-head .sub { color: var(--faint); font: 11px var(--font-mono); }
+.ai-body h4 { margin: 2px 0 0; color: var(--faint); font: 500 10.5px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.insights { display: grid; gap: 6px; margin: 0; padding-left: 18px; font-size: 13px; }
+.sev { padding: 1px 7px; border-radius: 99px; background: var(--chrome); font: 500 11px var(--font-mono); }
+.sev.high { background: var(--bad-soft); color: var(--bad); }
+@container (max-width: 900px) { .site.showcase { padding-bottom: 190px; } }
+@media (max-width: 940px) { .wide-meta { grid-template-columns: minmax(0, 1fr); } }
+
 @media (prefers-reduced-motion: reduce) { .status i { animation: none !important; } }
 </style>
 </head>
@@ -221,7 +239,7 @@ details.wiring pre { margin: 10px 0 0; padding: 12px; overflow-x: auto; border: 
   <header class="masthead">
     <span class="tag">skeleton-loaders skill · live preview</span>
     <h1>Skeleton Loaders Preview</h1>
-    <p class="intro">The four effects in the skill, playing live. Every animation on this page runs on the skill's own <code>assets/skeleton.css</code>, <code>skeleton.js</code> and <code>dot-wireframe.js</code>, unchanged, and follows the same lifecycle the skill installs: the skeleton shows, the data arrives, the content goes in, and the reveal runs. Each one plays when it scrolls into view.</p>
+    <p class="intro">The four effects in the skill, plus the dot-wireframe build's texts mode, playing live. Every animation on this page runs on the skill's own <code>assets/skeleton.css</code>, <code>skeleton.js</code> and <code>dot-wireframe.js</code>, unchanged, and follows the same lifecycle the skill installs: the skeleton shows, the data arrives, the content goes in, and the reveal runs. Each one plays when it scrolls into view.</p>
   </header>
 
   <div class="toolbar" role="toolbar" aria-label="Playback">
@@ -370,6 +388,39 @@ target.style.minHeight = "";
 await wf.reveal(report);         // ~1.5 s trace + 0.8 s scan</pre></details>
       </div>
     </article>
+
+    <article class="stage wide" data-effect="texts" id="generate-texts">
+      <div class="browser">
+        <div class="browser-bar"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="url">pulse.app/accounts/northwind</span><span class="status" data-status aria-live="polite"><i></i><span></span></span></div>
+        <div class="viewport">
+          <div class="site showcase">
+            <header class="site-nav"><span class="logo">Pulse</span><nav><span>Accounts</span><span class="on">Northwind Freight</span><span>Renewals</span></nav><span class="end">✦ Summarize account</span></header>
+            <section class="ai-card" data-root aria-busy="true" aria-label="Account summary"></section>
+          </div>
+        </div>
+      </div>
+      <div class="meta wide-meta">
+        <div>
+          <div class="meta-head"><span class="eyebrow">Effect 4 with texts · createDotWireframe(target, { texts: true })</span><button class="btn small replay" type="button">Replay</button></div>
+          <h2>Dot wireframe build with generation texts</h2>
+          <p>The same build, narrated. An agent log lists every part as it is traced, the motion CSS is written live from the card's real radii, colours and type, and a step line names each stage. The panels only appear where the page is empty: beside the element, else in a strip under it, else just the step line.</p>
+          <p class="use"><b>Use for</b>Launch pages, demos, onboarding and product videos, where the "built by an agent" story is the point. One element with room around it.</p>
+        </div>
+        <div>
+          <ol class="phases" data-phases><li><span><code>wait()</code>: dot field, the log shows the model thinking</span></li><li><span><code>reveal()</code>: the log lists each part, the CSS is typed</span></li><li><span>Scan line, then the step line shows the done text</span></li></ol>
+          <details class="wiring"><summary>How the skill wires it</summary><pre>const wf = createDotWireframe(card, {
+  texts: true,
+  steps: ["Reading the account", "Picking components",
+          "Writing styles", "Adding motion"],
+  done: "Summary card ready",
+});
+wf.wait();                       // request pending
+
+// result rendered inside card, then
+await wf.reveal(summary);</pre></details>
+        </div>
+      </div>
+    </article>
   </main>
 
   <footer class="credits">
@@ -443,10 +494,45 @@ function reportHtml() {
     </div>`;
 }
 
+function summaryHtml() {
+  const kpi = (label, value, sign, delta, dir) => `<div class="kpi"><span class="kpi-label">${label}</span><span class="kpi-value">${value}</span><span class="delta ${dir}">${sign}${delta}%</span></div>`;
+  return `<div class="ai-head"><b>Northwind Freight</b><span class="sub">Account summary · Q3</span></div>
+    <div class="kpis">${kpi("MRR", "$84.2k", "+", "6.4", "up")}${kpi("Seats", "1,932", "+", "3.1", "up")}${kpi("Churn", "2.4%", "−", "0.6", "down")}</div>
+    <h4>Key insights</h4>
+    <ul class="insights"><li>Expansion revenue grew 18% after the September pricing change.</li><li>Seat use is above 90% in 14 teams, a strong upsell signal.</li><li>Support tickets fell for the third month running.</li></ul>
+    <h4>Renewal risks</h4>
+    <table class="tbl"><tbody><tr><td>Ops team</td><td>Usage down 40%</td><td class="num"><span class="sev high">high</span></td></tr><tr><td>Finance</td><td>Champion left</td><td class="num"><span class="sev">medium</span></td></tr></tbody></table>`;
+}
+
 // ---------------------------------------------------------------- effects (the skill's lifecycle)
 function removeSkeletons(el) { el.querySelectorAll(".sk-skeleton").forEach((s) => s.remove()); el.classList.remove("is-loading"); }
 
 const EFFECTS = {
+  texts: {
+    start(stage, el) {
+      stage._wf ||= createDotWireframe(el, {
+        texts: true,
+        steps: ["Reading the account", "Picking components", "Writing styles", "Adding motion"],
+        done: "Summary card ready",
+      });
+      stage._wf.cancel();
+      el.querySelector(".ai-body")?.remove();
+      el.style.minHeight = "340px";
+      el.setAttribute("aria-busy", "true");
+      stage._wf.wait();
+    },
+    async finish(stage, el, alive) {
+      const body = document.createElement("div");
+      body.className = "ai-body";
+      body.innerHTML = summaryHtml();
+      el.append(body);
+      el.style.minHeight = "";
+      await document.fonts.ready;
+      if (!alive()) return;
+      await stage._wf.reveal(body);
+      if (alive()) el.setAttribute("aria-busy", "false");
+    },
+  },
   pulse: {
     start(stage, el) {
       el.innerHTML = FEED.map((p) => `<li class="sk-swap"><div class="sk-skeleton row-layout" aria-hidden="true">
@@ -560,7 +646,7 @@ async function play(stage) {
   if (!alive()) return;
   setPhase(stage, 1);
   setStatus(stage, "revealing", "Data arrived, revealing");
-  if (stage.dataset.effect === "gen") setTimeout(() => alive() && setPhase(stage, 2), 1500 * slow());
+  if (stage.dataset.effect === "gen" || stage.dataset.effect === "texts") setTimeout(() => alive() && setPhase(stage, 2), 1500 * slow());
   else setTimeout(() => alive() && setPhase(stage, 2), 16);
   await fx.finish(stage, el, alive);
   if (!alive()) return;
