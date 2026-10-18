@@ -57,6 +57,7 @@ If you can't open a browser for the user, give them that command. The preview is
 
 - **Unsure?** Use 1. It is calm, cheap (opacity only) and fits anywhere.
 - **A site can mix effects,** one per region. A shop might use 3 on the catalogue, 2 on product pages and 1 for the reviews list. Don't stack two effects on the same region.
+- **Never nest one root inside another.** The effect rules and helpers reach every `.sk-swap` and bone under a root, so an outer root's reveal would hide or remove an inner region's skeleton while that region is still loading. Make the regions siblings: on a product page, put `sk-sweep` on the product details block and `sk-pulse` on the reviews list beside it, not on a `<main>` that wraps both.
 - **Effect 2's sweep is only worth it over a large area.** For one small widget, use 1.
 - **Effect 3 needs a real grid.** In a single-column list the wave just reads as a slow pulse; use 1.
 - **Texts mode is a showcase.** It adds an agent log, the CSS being written and a step line beside one element. Those need empty space around it, and the panels drop away on their own where there is none. Ask before adding the texts.

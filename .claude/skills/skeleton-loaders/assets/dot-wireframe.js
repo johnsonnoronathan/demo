@@ -176,7 +176,7 @@ export function createDotWireframe(target, options = {}) {
   target.appendChild(cv);
   const g = cv.getContext("2d");
 
-  let raf = 0, finish = null, content = null, t0 = 0, ret = null;
+  let raf = 0, finish = null, content = null, saved = null, t0 = 0, ret = null;
   let W = 0, H = 0, tw = 0, th = 0, outline = null, parts = [];
   let fx = new Float32Array(0), fy = fx, fd = fx, lit = fx, maxD = 0;
 
@@ -525,9 +525,12 @@ export function createDotWireframe(target, options = {}) {
   const partStart = (i, P) => 0.16 + (P > 1 ? (0.62 * i) / (P - 1) : 0);
   const titleOf = (el) => (o.title || target.getAttribute("aria-label") || (el.querySelector("h1, h2, h3, h4, caption") || {}).textContent || "component").trim().slice(0, 32);
 
+  // The reveal drives these inline; put back whatever the content had before.
+  const DRIVEN = ["opacity", "clip-path", "filter", "transition"];
   function restoreContent() {
-    if (!content) return;
-    for (const p of ["opacity", "clip-path", "filter", "transition"]) content.style.removeProperty(p);
+    if (!content || !saved) return;
+    for (const [p, v, pr] of saved) v ? content.style.setProperty(p, v, pr) : content.style.removeProperty(p);
+    saved = null;
   }
 
   function stop() {
@@ -561,7 +564,9 @@ export function createDotWireframe(target, options = {}) {
     // Result rendered: trace contentEl's own structure, then reveal it behind a scan line.
     reveal(contentEl) {
       cancelAnimationFrame(raf); raf = 0;
+      restoreContent();   // a reveal still running on this or another element
       content = contentEl;
+      saved = DRIVEN.map((p) => [p, content.style.getPropertyValue(p), content.style.getPropertyPriority(p)]);
       content.style.opacity = "0";
       return new Promise((resolve) => {
         finish = resolve;

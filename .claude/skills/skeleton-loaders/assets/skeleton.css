@@ -39,7 +39,8 @@
 
 /* A skeleton and its content share one grid cell, so swapping them never
    moves anything below. The root (the element carrying the effect class)
-   gets .is-loading while waiting and .is-revealed when data arrives. */
+   gets .is-loading while waiting and .is-revealed when data arrives.
+   Roots must not contain other roots: these rules reach every .sk-swap below a root. */
 .sk-swap { display: grid; }
 .sk-swap > * { grid-area: 1 / 1; min-width: 0; }
 .sk-swap > .sk-content { position: relative; z-index: 1; opacity: 0; }
