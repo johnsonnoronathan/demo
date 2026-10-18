@@ -1,0 +1,18 @@
+:root {
+  --surface: #ffffff;
+  --surface-muted: #f2f2f4;
+  --text: #16171a;
+  --text-muted: #6b6f78;
+  --border: #e4e5e9;
+  --accent: #c2410c;
+}
+.dark {
+  --surface: #121316;
+  --surface-muted: #1d1f24;
+  --text: #f2f3f5;
+  --text-muted: #9aa0aa;
+  --border: #2a2d33;
+  --accent: #fb923c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--text); font-family: system-ui, sans-serif; }

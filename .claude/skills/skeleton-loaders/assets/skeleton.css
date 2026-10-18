@@ -1,0 +1,158 @@
+/* skeleton-loaders: shared block + four effects.
+   Copy the SHARED block plus the section for each effect you use.
+   Every class is prefixed `sk-` so it cannot collide with the project's own classes.
+   Durations, distances, blurs and easings follow the transitions.dev motion tokens. */
+
+/* ==========================================================================
+   SHARED
+   ========================================================================== */
+/* THEME. Each colour is light-dark(<light>, <dark>), so it follows the page's
+   `color-scheme`, not one particular dark-mode switch. That works with a .dark class,
+   a [data-theme] attribute or the OS setting, as long as the dark theme sets
+   `color-scheme: dark`. (OS-only themes: `:root { color-scheme: light dark; }`.)
+   To use the project's own tokens instead, set e.g. --sk-bone: var(--surface-muted). */
+:root {
+  --sk-bone: #e4e7ec;             /* plain light values for browsers without light-dark() */
+  --sk-bone-hi: #f8f9fb;
+  --sk-gen-ink: rgba(18, 21, 27, 0.24);
+  --sk-gen-line: #8a909c;
+  --sk-gen-strong: #363c48;
+  --sk-gen-surface: #ffffff;
+  --sk-gen-font: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Motion */
+  --sk-slow: 1;                   /* multiplies every duration; set 4 to debug in slow motion */
+  --sk-ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --sk-ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+}
+@supports (color: light-dark(#000, #fff)) {
+  :root {
+    /* Bones: one step off the surface they sit on. */
+    --sk-bone: light-dark(#e4e7ec, #23262d);
+    --sk-bone-hi: light-dark(#f8f9fb, #383c46);        /* sweep band and ripple crest */
+    /* Dot wireframe (effect 4) */
+    --sk-gen-ink: light-dark(rgba(18, 21, 27, 0.24), rgba(236, 238, 242, 0.22));
+    --sk-gen-line: light-dark(#8a909c, #6e7581);
+    --sk-gen-strong: light-dark(#363c48, #c5cad4);
+    --sk-gen-surface: light-dark(#ffffff, #16181d);     /* corner handles: the page background */
+  }
+}
+
+/* A skeleton and its content share one grid cell, so swapping them never
+   moves anything below. The root (the element carrying the effect class)
+   gets .is-loading while waiting and .is-revealed when data arrives.
+   Roots must not contain other roots: these rules reach every .sk-swap below a root. */
+.sk-swap { display: grid; }
+.sk-swap > * { grid-area: 1 / 1; min-width: 0; }
+.sk-swap > .sk-content { position: relative; z-index: 1; opacity: 0; }
+.is-revealed .sk-swap > .sk-content { opacity: 1; }
+.is-resetting .sk-swap > * { transition: none !important; }
+.sk-skeleton { pointer-events: none; user-select: none; }
+.sk-stack { display: grid; align-content: start; gap: 10px; }
+.sk-bone { display: block; border-radius: 6px; background-color: var(--sk-bone); }
+.sk-line { height: 10px; border-radius: 5px; }
+.sk-round { border-radius: 50%; }
+
+/* Optional: add .sk-delayed to the root to keep the bones invisible for the first
+   --sk-delay of loading (space stays reserved), so fast responses never flash a skeleton. */
+.sk-delayed.is-loading .sk-skeleton { animation: sk-delayed var(--sk-delay, 300ms) step-end both; }
+@keyframes sk-delayed { from { visibility: hidden; } }
+
+/* ==========================================================================
+   EFFECT 1: PULSE AND CROSS-BLUR  (root class: .sk-pulse)
+   Bones breathe 1 -> 0.5 opacity; the swap is a 400ms cross-fade with a shared 2px blur.
+   ========================================================================== */
+.sk-pulse.is-loading .sk-bone { animation: sk-pulse calc(1000ms * var(--sk-slow)) ease-in-out infinite; }
+.sk-pulse .sk-swap > * {
+  transition:
+    opacity calc(400ms * var(--sk-slow)) ease-in-out,
+    filter calc(400ms * var(--sk-slow)) ease-in-out;
+}
+.sk-pulse .sk-swap > .sk-content { filter: blur(2px); }
+.sk-pulse.is-revealed .sk-swap > .sk-skeleton { opacity: 0; filter: blur(2px); }
+.sk-pulse.is-revealed .sk-swap > .sk-content { filter: blur(0); }
+@keyframes sk-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* ==========================================================================
+   EFFECT 2: SYNCED SHIMMER SWEEP  (root class: .sk-sweep, needs syncSweep())
+   One 105deg band crosses every bone at once: each bone paints the same
+   root-sized gradient shifted by its own offset (--sk-bx/--sk-by, set by JS).
+   Blocks (.sk-swap, stagger index --sk-i) then rise in reading order.
+   ========================================================================== */
+@property --sk-sweep { syntax: "<number>"; inherits: true; initial-value: 0; }
+.sk-sweep { --sk-sweep: 0; }
+.sk-sweep.is-loading { animation: sk-sweep calc(1500ms * var(--sk-slow)) linear infinite; }
+.sk-sweep .sk-skeleton .sk-bone {
+  background-image: linear-gradient(105deg, transparent 0 42%, var(--sk-bone-hi) 50%, transparent 58% 100%);
+  background-repeat: no-repeat;
+  background-size: calc(var(--sk-cw, 600) * 1px) calc(var(--sk-ch, 600) * 1px);
+  background-position:
+    calc(((var(--sk-sweep) * 2 - 1) * var(--sk-cw, 600) - var(--sk-bx, 0)) * 1px)
+    calc(var(--sk-by, 0) * -1px);
+}
+.sk-sweep .sk-swap > .sk-skeleton {
+  transition: opacity calc(240ms * var(--sk-slow)) ease-out calc(var(--sk-i, 0) * 60ms * var(--sk-slow));
+}
+.sk-sweep .sk-swap > .sk-content {
+  transform: translateY(12px);
+  filter: blur(3px);
+  transition:
+    opacity calc(500ms * var(--sk-slow)) var(--sk-ease-smooth-out),
+    transform calc(500ms * var(--sk-slow)) var(--sk-ease-smooth-out),
+    filter calc(500ms * var(--sk-slow)) var(--sk-ease-smooth-out);
+  transition-delay: calc(var(--sk-i, 0) * 60ms * var(--sk-slow));
+}
+.sk-sweep.is-revealed .sk-swap > .sk-skeleton { opacity: 0; }
+.sk-sweep.is-revealed .sk-swap > .sk-content { transform: none; filter: blur(0); }
+@keyframes sk-sweep { to { --sk-sweep: 1; } }
+
+/* ==========================================================================
+   EFFECT 3: RIPPLE WAVE  (root class: .sk-ripple, needs syncRipple())
+   Each bone flashes on a delay of 1.1ms per px of distance (--sk-d) from the
+   root's top-left corner; items (.sk-swap, order --sk-i by distance) pop in
+   following the same wave.
+   ========================================================================== */
+.sk-ripple.is-loading .sk-skeleton .sk-bone {
+  animation: sk-crest calc(1800ms * var(--sk-slow)) linear infinite;
+  animation-delay: calc(var(--sk-d, 0) * 1.1ms * var(--sk-slow));
+}
+.sk-ripple .sk-swap > .sk-skeleton {
+  transition:
+    opacity calc(200ms * var(--sk-slow)) ease-out,
+    transform calc(200ms * var(--sk-slow)) ease-out;
+  transition-delay: calc(var(--sk-i, 0) * 70ms * var(--sk-slow));
+}
+.sk-ripple .sk-swap > .sk-content {
+  transform: translateY(8px) scale(0.97);
+  filter: blur(2px);
+  transition:
+    opacity calc(420ms * var(--sk-slow)) var(--sk-ease-smooth-out),
+    filter calc(420ms * var(--sk-slow)) var(--sk-ease-smooth-out),
+    transform calc(560ms * var(--sk-slow)) var(--sk-ease-bounce);
+  transition-delay: calc(var(--sk-i, 0) * 70ms * var(--sk-slow));
+}
+.sk-ripple.is-revealed .sk-swap > .sk-skeleton { opacity: 0; transform: scale(0.98); }
+.sk-ripple.is-revealed .sk-swap > .sk-content { transform: none; filter: blur(0); }
+@keyframes sk-crest {
+  0% { background-color: var(--sk-bone); }
+  13% { background-color: var(--sk-bone-hi); }
+  30%, 100% { background-color: var(--sk-bone); }
+}
+
+/* ==========================================================================
+   EFFECT 4: DOT WIREFRAME BUILD  (dot-wireframe.js draws on a canvas it creates)
+   No classes needed beyond the colour tokens above. The target container must
+   have a size while waiting: give it a min-height close to the result's height.
+   ========================================================================== */
+
+/* ==========================================================================
+   REDUCED MOTION: skeletons hold still, every swap is a 200ms fade.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sk-pulse, .sk-sweep, .sk-ripple { animation: none !important; }
+  .sk-skeleton .sk-bone { animation: none !important; background-image: none !important; }
+  .sk-swap > * {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 200ms linear !important;
+  }
+}
