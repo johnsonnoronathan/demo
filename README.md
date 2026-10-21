@@ -1,5 +1,30 @@
 # demo
 
+## Casebook
+
+[`casebook/`](casebook/) is a video-first course on test cases: six narrated lessons across three modules, from writing your first test case to an automated, organized suite. Open `casebook/index.html` in a browser; there is nothing to install or build.
+
+```bash
+cd casebook && python3 -m http.server 8811   # or just open index.html
+```
+
+| Module | Lessons |
+| --- | --- |
+| Foundations | 1. What is a test case? · 2. Good test cases, weak test cases |
+| Designing test cases | 3. Partitions and boundaries · 4. Beyond the happy path |
+| Automating and scaling | 5. From test case to automated test · 6. Organizing a test suite |
+
+**The videos are web-native, not MP4s.** Each lesson's video is a script in [`js/course.js`](casebook/js/course.js): scenes with narration cues and panes (title cards, test case cards, a browser mock, typed code, a terminal, tables, a number line, the test pyramid). The player derives every duration from the narration, and pane timings are written in cue units (`at: 2.5` means halfway through cue 2), so the picture stays in step with the voice. Because each frame is a pure function of the playhead, seeking, chapters, speed changes and poster thumbnails all use the same renderer.
+
+- **Narration** uses the browser's speech synthesis when a voice is available. If a voice runs long, the clock waits at the end of the cue instead of cutting it off. Without a voice, the video plays on its own clock with captions.
+- **Player:** chapter-segmented scrubber with hover previews, captions, 0.75–2× speed, full screen, resume from where you left off, and keys (<kbd>Space</kbd>, <kbd>←</kbd>/<kbd>→</kbd>, <kbd>J</kbd>/<kbd>L</kbd>, <kbd>C</kbd>, <kbd>N</kbd>, <kbd>F</kbd>, <kbd>0</kbd>–<kbd>9</kbd>).
+- **Supporting material** sits under each video: notes with templates and exercises, a clickable transcript that follows playback, and a three-question quiz with explanations.
+- **Progress** is tracked per lesson in `localStorage`: seconds actually watched (scrubbing to the end doesn't count), resume position, and quiz score. A lesson passes when 90% of the video is watched and the quiz is passed, or when you mark it yourself. The course page shows it as a test run: passed, in progress, not started.
+
+To add a lesson, add an entry to `Casebook.course.lessons` and list its id in a module. Lesson ids double as URLs (`index.html#partitions`).
+
+Files: `index.html` (shell), `css/casebook.css`, `js/course.js` (content), `js/stage.js` (timeline and scene panes), `js/player.js` (clock, narration, controls), `js/app.js` (routing, progress, pages). Plain CSS and vanilla JavaScript, no dependencies; fonts from Google Fonts with system fallbacks.
+
 ## Skeleton Lab
 
 [`skeletons/index.html`](skeletons/index.html) is a single self-contained page with four loading-skeleton effects. Each one runs on a realistic mini webpage. Open the file in a browser; there is nothing to install or build.
