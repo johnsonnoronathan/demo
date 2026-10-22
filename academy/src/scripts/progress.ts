@@ -52,7 +52,9 @@ function paint() {
     const next = paths.find((p) => !state.done[p]);
     const started = paths.some((p) => state.visited[p]);
     if (next && started) {
-      a.href = `/${next}/`;
+      // Reuse the page's own link to that lesson, so the URL is always one the site built.
+      const link = document.querySelector<HTMLAnchorElement>(`[data-progress-link="${next}"]`);
+      a.href = link ? link.href : `/${next}/`;
       a.textContent = a.dataset.continueLabel ?? "Continue";
     } else if (!next) {
       a.textContent = "Review the course";
