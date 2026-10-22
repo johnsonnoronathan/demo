@@ -16,6 +16,7 @@
     "check:plans": "node --disable-warning=ExperimentalWarning scripts/check-plans.mjs",
     "check:static": "npm run -s budget && npm run -s lint:queries && npm run -s check:plans",
     "load": "node scripts/mini-load.mjs",
+    "accept": "node --disable-warning=ExperimentalWarning scripts/accept.mjs",
     "profile": "node --disable-warning=ExperimentalWarning --cpu-prof --cpu-prof-dir=profiles server.mjs"
   }
 }

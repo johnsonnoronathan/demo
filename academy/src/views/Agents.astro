@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { courseEntries, loadCourse } from "../lib/course";
 import { buildPrompt } from "../lib/prompt";
-import { href, type Locale } from "../i18n/locales";
+import { href, type Locale, withBase } from "../i18n/locales";
 import { t } from "../i18n/ui";
 interface Props {
   locale: Locale;
@@ -36,7 +36,7 @@ const prompt = buildPrompt(sample, sample.en.data.exercises[0].id).split("\n").s
         <h2>{t(L, "agents.llms")}</h2>
         <p>{t(L, "agents.llmsD")}</p>
         <ul class="plain-list">
-          <li><a href="/llms.txt">/llms.txt</a></li>
+          <li><a href={withBase("/llms.txt")}>{withBase("/llms.txt")}</a></li>
           {entries.map((c) => <li><a href={href(L, `/${c.id}/llms-full.txt`)}>{href(L, `/${c.id}/llms-full.txt`)}</a></li>)}
         </ul>
       </section>

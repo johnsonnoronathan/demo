@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:pages": "SITE_URL=https://johnsonnoronathan.github.io BASE_PATH=/demo astro build",
     "preview": "astro preview"
   },
   "dependencies": {

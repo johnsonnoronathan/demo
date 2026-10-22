@@ -6,11 +6,13 @@ kind: opening
 order: 0
 slug: ""
 minutes: 5
-description: "Put static and dynamic testing together into a routine, report the results, and review the course."
+description: "Put static and dynamic testing together into a routine, report the results, run acceptance, apply it to your own project, and review the course."
 outcomes:
   - "Know which checks run on every pull request, which before a release, and which in production"
   - "Wire the static gates and a short load test into a CI workflow"
   - "Write a performance report that someone can act on and repeat"
+  - "Run an acceptance test and record a go/no-go decision"
+  - "Run the static checks on your own project and hand the fixes to an agent"
   - "Review the whole course and know where to go next"
 ---
 
@@ -22,7 +24,7 @@ The last two chapters went deep: one family of tests each. This one steps back. 
 
 <CourseArc />
 
-By now Larkspur has one query per page instead of 101, two indexes, a storefront a twentieth of its old weight, and a recommendations endpoint with twelve times the throughput. Every one of those changes has a measurement behind it. This chapter makes sure the next change can't quietly undo them.
+By now Larkspur has one query per page instead of 101, two indexes, a storefront a twentieth of its old weight, and a recommendations endpoint with twelve times the throughput. Every one of those changes has a measurement behind it. This chapter makes sure the next change can't quietly undo them. Then it turns the results into a decision, with a formal acceptance test, and takes the static checks to your own codebase.
 
 ## In this chapter
 

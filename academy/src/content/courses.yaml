@@ -23,6 +23,8 @@
     - Write and run load, stress, spike and soak tests with k6
     - Locate a CPU bottleneck in a flame graph and prove the fix
     - Put static and dynamic checks into CI, and report results people can act on
+    - Run an acceptance test against agreed criteria and record a go/no-go decision
+    - Apply the static checks to your own project, with an agent implementing the fixes
   practice:
     name: Larkspur Books
     path: academy/practice/larkspur
@@ -47,7 +49,7 @@
     - id: review
       title: Summary
       role: overall
-      summary: Combine both into a workflow, report the results, and review the whole course.
+      summary: Combine both into a workflow, report the results, run acceptance, apply it to your own project, and review the whole course.
 - id: test-cases
   order: 1
   level: beginner

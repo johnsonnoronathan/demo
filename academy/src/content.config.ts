@@ -39,6 +39,8 @@ const exercise = z.object({
   title: z.string(),
   minutes: z.number(),
   goal: z.string(),
+  // "practice" runs against the course's practice app; "own" against the learner's own repository.
+  target: z.enum(["practice", "own"]).default("practice"),
   // What the agent prompt asks for. The prompt itself is assembled in src/lib/prompt.ts.
   agent: z.object({
     steps: z.array(z.string()),

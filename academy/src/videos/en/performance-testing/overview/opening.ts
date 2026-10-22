@@ -51,16 +51,18 @@ export default defineVideo({
       cues: [
         "Every page works the same way. Watch a short video, like this one.",
         "Then read the lesson below it, at your own pace.",
-        "Then do the hands-on exercise on the practice app.",
-        "And if you like, copy the exercise's prompt into a coding agent, and let it do the run for you, or with you.",
+        "Then do your part of the hands-on exercise: run the checks yourself, and read the numbers.",
+        "Hand the implementation to a coding agent. Copy the exercise's prompt, and the agent makes the fix and quotes its output.",
+        "Then verify: rerun the same check yourself. The number you see is the one that counts, and the decision is yours.",
       ],
       panes: [{
         type: "bullets", check: true,
         items: [
           { at: 0, text: "Watch", sub: "A narrated video with captions and chapters" },
           { at: 1, text: "Read", sub: "The lesson, paced for reading" },
-          { at: 2, text: "Do", sub: "A hands-on exercise with screenshots" },
-          { at: 3, text: "Delegate", sub: "Copy the agent prompt into a coding agent" },
+          { at: 2, text: "Measure", sub: "Run the checks yourself and read the numbers" },
+          { at: 3, text: "Delegate", sub: "The agent implements the fix" },
+          { at: 4, text: "Verify", sub: "Rerun the same check, then decide" },
         ],
       }],
     },

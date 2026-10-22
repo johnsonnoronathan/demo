@@ -5,7 +5,7 @@ export default defineVideo({
   scenes: [
     {
       label: "Introduction",
-      cues: ["The last two chapters went deep, one family of tests each. This one steps back, and makes performance testing a routine."],
+      cues: ["The last two chapters went deep, one family of tests each. This one steps back: it makes performance testing a routine, turns results into a decision, and takes it to your own code."],
       panes: [{ type: "title", kicker: "Chapter 4 · Opening", heading: "Summary", sub: "Make it a routine", subAt: 0.4 }],
     },
     {
@@ -30,6 +30,8 @@ export default defineVideo({
         "You'll decide which checks run on every pull request, which before a release, and which in production.",
         "You'll wire the static gates and a short load test into a CI workflow.",
         "You'll write a performance report that someone else can act on and repeat.",
+        "You'll run a formal acceptance test against agreed criteria, and make the go or no-go call.",
+        "You'll run the static checks on your own project, and hand the fixes to an agent.",
         "And you'll review the whole course in one place.",
       ],
       panes: [{
@@ -38,7 +40,9 @@ export default defineVideo({
           { at: 0, text: "What runs where" },
           { at: 1, text: "Gates in CI" },
           { at: 2, text: "Reports people can act on" },
-          { at: 3, text: "The course in review" },
+          { at: 3, text: "Acceptance: go or no-go" },
+          { at: 4, text: "Your own project" },
+          { at: 5, text: "The course in review" },
         ],
       }],
     },

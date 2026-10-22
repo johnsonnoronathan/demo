@@ -7,7 +7,7 @@ Every page has a video, and the written page sits under it as the supplement. Th
 | Course | Level | Chapters | Pages |
 | --- | --- | --- | --- |
 | **Writing Test Cases** | Beginner | Foundations · Designing test cases · Automating and scaling | 6 |
-| **Performance Testing** | Intermediate | Overview · Static testing · Dynamic testing · Summary | 20 |
+| **Performance Testing** | Intermediate | Overview · Static testing · Dynamic testing · Summary | 22 |
 
 ```bash
 cd academy
@@ -98,7 +98,30 @@ Courses are defined in `src/content/courses.yaml`.
 - The summary gathers every lesson's key points and adds self-check questions.
 - Lessons mix concepts, shown as animated scenes, with hands-on exercises that have screenshots.
 
+Performance Testing covers four things:
+
+- **Learning:** each concept has a video and an animated scene.
+- **Method:** the steps from question to sign-off. They are laid out in lesson 4.3, and each earlier lesson is one step.
+- **Validation:** budgets become acceptance criteria. `npm run accept` in the practice app checks them all and prints ACCEPT or REJECT.
+- **Real projects:** lesson 4.4 takes the static checks to the learner's own codebase.
+
+Every exercise splits the work the same way:
+
+1. **The learner** runs the checks and reads the numbers.
+2. **The agent** implements the fix, from the copied prompt.
+3. **The learner** reruns the same check to verify, then decides.
+
+An exercise with `target: own` in its frontmatter gets a prompt that works on the learner's own repository instead of the practice app. That prompt tells the agent to work on a branch and never to loosen a budget.
+
 **Writing Test Cases** is six short lessons. Each one ends with a quiz.
+
+## Publishing on GitHub Pages
+
+```bash
+npm run build:pages     # builds dist/ for https://johnsonnoronathan.github.io/demo/
+```
+
+The build reads `SITE_URL` and `BASE_PATH`, and every internal link goes through `href()` and `withBase()` in `src/i18n/locales.ts`, so the site works under a sub-path. Publish `dist/` to the `gh-pages` branch, with a `.nojekyll` file so GitHub serves the `_astro/` folder.
 
 ## Built for agents
 

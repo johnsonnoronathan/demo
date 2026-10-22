@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
 import "../styles/video.css";
-import { LOCALES, href, localeInfo, type Locale } from "../i18n/locales";
+import { LOCALES, href, localeInfo, type Locale, withBase } from "../i18n/locales";
 import { t } from "../i18n/ui";
 import { courseEntries, localizeCourse } from "../lib/course";
 
@@ -34,7 +34,7 @@ const cjkFont = ({ zh: "Noto+Sans+SC", ja: "Noto+Sans+JP", ko: "Noto+Sans+KR" } 
     {description && <meta name="description" content={description} />}
     {markdown && <link rel="alternate" type="text/markdown" href={markdown} title="Markdown" />}
     {LOCALES.map((l) => <link rel="alternate" hreflang={l.html} href={href(l.code, path)} />)}
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -114,7 +114,7 @@ const cjkFont = ({ zh: "Noto+Sans+SC", ja: "Noto+Sans+JP", ko: "Noto+Sans+KR" } 
           <h2>{t(L, "footer.forAgents")}</h2>
           <ul>
             <li><a href={href(L, "/agents/")}>{t(L, "nav.agents")}</a></li>
-            <li><a href="/llms.txt">llms.txt</a></li>
+            <li><a href={withBase("/llms.txt")}>llms.txt</a></li>
             {markdown && <li><a href={markdown}>{t(L, "footer.thisPageMd")}</a></li>}
           </ul>
         </div>

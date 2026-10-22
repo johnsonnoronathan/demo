@@ -308,6 +308,7 @@ pre.setup { margin: 10px 0 0; padding: 14px 16px; border-radius: 10px; backgroun
 .ex-head { padding: 14px 20px 12px; background: var(--signal-soft); }
 .ex-kicker { font: 700 12px var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--signal); }
 .ex-goal { margin-top: 4px; }
+.ex-part { margin-top: 10px; font: 600 12px var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--signal); }
 .ex-body { padding: 4px 20px 6px; }
 .ex-body > * + * { margin-top: 14px; }
 .ex-body > ol > li + li { margin-top: 14px; }

@@ -16,11 +16,18 @@ export function localeInfo(code: Locale) {
   return LOCALES.find((l) => l.code === code)!;
 }
 
-/** Site path for a locale: href("zh", "/courses/") → "/zh/courses/". */
+/** The path the site is served under: "" at a domain root, "/demo" on GitHub Pages. */
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+/** A root-relative path with the site's base in front: withBase("/llms.txt"). */
+export function withBase(path: string) {
+  return BASE + path;
+}
+
+/** Site path for a locale: href("zh", "/courses/") → "/zh/courses/" (plus the base). */
 export function href(locale: Locale, path: string) {
   const prefix = localeInfo(locale).prefix;
-  if (!prefix) return path;
-  return `/${prefix}${path === "/" ? "/" : path}`;
+  return withBase(prefix ? `/${prefix}${path}` : path);
 }
 
 /** The same page in another language. `path` is the locale-free path. */

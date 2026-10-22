@@ -34,6 +34,7 @@ API responses carry `X-Query-Count` (database queries for that request) and `Ser
 | `npm run load -- --url <url> --vus 10 --duration 20` | dynamic | Tiny built-in load generator (use when k6 isn't installed) |
 | `k6 run load/load.k6.js` | dynamic | Load test with thresholds. Also `smoke`, `stress`, `spike`, `soak`. |
 | `npm run profile` | dynamic | Starts the app with the CPU profiler; Ctrl+C writes `profiles/*.cpuprofile` |
+| `npm run accept -- --out notes/acceptance-run.md` | acceptance | Checks every criterion in `acceptance.json` (static gates, p95 per endpoint at 50 users, error rate) and prints ACCEPT or REJECT. Exit 0 accepts, 1 rejects, 2 means an entry criterion wasn't met. Needs the app running. |
 
 k6: <https://grafana.com/docs/k6/latest/set-up/install-k6/>. Lighthouse runs with `npx lighthouse`.
 

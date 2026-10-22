@@ -16,6 +16,10 @@ check:
     a: "Static: the N+1 loop, the full table scans or the heavy assets. Dynamic: the CPU hot path in recommendations, which matched no static rule."
   - q: "What makes a performance finding actionable?"
     a: "It names the cause and where it is, the impact in user terms with a measured number, the fix, and the evidence someone can check."
+  - q: "The acceptance run fails D3 by 20 ms the day before a release. The product owner asks you to raise the limit to 450 ms so it passes. What do you do?"
+    a: "Don't change the limit to pass the run. Report the failure. If the release can't wait, the product owner can sign a waiver with an expiry date and a follow-up; changing the criterion itself is a separate decision for the next run."
+  - q: "An agent reports that it fixed an N+1 in your project and the endpoint now runs 3 queries. How do you accept that?"
+    a: "Rerun the same check yourself, on the same journey, and compare your number with the one it quoted. Then break the fix locally to see the new gate fail, and review the branch before merging."
 ---
 
 You started with a slow bookshop and a vague complaint. You end with measured budgets, three static gates, a load test with thresholds, a known capacity, and a report that explains every change.

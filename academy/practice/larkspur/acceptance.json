@@ -1,0 +1,20 @@
+{
+  "release": "Larkspur storefront and API",
+  "note": "Acceptance criteria. Each one comes from a budget agreed in lessons 2.1 and 3.2. `npm run accept` checks the automated ones; the manual ones are recorded from Lighthouse.",
+  "static": [
+    { "id": "S1", "name": "Asset budget: script 50, stylesheet 20, image 250, total 350 KB", "command": "npm run -s budget" },
+    { "id": "S2", "name": "No queries inside loops", "command": "npm run -s lint:queries" },
+    { "id": "S3", "name": "No full scans of large tables on request paths", "command": "npm run -s check:plans" }
+  ],
+  "load": { "vus": 50, "seconds": 10, "warmup": 2 },
+  "dynamic": [
+    { "id": "D1", "name": "/api/books p95 at 50 users", "path": "/api/books?page={1-20}", "p95": 300 },
+    { "id": "D2", "name": "/api/orders p95 at 50 users", "path": "/api/orders?email=reader{0-19999}@larkspur.test", "p95": 200 },
+    { "id": "D3", "name": "/api/recommendations p95 at 50 users", "path": "/api/recommendations?book_id={1-5000}", "p95": 400 }
+  ],
+  "errorRate": { "id": "D4", "name": "Error rate across all requests", "max": 1 },
+  "manual": [
+    { "id": "M1", "name": "LCP on a simulated mid-range phone (Lighthouse)", "limit": "≤ 2.5 s", "evidence": "notes/lighthouse.md" },
+    { "id": "M2", "name": "Lighthouse performance score", "limit": "≥ 90", "evidence": "notes/lighthouse.md" }
+  ]
+}

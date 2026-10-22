@@ -38,9 +38,20 @@ Larkspur is slow on purpose. Each problem in it is one this course teaches you t
 
 ## Working with an agent
 
-Hands-on exercises end with an **agent prompt**. Copy it into Claude Code or another coding agent and the agent can do the exercise for you, or with you. Each prompt is self-contained: where to work, the steps, how to tell it's done, and what to report back. The prompt also tells the agent to quote real command output instead of estimating numbers.
+This course teaches you to test performance, and an agent helps you do it. The split is the same in every exercise:
 
-Doing an exercise yourself first teaches more. Handing the repeat runs to an agent saves time. Either way, read what comes back: check that the numbers in the report appear in the output it quotes.
+| You | The agent |
+| --- | --- |
+| Learn the concept: watch, read | |
+| Run the checks and tests, read the numbers | |
+| | Implement: fixes, scripts, gates, CI configuration |
+| | Report back, quoting real command output |
+| Verify: rerun the same check and compare | |
+| Decide: accept, reject, or set a new budget | |
+
+Each exercise has two parts. **Your part** comes first: the steps you run yourself, with the output you should expect. Then the **agent part**: a prompt you copy into Claude Code or another coding agent, so it makes the changes. The prompt is self-contained: where to work, the steps, how to tell it's done, and what to report. It tells the agent to quote real output instead of estimating, and never to loosen a budget to make a check pass.
+
+When the agent says it's done, rerun the check yourself. The number you see is the one that counts. By the end of the course you'll use the same loop on your own project (lesson 4.4) and finish with a formal acceptance decision (lesson 4.3).
 
 <Callout type="tip" title="Agents can read the whole course">
 Every page has a Markdown version (see "For agents" in the page margin), and `/llms.txt` lists them all. Point an agent there when it needs context beyond a single exercise.
