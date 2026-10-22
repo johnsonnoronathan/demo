@@ -1,6 +1,7 @@
 ---
-import { inline } from "../lib/inline";
 /** Self-check questions from the frontmatter, with answers behind a disclosure. */
+import { inline } from "../lib/inline";
+import { t } from "../i18n/ui";
 const view = Astro.locals.lesson!;
 ---
 
@@ -10,7 +11,7 @@ const view = Astro.locals.lesson!;
       <li>
         <p class="sc-q" set:html={inline(c.q)} />
         <details>
-          <summary>Show answer</summary>
+          <summary>{t(view.locale, "check.show")}</summary>
           <p set:html={inline(c.a)} />
         </details>
       </li>

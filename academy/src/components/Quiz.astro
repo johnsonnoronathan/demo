@@ -1,0 +1,101 @@
+---
+/** A short multiple-choice check. Answers are graded in the browser and remembered. */
+import { t } from "../i18n/ui";
+const view = Astro.locals.lesson!;
+const L = view.locale;
+const quiz = view.entry.data.quiz.length ? view.entry.data.quiz : view.en.data.quiz;
+const pass = Math.max(1, quiz.length - 1);
+---
+
+{
+  quiz.length > 0 && (
+    <form class="quiz" data-quiz={view.path} data-pass={pass} data-l-result={t(L, "quiz.result", { score: "{score}", n: quiz.length })} data-l-passed={t(L, "quiz.passed")} data-l-need={t(L, "quiz.needMore", { pass })} data-l-first={t(L, "quiz.answerFirst", { n: "{n}" })} data-l-correct={t(L, "quiz.correct")} data-l-wrong={t(L, "quiz.wrong")} novalidate>
+      <p class="quiz-kicker">{t(L, "quiz.kicker", { pass, n: quiz.length })}</p>
+      {quiz.map((q, qi) => (
+        <fieldset class="q" data-answer={q.answer}>
+          <legend><span class="q-n">{qi + 1}</span>{q.q}</legend>
+          {q.options.map((o, oi) => (
+            <label class="opt">
+              <input type="radio" name={`q${qi}`} value={oi} />
+              <span>{o}</span>
+            </label>
+          ))}
+          <p class="why" hidden><b></b> {q.why}</p>
+        </fieldset>
+      ))}
+      <div class="quiz-foot">
+        <button type="submit" class="btn btn-primary">{t(L, "quiz.check")}</button>
+        <button type="button" class="btn" data-retake hidden>{t(L, "quiz.again")}</button>
+        <span class="quiz-msg" role="status"></span>
+      </div>
+    </form>
+  )
+}
+
+<script>
+  import { load, save } from "../scripts/store";
+  document.querySelectorAll<HTMLFormElement>("form[data-quiz]").forEach((form) => {
+    const key = form.dataset.quiz!;
+    const sets = [...form.querySelectorAll<HTMLFieldSetElement>("fieldset.q")];
+    const msg = form.querySelector<HTMLElement>(".quiz-msg")!;
+    const retake = form.querySelector<HTMLButtonElement>("[data-retake]")!;
+    const grade = (answers: number[]) => {
+      let score = 0;
+      sets.forEach((fs, i) => {
+        const right = Number(fs.dataset.answer);
+        const ok = answers[i] === right;
+        if (ok) score++;
+        fs.classList.toggle("q-right", ok);
+        fs.classList.toggle("q-wrong", !ok);
+        fs.querySelectorAll<HTMLInputElement>("input").forEach((inp) => {
+          inp.disabled = true;
+          inp.checked = Number(inp.value) === answers[i];
+          inp.closest("label")!.classList.toggle("is-answer", Number(inp.value) === right);
+          inp.closest("label")!.classList.toggle("is-picked", Number(inp.value) === answers[i] && !ok);
+        });
+        const why = fs.querySelector<HTMLElement>(".why")!;
+        why.hidden = false;
+        why.querySelector("b")!.textContent = ok ? form.dataset.lCorrect! : form.dataset.lWrong!;
+      });
+      const passed = score >= Number(form.dataset.pass);
+      msg.textContent = form.dataset.lResult!.replace("{score}", String(score)) + " " + (passed ? form.dataset.lPassed : form.dataset.lNeed);
+      msg.className = "quiz-msg " + (passed ? "ok" : "no");
+      retake.hidden = false;
+      form.querySelector<HTMLButtonElement>("button[type=submit]")!.hidden = true;
+      return { score, passed };
+    };
+    const saved = load().quizzes[key];
+    if (saved) grade(saved.answers);
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const answers = sets.map((fs) => {
+        const c = fs.querySelector<HTMLInputElement>("input:checked");
+        return c ? Number(c.value) : -1;
+      });
+      const missing = answers.indexOf(-1);
+      if (missing >= 0) {
+        msg.textContent = form.dataset.lFirst!.replace("{n}", String(missing + 1));
+        msg.className = "quiz-msg no";
+        return;
+      }
+      const r = grade(answers);
+      const store = load();
+      store.quizzes[key] = { answers, ...r };
+      save(store);
+    });
+    retake.addEventListener("click", () => {
+      sets.forEach((fs) => {
+        fs.classList.remove("q-right", "q-wrong");
+        fs.querySelector<HTMLElement>(".why")!.hidden = true;
+        fs.querySelectorAll<HTMLInputElement>("input").forEach((inp) => {
+          inp.disabled = false;
+          inp.checked = false;
+          inp.closest("label")!.classList.remove("is-answer", "is-picked");
+        });
+      });
+      msg.textContent = "";
+      retake.hidden = true;
+      form.querySelector<HTMLButtonElement>("button[type=submit]")!.hidden = false;
+    });
+  });
+</script>

@@ -1,0 +1,52 @@
+---
+title: "What is a test case?"
+course: "test-cases"
+chapter: "foundations"
+kind: "lesson"
+order: 1
+slug: "anatomy"
+minutes: 15
+description: "The parts of a test case, built field by field and then run by hand against a real sign-in page."
+outcomes: ["Name the fields of a test case and what each is for", "Write a test case precise enough for anyone to repeat", "Run a test case by hand and record the result"]
+keyPoints: ["A test case checks one behavior, with an ID and a clear title.", "Preconditions, test data and steps make it repeatable.", "Decide the expected result before running; record the actual result after.", "A failed test case with a precise actual result is half a bug report."]
+quiz: [{"q": "Which expected result is written well?", "options": ["The login works.", "The account page opens with the heading “Welcome back, Ada”.", "No errors occur.", "The user is happy with the result."], "answer": 1, "why": "It names something you can observe and compare. The others leave room for two testers to disagree."}, {"q": "When should the expected result be written?", "options": ["After running the test, from what you saw", "Before running the test", "Only when the test fails", "By the developer after fixing a bug"], "answer": 1, "why": "If you write it afterwards, you tend to describe whatever happened, and bugs slip through as “expected”."}, {"q": "A customer account must exist before step 1. Which field holds that?", "options": ["Test data", "Steps", "Preconditions", "Actual result"], "answer": 2, "why": "Preconditions describe the state of the world before you start. Test data lists the inputs you type or send."}]
+---
+
+A test case is a written, repeatable check of one behavior. It states the situation, the exact actions, and the result you expect, so anyone can run it and reach the same verdict.
+
+## The fields
+
+| Field | What goes in it |
+| --- | --- |
+| **ID** | A stable, unique handle such as `TC-LOGIN-001`. Bug reports and test runs refer to it. |
+| **Title** | The behavior under test, phrased as an outcome: “Sign-in succeeds with a valid email and password.” |
+| **Preconditions** | What must be true before step 1: accounts, settings, data, the page you start on. |
+| **Test data** | The literal inputs. Write `ada@larkspur.test`, never “a valid email”. |
+| **Steps** | Numbered, one action each, specific enough for a newcomer. |
+| **Expected result** | What you will observe if the software is right. Decide it *before* running. |
+| **Actual result** | What really happened. Filled in during the run. |
+| **Status** | Pass, Fail, Blocked (could not run), or Not run. |
+
+## Template
+
+```text
+ID:              TC-<AREA>-<NNN>
+Title:           <behavior> when <condition>
+Requirement:     REQ-<NN>
+Preconditions:   - ...
+Test data:       - ...
+Steps:           1. ...
+                 2. ...
+Expected result: ...
+Actual result:   (filled in during the run)
+Status:          Pass | Fail | Blocked | Not run
+```
+
+
+## Try it
+
+Write a test case for Larkspur Books' **Sign out** link. It should end the session and return the customer to the home page. Check your draft against the fields above: could a colleague who has never seen the site run it without asking you a question?
+
+<Callout type="tip">
+**Fail is useful.** A failed case with a precise actual result (“6th attempt still allowed; no lock”) is half a bug report already.
+</Callout>

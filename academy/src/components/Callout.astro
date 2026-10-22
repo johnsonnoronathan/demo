@@ -1,13 +1,14 @@
 ---
+import { t } from "../i18n/ui";
 interface Props {
   type?: "note" | "tip" | "warn";
   title?: string;
 }
 const { type = "note", title } = Astro.props;
-const label = { note: "Note", tip: "Tip", warn: "Watch out" }[type];
+const L = Astro.locals.locale ?? "en";
 ---
 
 <aside class={`callout callout-${type}`}>
-  <b class="callout-title">{title ?? label}</b>
+  <b class="callout-title">{title ?? t(L, `callout.${type}`)}</b>
   <div class="callout-body"><slot /></div>
 </aside>

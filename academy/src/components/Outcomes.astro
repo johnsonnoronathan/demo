@@ -1,11 +1,12 @@
 ---
-import { inline } from "../lib/inline";
 /** "What you'll get": the outcomes in the current page's frontmatter. */
+import { inline } from "../lib/inline";
+import { t } from "../i18n/ui";
 interface Props {
   title?: string;
 }
 const view = Astro.locals.lesson!;
-const { title = "What you'll get from this chapter" } = Astro.props;
+const title = Astro.props.title ?? t(view.locale, "course.opening");
 ---
 
 <section class="outcomes">

@@ -1,0 +1,40 @@
+---
+title: "Organizing a test suite"
+course: "test-cases"
+chapter: "automation"
+kind: "lesson"
+order: 2
+slug: "suites"
+minutes: 15
+description: "The test pyramid, traceability to requirements, and keeping a growing suite healthy."
+outcomes: ["Balance a suite with the test pyramid", "Trace test cases to requirements and find gaps and orphans", "Keep a suite healthy: names, flaky tests, ownership"]
+keyPoints: ["Many fast unit tests, fewer integration tests, a handful of end-to-end tests.", "A traceability matrix shows requirements with no tests and tests with no requirement.", "Name tests by behavior and fix flaky tests quickly, or people learn to ignore red."]
+quiz: [{"q": "Where should most of your automated tests sit in the pyramid?", "options": ["End-to-end", "Integration", "Unit", "Spread evenly"], "answer": 2, "why": "Unit tests are fast and precise, so they make up the wide base."}, {"q": "A requirement has no test cases linked to it. What is that called?", "options": ["An orphan", "A gap", "A flake", "A regression"], "answer": 1, "why": "It's a coverage gap. An orphan is the reverse: a test case with no requirement."}, {"q": "A test fails about one run in ten with no code change. What should you do?", "options": ["Re-run until it passes", "Ignore it", "Find and fix the cause, or remove it", "Add more retries"], "answer": 2, "why": "Flaky tests erode trust in the whole suite. Fix the cause (often timing or shared data) or remove the test."}]
+---
+
+A suite is only useful if people trust it and can find their way around it. Shape it like a pyramid, trace it to requirements, and keep it free of noise.
+
+## The pyramid
+
+- **Unit**: one function or class, no network or database. Milliseconds. Hundreds of them.
+- **Integration**: a few real pieces together, such as the cart and its database. Fewer.
+- **End-to-end**: the whole app through the browser, like a customer. A handful, for critical journeys.
+
+
+Push each check as low as it can go. The boundary rules from lesson 2.1 belong in unit tests; “a customer can buy a book” belongs at the top.
+
+## Traceability matrix
+
+Keep a table of requirement → test cases, or tag tests with requirement IDs and generate it. Review it for two things: requirements with no cases (gaps) and cases with no requirement (orphans).
+
+## Keeping it healthy
+
+- **Names:** describe behavior. A failing test name should read like a bug title.
+- **Flaky tests:** quarantine is a last resort; find the cause (timing, shared data, order dependence) and fix it.
+- **Ownership:** when a requirement changes, its cases change in the same pull request.
+- **Prune:** delete cases that duplicate others or test removed features.
+
+
+<Callout type="tip">
+**Where to go next.** Pick one feature you work on, write its traceability table, and fill the first gap you find.
+</Callout>

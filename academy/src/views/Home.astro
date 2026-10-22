@@ -1,0 +1,109 @@
+---
+import Base from "../layouts/Base.astro";
+import CourseCard from "../components/CourseCard.astro";
+import Video from "../components/Video.astro";
+import { courseEntries, loadCourse, totalMinutes } from "../lib/course";
+import { LOCALES, href, type Locale } from "../i18n/locales";
+import { t } from "../i18n/ui";
+
+interface Props {
+  locale: Locale;
+}
+const { locale: L } = Astro.props;
+const entries = await courseEntries();
+const loaded = await Promise.all(entries.map((c) => loadCourse(c.id, L)));
+const all = loaded.flatMap((c) => c.lessons);
+const videos = all.filter((l) => l.video).length;
+const hours = Math.round(totalMinutes(all) / 6) / 10;
+const first = loaded[0];
+const heroVideo = first.lessons.find((l) => l.video)!;
+Astro.locals.lessons = first.lessons;
+const steps = [
+  { k: "watch", icon: '<path d="M8 5v14l11-7z"/>' },
+  { k: "read", icon: '<path d="M4 5h7a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-7a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h7z"/>' },
+  { k: "do", icon: '<path d="M4 6h16v12H4zM8 10l3 2-3 2M13 15h4"/>' },
+  { k: "agent", icon: '<path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/>' },
+] as const;
+---
+
+<Base title={`Testbench · ${t(L, "home.eyebrow")}`} description={t(L, "site.tagline")} locale={L} path="/" section="home">
+  <main id="main" class="home">
+    <section class="home-hero wrap">
+      <div class="hh-copy">
+        <p class="eyebrow">{t(L, "home.eyebrow")}</p>
+        <h1>{t(L, "home.title")}</h1>
+        <p class="hh-sub">{t(L, "home.sub")}</p>
+        <div class="ch-cta">
+          <a class="btn btn-primary btn-lg" href={first.lessons[0].url}>{t(L, "home.ctaStart", { course: first.course.title })}</a>
+          <a class="btn btn-lg" href={href(L, "/courses/")}>{t(L, "home.ctaBrowse")}</a>
+        </div>
+        <dl class="hh-stats">
+          <div><dd>{entries.length}</dd><dt>{t(L, "home.stats.courses")}</dt></div>
+          <div><dd>{videos}</dd><dt>{t(L, "home.stats.videos")}</dt></div>
+          <div><dd>{hours}</dd><dt>{t(L, "home.stats.hours")}</dt></div>
+          <div><dd>{LOCALES.length}</dd><dt>{t(L, "home.stats.languages")}</dt></div>
+        </dl>
+      </div>
+      <div class="hh-video">
+        <Video view={heroVideo} next={first.lessons[first.lessons.indexOf(heroVideo) + 1]} />
+      </div>
+    </section>
+
+    <section class="home-how wrap">
+      <h2 class="sec-h">{t(L, "home.how")}</h2>
+      <ol class="how-steps">
+        {steps.map((s, i) => (
+          <li>
+            <span class="how-icon"><svg viewBox="0 0 24 24" aria-hidden="true" set:html={s.icon} /></span>
+            <span class="how-n">{i + 1}</span>
+            <b>{t(L, `home.how.${s.k}`)}</b>
+            <p>{t(L, `home.how.${s.k}D`)}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="home-courses wrap">
+      <div class="sec-row">
+        <div>
+          <h2 class="sec-h">{t(L, "home.courses")}</h2>
+          <p class="sec-sub">{t(L, "home.coursesSub")}</p>
+        </div>
+        <a class="sec-link" href={href(L, "/courses/")}>{t(L, "home.ctaBrowse")} →</a>
+      </div>
+      <div class="course-grid">
+        {entries.map((c, i) => <CourseCard courseId={c.id} locale={L} index={i} />)}
+      </div>
+    </section>
+
+    <section class="home-path wrap">
+      <h2 class="sec-h">{t(L, "home.path")}</h2>
+      <p class="sec-sub">{t(L, "home.pathSub")}</p>
+      <ol class="path-line">
+        {loaded.map(({ course }, i) => (
+          <li>
+            <a href={href(L, `/${course.id}/`)}>
+              <span class="pl-step">{i + 1}</span>
+              <span><b>{course.title}</b><small>{t(L, `catalog.level.${course.level}`)} · {course.chapters.map((c) => c.title).join(" · ")}</small></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="home-agents">
+      <div class="wrap ha-in">
+        <div>
+          <h2 class="sec-h">{t(L, "home.agents")}</h2>
+          <p class="sec-sub">{t(L, "home.agentsD")}</p>
+          <a class="btn" href={href(L, "/agents/")}>{t(L, "home.agentsLink")}</a>
+        </div>
+        <pre class="ha-code"><code>{`$ curl ${"https://…"}/llms.txt
+# Testbench
+## ${first.course.title}
+- [${first.lessons[0].label}: ${first.lessons[0].title}](${first.lessons[0].mdUrl})
+- …`}</code></pre>
+      </div>
+    </section>
+  </main>
+</Base>

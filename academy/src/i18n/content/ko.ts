@@ -1,0 +1,78 @@
+import type { ContentTranslation } from "./index";
+
+const ko: ContentTranslation = {
+  courses: {
+    "performance-testing": {
+      title: "성능 테스트",
+      tagline: "사용자보다 먼저 소프트웨어를 느리게 만드는 원인을 찾으세요.",
+      summary: "웹 애플리케이션의 성능을 양쪽에서 테스트하는 법을 배웁니다. 정적 테스트는 아무것도 실행하지 않고 코드, 쿼리, 에셋을 살펴보고, 동적 테스트는 시스템을 실행해 트래픽을 보내고 사용자가 느끼는 것을 측정합니다. 일부러 느리게 만든 작은 서점 앱 Larkspur Books로 둘 다 연습합니다.",
+      audience: "JavaScript와 SQL을 읽을 수 있고 터미널을 쓸 줄 아는 개발자와 테스터. 성능 테스트 경험은 필요 없습니다.",
+      prerequisites: ["Node.js 22.13 이상", "터미널과 코드 편집기", "Lighthouse와 CPU 프로파일러용 Chrome", "3장용 k6 (내장된 대체 부하 도구도 있습니다)"],
+      outcomes: [
+        "'빨라야 한다'를 측정 가능한 예산과 임계값으로 바꾸기",
+        "코드, 쿼리 플랜, 빌드를 읽어 N+1 쿼리, 누락된 인덱스, 무거운 에셋 찾기",
+        "Lighthouse로 페이지 로드를 실험실에서 측정하고 Core Web Vitals 읽기",
+        "k6로 부하, 스트레스, 스파이크, 소크 테스트를 작성하고 실행하기",
+        "플레임 그래프에서 CPU 병목을 찾고 수정을 증명하기",
+        "정적·동적 검사를 CI에 넣고, 실행 가능한 결과 보고하기",
+      ],
+      practiceSummary: "Node.js 22로 만든 서점 앱. 스토어프런트와 SQLite 위의 JSON 엔드포인트 3개. 의존성 없음. 일부러 느립니다.",
+      chapters: {
+        overview: { title: "개요", summary: "성능 테스트가 측정하는 것, 두 가지 테스트 계열, 그리고 연습 앱." },
+        static: { title: "정적 테스트", summary: "만든 것을 실행하지 않고 읽어서 성능 문제를 찾습니다." },
+        dynamic: { title: "동적 테스트", summary: "시스템을 실행하고 트래픽을 보내 사용자가 느끼는 것을 측정합니다." },
+        review: { title: "요약", summary: "둘을 하나의 작업 흐름으로 묶고, 결과를 보고하고, 강좌 전체를 돌아봅니다." },
+      },
+    },
+    "test-cases": {
+      title: "테스트 케이스 작성법",
+      tagline: "누구나 실행할 수 있고 버그를 찾아내는 테스트 케이스를 쓰세요.",
+      summary: "여섯 개의 짧은 강의로 배우는 테스트의 기초. 테스트 케이스란 무엇이고 믿을 만한 케이스의 조건은 무엇인지, 동등 분할과 경계값으로 입력을 고르는 법, 비정상 경로 다루기, 작성한 케이스를 자동 테스트로 바꾸기, 커지는 테스트 스위트를 건강하게 유지하기를 배웁니다.",
+      audience: "소프트웨어를 테스트하거나 테스트하고 싶은 누구나: 개발자, 테스터, 프로덕트 담당자. 테스트 경험은 필요 없으며, 3.1강에서 JavaScript를 조금 읽습니다.",
+      prerequisites: ["소프트웨어가 어떻게 망가지는지에 대한 호기심", "Node.js (3.1강의 테스트를 직접 실행할 때만)"],
+      outcomes: [
+        "테스트 케이스를 읽고, 쓰고, 손으로 실행하기",
+        "모호한 테스트 케이스를 구체적이고 반복 가능하게 고쳐 쓰기",
+        "동등 분할과 경계값으로 테스트 입력 고르기",
+        "비정상 케이스를 다루고 결정 테이블로 빈틈 찾기",
+        "Arrange, Act, Assert로 테스트 케이스를 자동 테스트로 바꾸기",
+        "테스트 피라미드와 추적 매트릭스로 스위트 정리하기",
+      ],
+      chapters: {
+        foundations: { title: "기초", summary: "테스트 케이스란 무엇이며, 좋은 케이스와 약한 케이스는 어떻게 다른가." },
+        design: { title: "테스트 케이스 설계", summary: "분할, 경계값, 결정 테이블로 어떤 케이스를 쓸지 고릅니다." },
+        automation: { title: "자동화와 확장", summary: "케이스를 코드로 바꾸고, 사람들이 믿는 스위트로 정리합니다." },
+      },
+    },
+  },
+  pages: {
+    "performance-testing/overview/opening": { title: "개요", description: "이 강좌가 다루는 것, 강좌의 구성, 강의실과 에이전트 프롬프트 사용법." },
+    "performance-testing/overview/what-it-measures": { title: "성능 테스트가 측정하는 것", description: "지연 시간, 처리량, 오류: 모든 성능 테스트가 보고하는 세 숫자와, 지연 시간을 백분위수로 말하는 이유." },
+    "performance-testing/overview/static-and-dynamic": { title: "정적 테스트와 동적 테스트", description: "두 가지 성능 테스트 계열, 각각이 찾을 수 있는 것과 없는 것, 테스트 전에 던질 질문을 계획하는 법." },
+    "performance-testing/overview/summary": { title: "개요: 요약", description: "강좌의 나머지에서 쓸 용어와 계획." },
+    "performance-testing/static/opening": { title: "정적 테스트", description: "아무것도 실행하기 전에, 만든 것을 읽어서 성능 문제를 찾습니다." },
+    "performance-testing/static/budgets": { title: "성능 예산", description: "측정하기 전에 한도를 정하고, 변경할 때마다 검사가 이를 지키게 합니다." },
+    "performance-testing/static/n-plus-one": { title: "N+1 쿼리 코드 리뷰", description: "데이터베이스를 쓰는 코드에서 가장 흔한 성능 버그, 읽어서 찾는 법과 없애는 법." },
+    "performance-testing/static/query-plans": { title: "쿼리 플랜 읽기", description: "쿼리를 실행하지 않고 데이터베이스에 실행 방법을 묻고, 전체 테이블 스캔을 알맞은 인덱스로 고칩니다." },
+    "performance-testing/static/asset-weight": { title: "에셋 무게", description: "파일 무게를 재서 페이지를 무겁게 하는 것을 찾고, 보이는 것은 바꾸지 않은 채 예산 안으로 줄입니다." },
+    "performance-testing/static/summary": { title: "정적 테스트: 요약", description: "앱을 실행하지 않고 찾은 것, 그리고 정적 검사로는 알 수 없는 것." },
+    "performance-testing/dynamic/opening": { title: "동적 테스트", description: "시스템을 실행하고 트래픽을 보내, 사용자가 실제로 느끼는 것을 측정합니다." },
+    "performance-testing/dynamic/lighthouse": { title: "Lighthouse로 실험실 측정", description: "시뮬레이션한 휴대폰으로 페이지를 열고, 사용자가 무엇을 언제 보는지 측정합니다." },
+    "performance-testing/dynamic/load-testing": { title: "k6로 부하 테스트", description: "쇼핑객으로 붐비는 저녁을 시뮬레이션하고, 임계값으로 앱이 예산을 지키는지 판정합니다." },
+    "performance-testing/dynamic/stress-spike-soak": { title: "스트레스, 스파이크, 소크 테스트", description: "예상 부하를 넘어 한계를 찾고, 급증을 견디고, 몇 시간에 걸친 느린 변화를 잡아냅니다." },
+    "performance-testing/dynamic/bottlenecks": { title: "병목 찾기", description: "부하 중인 앱을 프로파일링하고, 플레임 그래프를 읽고, 핫 패스를 고친 뒤 같은 테스트로 증명합니다." },
+    "performance-testing/dynamic/summary": { title: "동적 테스트: 요약", description: "앱을 실행해 보고서야 알게 된 것들." },
+    "performance-testing/review/opening": { title: "요약", description: "정적 테스트와 동적 테스트를 하나의 일상으로 묶고, 결과를 보고하고, 강좌를 돌아봅니다." },
+    "performance-testing/review/workflow": { title: "성능 테스트 작업 흐름", description: "어디서 무엇을 실행할지 정하기: 풀 리퀘스트마다 정적 게이트, 릴리스 전 동적 테스트, 운영 환경 모니터링." },
+    "performance-testing/review/reporting": { title: "결과 보고하기", description: "사람들이 결정할 수 있고 다른 사람이 테스트를 반복할 수 있도록 성능 결과를 정리합니다." },
+    "performance-testing/review/summary": { title: "강좌 요약", description: "강좌에서 다룬 모든 것을 한곳에, 그리고 다음에 갈 곳." },
+    "test-cases/foundations/anatomy": { title: "테스트 케이스란?", description: "테스트 케이스의 구성 요소를 항목별로 만들고, 실제 로그인 페이지에 대해 손으로 실행합니다." },
+    "test-cases/foundations/good-cases": { title: "좋은 테스트 케이스, 약한 테스트 케이스", description: "테스트 케이스를 믿을 수 있게 만드는 다섯 가지 습관과, 많은 팀이 쓰는 Given, When, Then 형식." },
+    "test-cases/design/partitions": { title: "분할과 경계", description: "동등 분할과 경계값 분석: 수천 개의 입력 대신 잘 고른 몇 개." },
+    "test-cases/design/negative": { title: "정상 경로 너머", description: "비정상 케이스, 극단 케이스, 그리고 조건이 결합하는 규칙을 위한 결정 테이블." },
+    "test-cases/automation/unit-tests": { title: "테스트 케이스에서 자동 테스트로", description: "작성한 테스트 케이스를 Arrange, Act, Assert로 코드로 바꾸고, 경계값 테스트가 진짜 버그를 잡는 것을 봅니다." },
+    "test-cases/automation/suites": { title: "테스트 스위트 정리하기", description: "테스트 피라미드, 요구사항 추적, 그리고 커지는 스위트를 건강하게 유지하기." },
+  },
+};
+
+export default ko;

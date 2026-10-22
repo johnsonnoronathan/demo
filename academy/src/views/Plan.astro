@@ -1,0 +1,183 @@
+---
+import Base from "../layouts/Base.astro";
+import CourseArc from "../components/CourseArc.astro";
+import AgentPrompt from "../components/AgentPrompt.astro";
+import { loadCourse, chapterLessons, totalMinutes, totalVideo } from "../lib/course";
+import { buildPrompt } from "../lib/prompt";
+import { planToMarkdown } from "../lib/plan";
+import { inline } from "../lib/inline";
+import { href, type Locale } from "../i18n/locales";
+import { t, formatMinutes, formatClock } from "../i18n/ui";
+import { scenes } from "../scenes";
+import { translations } from "../i18n/content";
+
+interface Props {
+  locale: Locale;
+  courseId: string;
+}
+const { locale: L, courseId } = Astro.props;
+const { course, lessons } = await loadCourse(courseId, L);
+Astro.locals.lessons = lessons;
+const markdown = planToMarkdown(course, lessons);
+const exercises = lessons.flatMap((l) => l.entry.data.exercises.map((ex) => ({ l, ex })));
+let clock = 0;
+const startAt = new Map(lessons.map((l) => { const s = clock; clock += l.entry.data.minutes; return [l, s]; }));
+const hm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
+const partName = (k: string) => (k === "opening" ? t(L, "plan.opening") : t(L, "plan.summary"));
+const sceneTitle = (name: string) => translations[L]?.scenes?.[name]?.title ?? scenes[name]?.title;
+---
+
+<Base title={`${t(L, "plan.eyebrow")} · ${course.title}`} description={course.summary} locale={L} path={`/${course.id}/plan/`} course={{ id: course.id, title: course.title }} mode="plan" markdown={href(L, `/${course.id}/plan.md`)} section="courses">
+  <main class="plan wrap" id="main">
+    <header class="plan-head">
+      <p class="eyebrow">{t(L, "plan.eyebrow")}</p>
+      <h1>{course.title}</h1>
+      <p class="plan-lede">{course.summary}</p>
+      <dl class="plan-facts">
+        <div><dt>{t(L, "plan.totalTime")}</dt><dd>{formatMinutes(L, totalMinutes(lessons))}</dd></div>
+        <div><dt>{t(L, "course.facts.videos")}</dt><dd>{formatClock(totalVideo(lessons))}</dd></div>
+        <div><dt>{t(L, "plan.chapters")}</dt><dd>{course.chapters.length}</dd></div>
+        <div><dt>{t(L, "plan.lessons")}</dt><dd>{lessons.filter((l) => l.entry.data.kind === "lesson").length}</dd></div>
+        {exercises.length > 0 && <div><dt>{t(L, "plan.handsOn")}</dt><dd>{exercises.length}</dd></div>}
+      </dl>
+      <div class="plan-actions">
+        <button type="button" class="btn btn-primary" id="copy-plan" data-l-copy={t(L, "plan.copy")} data-l-copied={t(L, "plan.copied")} data-l-blocked={t(L, "plan.copyBlocked")}>{t(L, "plan.copy")}</button>
+        <a class="btn" href={href(L, `/${course.id}/plan.md`)}>{t(L, "plan.open")}</a>
+        <a class="btn btn-ghost" href={href(L, `/${course.id}/`)}>{t(L, "plan.toClassroom")}</a>
+      </div>
+      <template id="plan-md">{markdown}</template>
+    </header>
+
+    <section class="plan-sec">
+      <h2>{t(L, "plan.structure")}</h2>
+      <CourseArc course={course} lessons={lessons} />
+    </section>
+
+    <section class="plan-sec plan-grid">
+      <div>
+        <h2>{t(L, "plan.goals")}</h2>
+        <ul class="check-list">{course.outcomes.map((o) => <li set:html={inline(o)} />)}</ul>
+      </div>
+      <div>
+        <h2>{t(L, "plan.audience")}</h2>
+        <p>{course.audience}</p>
+        <ul class="plain-list">{course.prerequisites.map((p) => <li set:html={inline(p)} />)}</ul>
+        {course.practice && <pre class="setup"><code>{course.practice.setup.join("\n")}</code></pre>}
+      </div>
+    </section>
+
+    <section class="plan-sec">
+      <h2>{t(L, "plan.schedule")}</h2>
+      <div class="table-wrap">
+        <table class="schedule">
+          <thead>
+            <tr>
+              <th>{t(L, "plan.col.starts")}</th><th>{t(L, "plan.col.part")}</th><th>{t(L, "plan.col.title")}</th><th>{t(L, "plan.col.min")}</th>
+              <th>{t(L, "plan.col.video")}</th><th>{t(L, "plan.col.concepts")}</th><th>{t(L, "plan.col.handsOn")}</th>
+            </tr>
+          </thead>
+          {
+            course.chapters.map((c, i) => {
+              const ls = chapterLessons(lessons, c.id);
+              return (
+                <tbody>
+                  <tr class="sch-chapter">
+                    <th colspan="3" scope="rowgroup">{t(L, "course.chapter", { n: i + 1 })} · {c.title} {c.role && <span class={`role role-${c.role}`}>{t(L, c.role === "overall" ? "course.role.overall" : "course.role.specific")}</span>}</th>
+                    <td>{totalMinutes(ls)}</td><td class="mono">{formatClock(totalVideo(ls))}</td><td></td><td></td>
+                  </tr>
+                  {ls.map((l) => (
+                    <tr>
+                      <td class="mono">{hm(startAt.get(l)!)}</td>
+                      <td class="mono">{l.entry.data.kind === "lesson" ? l.number : partName(l.entry.data.kind)}</td>
+                      <td><a href={`#plan-${l.path.replaceAll("/", "-")}`}>{l.title}</a></td>
+                      <td class="mono">{l.entry.data.minutes}</td>
+                      <td class="mono">{l.video ? `▶ ${formatClock(l.videoSeconds)}` : "–"}</td>
+                      <td>{l.entry.data.concepts.map((k) => k.title).join(", ") || "–"}</td>
+                      <td>{l.entry.data.exercises.map((e) => e.title).join(", ") || "–"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              );
+            })
+          }
+        </table>
+      </div>
+    </section>
+
+    {
+      course.chapters.map((c, i) => {
+        const ls = chapterLessons(lessons, c.id);
+        return (
+          <section class="plan-sec plan-chapter" id={`chapter-${c.id}`}>
+            <header class="pc-head">
+              <span class="pc-n">{t(L, "course.chapter", { n: i + 1 })}{c.role && ` · ${t(L, c.role === "overall" ? "course.role.overall" : "course.role.specific")}`}</span>
+              <h2>{c.title}</h2>
+              <p>{c.summary} · {formatMinutes(L, totalMinutes(ls))}</p>
+            </header>
+            {ls.map((l) => {
+              const e = l.entry.data;
+              return (
+                <article class={`pl-item pl-${e.kind}`} id={`plan-${l.path.replaceAll("/", "-")}`}>
+                  <div class="pl-rail">
+                    <span class="pl-num">{e.kind === "lesson" ? l.number : partName(e.kind)}</span>
+                    <span class="pl-min">{t(L, "lesson.min", { n: e.minutes })}</span>
+                    {l.video && <span class="pl-min">▶ {formatClock(l.videoSeconds)}</span>}
+                  </div>
+                  <div class="pl-body">
+                    <h3><a href={l.url}>{l.title}</a></h3>
+                    <p class="pl-desc">{l.description}</p>
+                    <div class="pl-cols">
+                      {e.outcomes.length > 0 && (
+                        <div><h4>{t(L, "plan.outcomes")}</h4><ul>{e.outcomes.map((o) => <li set:html={inline(o)} />)}</ul></div>
+                      )}
+                      {e.concepts.length > 0 && (
+                        <div>
+                          <h4>{t(L, "plan.concepts")}</h4>
+                          <ul>{e.concepts.map((k) => <li>{k.title}{k.scene && sceneTitle(k.scene) && <span class="pl-anim"> · {t(L, "plan.animation")}</span>}</li>)}</ul>
+                        </div>
+                      )}
+                      {e.keyPoints.length > 0 && (
+                        <div><h4>{t(L, "plan.keyPoints")}</h4><ul>{e.keyPoints.map((k) => <li set:html={inline(k)} />)}</ul></div>
+                      )}
+                    </div>
+                    {e.exercises.map((ex) => (
+                      <div class="pl-ex">
+                        <p><span class="tag tag-ex">{t(L, "ex.kicker", { n: ex.minutes })}</span> <b>{ex.title}.</b> <Fragment set:html={inline(ex.goal)} /></p>
+                        <AgentPrompt prompt={buildPrompt(l, ex.id)} title={ex.title} />
+                      </div>
+                    ))}
+                    {e.check.length > 0 && (
+                      <div class="pl-check">
+                        <h4>{t(L, "plan.selfCheck")}</h4>
+                        <ol>{e.check.map((q) => <li><span set:html={inline(q.q)} /> <em set:html={inline(q.a)} /></li>)}</ol>
+                      </div>
+                    )}
+                    {e.quiz.length > 0 && (
+                      <div class="pl-check">
+                        <h4>{t(L, "plan.selfCheck")}</h4>
+                        <ol>{e.quiz.map((q) => <li><span>{q.q}</span> <em>{q.options[q.answer]}. {q.why}</em></li>)}</ol>
+                      </div>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        );
+      })
+    }
+  </main>
+  <script>
+    const btn = document.getElementById("copy-plan") as HTMLButtonElement;
+    const tpl = document.getElementById("plan-md") as HTMLTemplateElement;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(tpl.content.textContent ?? "");
+        btn.textContent = btn.dataset.lCopied!;
+      } catch {
+        btn.textContent = btn.dataset.lBlocked!;
+      }
+      setTimeout(() => (btn.textContent = btn.dataset.lCopy!), 2400);
+    });
+  </script>
+</Base>

@@ -1,0 +1,78 @@
+import type { ContentTranslation } from "./index";
+
+const de: ContentTranslation = {
+  courses: {
+    "performance-testing": {
+      title: "Performance-Tests",
+      tagline: "Finden Sie heraus, was Software langsam macht, bevor Ihre Nutzer es merken.",
+      summary: "Lernen Sie, die Performance einer Webanwendung von beiden Seiten zu testen. Statische Tests untersuchen Code, Abfragen und Assets, ohne etwas auszuführen. Dynamische Tests lassen das System laufen, schicken Last darauf und messen, was Nutzer spüren. Beides üben Sie an Larkspur Books, einer kleinen Buchhandlungs-App, die absichtlich langsam ist.",
+      audience: "Entwickler und Tester, die JavaScript und SQL lesen und ein Terminal bedienen können. Erfahrung mit Performance-Tests ist nicht nötig.",
+      prerequisites: ["Node.js 22.13 oder neuer", "Ein Terminal und ein Code-Editor", "Chrome für Lighthouse und den CPU-Profiler", "k6 für Kapitel 3 (der Kurs enthält auch ein eingebautes Lastwerkzeug)"],
+      outcomes: [
+        "„Es soll schnell sein“ in messbare Budgets und Schwellenwerte übersetzen",
+        "N+1-Abfragen, fehlende Indizes und schwere Assets beim Lesen von Code, Plänen und Builds finden",
+        "Seitenladezeiten im Labor mit Lighthouse messen und Core Web Vitals lesen",
+        "Last-, Stress-, Spike- und Dauertests mit k6 schreiben und ausführen",
+        "Einen CPU-Engpass im Flame Graph finden und die Korrektur belegen",
+        "Statische und dynamische Prüfungen in die CI bringen und verwertbare Ergebnisse berichten",
+      ],
+      practiceSummary: "Eine Buchhandlung in Node.js 22 mit Shop-Seite und drei JSON-Endpunkten auf SQLite. Ohne Abhängigkeiten. Absichtlich langsam.",
+      chapters: {
+        overview: { title: "Überblick", summary: "Was Performance-Tests messen, die zwei Testfamilien und die Übungs-App." },
+        static: { title: "Statische Tests", summary: "Performance-Probleme finden, indem man das Gebaute untersucht, ohne es auszuführen." },
+        dynamic: { title: "Dynamische Tests", summary: "Das System laufen lassen, Last darauf schicken und messen, was Nutzer spüren." },
+        review: { title: "Zusammenfassung", summary: "Beides zu einem Ablauf verbinden, Ergebnisse berichten und den ganzen Kurs wiederholen." },
+      },
+    },
+    "test-cases": {
+      title: "Testfälle schreiben",
+      tagline: "Schreiben Sie Testfälle, die jeder ausführen kann und die Fehler finden.",
+      summary: "Die Grundlagen des Testens in sechs kurzen Lektionen. Sie lernen, was ein Testfall ist und was ihn verlässlich macht, wählen Eingaben mit Äquivalenzklassen und Grenzwerten, decken die Fehlerpfade ab, machen aus einem geschriebenen Fall einen automatisierten Test und halten eine wachsende Testsuite gesund.",
+      audience: "Alle, die Software testen oder es lernen wollen: Entwickler, Tester, Produktleute. Keine Testerfahrung nötig; in Lektion 3.1 wird etwas JavaScript gelesen.",
+      prerequisites: ["Neugier darauf, wie Software kaputtgeht", "Node.js, nur wenn Sie die Tests aus Lektion 3.1 selbst ausführen möchten"],
+      outcomes: [
+        "Einen Testfall lesen, schreiben und von Hand ausführen",
+        "Vage Testfälle in konkrete, wiederholbare umschreiben",
+        "Testeingaben mit Äquivalenzklassen und Grenzwerten auswählen",
+        "Negativfälle abdecken und Lücken mit Entscheidungstabellen finden",
+        "Einen Testfall mit Arrange, Act, Assert in einen automatisierten Test verwandeln",
+        "Eine Suite mit der Testpyramide und einer Rückverfolgbarkeitsmatrix ordnen",
+      ],
+      chapters: {
+        foundations: { title: "Grundlagen", summary: "Was ein Testfall ist und was einen guten von einem schwachen unterscheidet." },
+        design: { title: "Testfälle entwerfen", summary: "Mit Klassen, Grenzwerten und Entscheidungstabellen entscheiden, welche Fälle man schreibt." },
+        automation: { title: "Automatisieren und skalieren", summary: "Fälle in Code verwandeln und eine Suite aufbauen, der man vertraut." },
+      },
+    },
+  },
+  pages: {
+    "performance-testing/overview/opening": { title: "Überblick", description: "Was dieser Kurs behandelt, wie er aufgebaut ist und wie Sie den Kursraum und seine Agenten-Prompts nutzen." },
+    "performance-testing/overview/what-it-measures": { title: "Was Performance-Tests messen", description: "Latenz, Durchsatz und Fehler: die drei Zahlen, die jeder Performance-Test liefert, und warum man Latenz in Perzentilen angibt." },
+    "performance-testing/overview/static-and-dynamic": { title: "Statische und dynamische Tests", description: "Die zwei Familien von Performance-Tests, was jede finden kann und was nicht, und wie man vor dem Testen die richtigen Fragen plant." },
+    "performance-testing/overview/summary": { title: "Überblick: Zusammenfassung", description: "Das Vokabular und der Plan für den Rest des Kurses." },
+    "performance-testing/static/opening": { title: "Statische Tests", description: "Performance-Probleme finden, indem man das Gebaute liest, bevor irgendetwas läuft." },
+    "performance-testing/static/budgets": { title: "Performance-Budgets", description: "Grenzen vereinbaren, bevor gemessen wird, und sie bei jeder Änderung automatisch prüfen lassen." },
+    "performance-testing/static/n-plus-one": { title: "Code-Review für N+1-Abfragen", description: "Der häufigste Performance-Fehler in Code mit Datenbank: wie man ihn beim Lesen findet und wie man ihn beseitigt." },
+    "performance-testing/static/query-plans": { title: "Abfragepläne lesen", description: "Die Datenbank fragen, wie sie eine Abfrage ausführen würde, ohne sie auszuführen, und Full Table Scans mit dem passenden Index beheben." },
+    "performance-testing/static/asset-weight": { title: "Gewicht der Assets", description: "Herausfinden, was eine Seite schwer macht, indem man ihre Dateien wiegt, und sie ins Budget bringen, ohne dass Nutzer etwas merken." },
+    "performance-testing/static/summary": { title: "Statische Tests: Zusammenfassung", description: "Was Sie gefunden haben, ohne die App zu starten, und was statische Prüfungen nicht sagen können." },
+    "performance-testing/dynamic/opening": { title: "Dynamische Tests", description: "Das System laufen lassen, Last darauf schicken und messen, was Nutzer wirklich spüren." },
+    "performance-testing/dynamic/lighthouse": { title: "Labormessung mit Lighthouse", description: "Die Seite auf einem simulierten Smartphone laden und messen, was der Nutzer wann sieht." },
+    "performance-testing/dynamic/load-testing": { title: "Lasttests mit k6", description: "Einen geschäftigen Abend voller Kunden simulieren und Schwellenwerte entscheiden lassen, ob die App ihre Budgets einhält." },
+    "performance-testing/dynamic/stress-spike-soak": { title: "Stress-, Spike- und Dauertests", description: "Über die erwartete Last hinausgehen, um die Obergrenze zu finden, einen Ansturm zu überstehen und schleichende Verschlechterung über Stunden zu erkennen." },
+    "performance-testing/dynamic/bottlenecks": { title: "Den Engpass finden", description: "Die App unter Last profilieren, den Flame Graph lesen, den heißen Pfad beheben und es mit demselben Test belegen." },
+    "performance-testing/dynamic/summary": { title: "Dynamische Tests: Zusammenfassung", description: "Was das Ausführen der App gezeigt hat, das das Lesen nicht zeigen konnte." },
+    "performance-testing/review/opening": { title: "Zusammenfassung", description: "Statische und dynamische Tests zu einer Routine verbinden, Ergebnisse berichten und den Kurs wiederholen." },
+    "performance-testing/review/workflow": { title: "Ein Ablauf für Performance-Tests", description: "Entscheiden, was wo läuft: statische Prüfungen bei jedem Pull Request, dynamische Tests vor dem Release, Monitoring in Produktion." },
+    "performance-testing/review/reporting": { title: "Ergebnisse berichten", description: "Performance-Ergebnisse so aufschreiben, dass andere entscheiden und den Test wiederholen können." },
+    "performance-testing/review/summary": { title: "Kurszusammenfassung", description: "Alles, was der Kurs behandelt hat, an einem Ort, und wie es weitergeht." },
+    "test-cases/foundations/anatomy": { title: "Was ist ein Testfall?", description: "Die Teile eines Testfalls, Feld für Feld aufgebaut und dann von Hand gegen eine echte Anmeldeseite ausgeführt." },
+    "test-cases/foundations/good-cases": { title: "Gute und schwache Testfälle", description: "Fünf Gewohnheiten, die einen Testfall verlässlich machen, und die Form Given, When, Then, in der viele Teams sie schreiben." },
+    "test-cases/design/partitions": { title: "Äquivalenzklassen und Grenzwerte", description: "Äquivalenzklassenbildung und Grenzwertanalyse: wenige gut gewählte Eingaben statt Tausender." },
+    "test-cases/design/negative": { title: "Jenseits des Happy Path", description: "Negativfälle, Grenzfälle und Entscheidungstabellen für Regeln, die zusammenwirken." },
+    "test-cases/automation/unit-tests": { title: "Vom Testfall zum automatisierten Test", description: "Einen geschriebenen Testfall mit Arrange, Act, Assert in Code verwandeln und zusehen, wie ein Grenzwerttest einen echten Fehler fängt." },
+    "test-cases/automation/suites": { title: "Eine Testsuite ordnen", description: "Die Testpyramide, Rückverfolgbarkeit zu Anforderungen und wie eine wachsende Suite gesund bleibt." },
+  },
+};
+
+export default de;

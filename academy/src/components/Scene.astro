@@ -1,5 +1,7 @@
 ---
 import { scenes } from "../scenes";
+import { translations } from "../i18n/content";
+import { t } from "../i18n/ui";
 
 interface Props {
   name: string;
@@ -7,33 +9,37 @@ interface Props {
 const { name } = Astro.props;
 const def = scenes[name];
 if (!def) throw new Error(`Unknown scene "${name}"`);
+const L = Astro.locals.locale ?? "en";
+const tr = translations[L]?.scenes?.[name];
+const title = tr?.title ?? def.title;
+const steps = tr?.steps?.length === def.steps.length ? tr.steps : def.steps;
 const height = def.height ?? 360;
 ---
 
-<tb-scene class="scene" data-scene={name}>
+<tb-scene class="scene" data-scene={name} data-l-play={t(L, "scene.play")} data-l-pause={t(L, "scene.pause")} data-l-replay={t(L, "scene.replay")}>
   <figure>
     <div class="scene-head">
-      <span class="scene-kicker">Concept animation</span>
-      <figcaption>{def.title}</figcaption>
+      <span class="scene-kicker">{t(L, "scene.kicker")}</span>
+      <figcaption>{title}</figcaption>
     </div>
     <div class="scene-stage">
-      <svg viewBox={`0 0 720 ${height}`} role="img" aria-label={`${def.title}. ${def.steps.join(" ")}`}></svg>
+      <svg class="sc-svg" viewBox={`0 0 720 ${height}`} role="img" aria-label={`${title}. ${steps.join(" ")}`}></svg>
     </div>
     <div class="scene-controls">
-      <button class="scene-play" type="button" aria-label="Play animation">
+      <button class="scene-play" type="button" aria-label={t(L, "scene.play")}>
         <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z" fill="currentColor"></path></svg>
         <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 4h3.5v12H5zM11.5 4H15v12h-3.5z" fill="currentColor"></path></svg>
         <svg class="i-replay" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4a6 6 0 1 1-5.7 4.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path><path d="M3 3.5v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       </button>
       <ol class="scene-steps">
-        {def.steps.map((_, i) => (
-          <li><button type="button" data-step={i} aria-label={`Go to step ${i + 1} of ${def.steps.length}`}><i></i></button></li>
+        {steps.map((_, i) => (
+          <li><button type="button" data-step={i} aria-label={t(L, "scene.step", { i: i + 1, n: steps.length })}><i></i></button></li>
         ))}
       </ol>
-      <span class="scene-count">1 / {def.steps.length}</span>
+      <span class="scene-count">1 / {steps.length}</span>
     </div>
     <ol class="scene-captions">
-      {def.steps.map((s, i) => <li data-caption={i}>{s}</li>)}
+      {steps.map((s, i) => <li data-caption={i}>{s}</li>)}
     </ol>
   </figure>
 </tb-scene>

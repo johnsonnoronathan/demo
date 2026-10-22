@@ -22,7 +22,12 @@ class TbScene extends HTMLElement {
     if (!def || !svg || this.draw) return;
     this.n = def.steps.length;
     // Long captions get more time; the pace is roughly reading speed.
-    this.durations = def.steps.map((s) => Math.min(9000, Math.max(3600, s.split(/\s+/).length * 330 + 1400)));
+    const captions = [...this.querySelectorAll("[data-caption]")].map((c) => c.textContent ?? "");
+    this.durations = captions.map((s) => {
+      const cjk = (s.match(/[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/g) || []).length;
+      const ms = cjk > s.length * 0.3 ? cjk * 220 + 1400 : s.split(/\s+/).length * 330 + 1400;
+      return Math.min(9000, Math.max(3600, ms));
+    });
     this.draw = def.build(svg);
     this.classList.add("is-ready");
     this.render();
@@ -63,7 +68,7 @@ class TbScene extends HTMLElement {
     this.querySelector(".scene-count")!.textContent = `${step + 1} / ${this.n}`;
     const ended = this.p >= this.n;
     this.dataset.state = this.playing ? "playing" : ended ? "ended" : "paused";
-    this.querySelector(".scene-play")!.setAttribute("aria-label", this.playing ? "Pause animation" : ended ? "Replay animation" : "Play animation");
+    this.querySelector(".scene-play")!.setAttribute("aria-label", (this.playing ? this.dataset.lPause : ended ? this.dataset.lReplay : this.dataset.lPlay) ?? "");
   }
 
   private tick = (now: number) => {

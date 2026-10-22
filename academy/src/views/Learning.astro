@@ -1,0 +1,105 @@
+---
+import Base from "../layouts/Base.astro";
+import { courseEntries, loadCourse } from "../lib/course";
+import { href, type Locale } from "../i18n/locales";
+import { t, formatClock } from "../i18n/ui";
+interface Props {
+  locale: Locale;
+}
+const { locale: L } = Astro.props;
+const courses = await Promise.all((await courseEntries()).map((c) => loadCourse(c.id, L)));
+// What the browser needs to draw the dashboard from local progress.
+const data = courses.map(({ course, lessons }) => ({
+  id: course.id,
+  title: course.title,
+  url: href(L, `/${course.id}/`),
+  pages: lessons.map((l) => ({ path: l.path, title: l.title, label: l.label, url: l.url, video: l.video ? `${l.key}@${l.videoLocale}` : null, len: formatClock(l.videoSeconds) })),
+}));
+const S = {
+  continue: t(L, "learning.continue"), start: t(L, "learning.start"),
+  pages: t(L, "learning.pages", { done: "{done}", total: "{total}" }), videos: t(L, "learning.videos", { done: "{done}", total: "{total}" }),
+  exercises: t(L, "learning.exercises", { n: "{n}" }), cleared: t(L, "learning.cleared"),
+};
+---
+
+<Base title={`${t(L, "learning.title")} · Testbench`} description={t(L, "learning.sub")} locale={L} path="/learning/" section="learning">
+  <main id="main" class="learning wrap">
+    <header class="page-head">
+      <h1>{t(L, "learning.title")}</h1>
+      <p class="sec-sub">{t(L, "learning.sub")}</p>
+    </header>
+    <div class="learn-grid" id="learn-grid">
+      {
+        data.map((c) => (
+          <article class="learn-card" data-course={c.id}>
+            <h2><a href={c.url}>{c.title}</a></h2>
+            <div class="learn-bars">
+              <div class="learn-bar"><i data-bar="pages"></i><span data-label="pages">{S.pages.replace("{done}", "0").replace("{total}", String(c.pages.length))}</span></div>
+              <div class="learn-bar is-video"><i data-bar="videos"></i><span data-label="videos">{S.videos.replace("{done}", "0").replace("{total}", String(c.pages.filter((p) => p.video).length))}</span></div>
+            </div>
+            <p class="learn-ex" data-label="exercises"></p>
+            <a class="btn btn-primary" data-next href={c.pages[0].url}>{S.start}: {c.pages[0].title}</a>
+          </article>
+        ))
+      }
+    </div>
+    <section class="learn-recent">
+      <h2 class="sec-h">{t(L, "learning.recent")}</h2>
+      <ol id="recent" class="recent-list"><li class="recent-empty">{t(L, "learning.empty")}</li></ol>
+    </section>
+    <div class="reset-box" id="reset-box">
+      <button type="button" class="btn btn-ghost" id="reset">{t(L, "learning.reset")}</button>
+      <span class="confirm" hidden><b>{t(L, "learning.confirm")}</b> <button type="button" class="btn btn-danger" id="reset-yes">{t(L, "learning.yes")}</button> <button type="button" class="btn" id="reset-no">{t(L, "learning.no")}</button></span>
+    </div>
+  </main>
+  <script type="application/json" id="learn-data" set:html={JSON.stringify({ data, S }).replace(/</g, "\\u003c")} />
+  <script>
+    import { load, clear, watched } from "../scripts/store";
+    const { data, S } = JSON.parse(document.getElementById("learn-data")!.textContent!);
+    function draw() {
+      const st = load();
+      const recent: { t: number; title: string; label: string; url: string }[] = [];
+      for (const c of data) {
+        const card = document.querySelector<HTMLElement>(`[data-course="${c.id}"]`)!;
+        const done = c.pages.filter((p: any) => st.done[p.path]).length;
+        const vids = c.pages.filter((p: any) => p.video);
+        const seen = vids.filter((p: any) => watched(st.videos[p.video]) >= 0.9).length;
+        const ex = Object.keys(st.exercises).filter((k) => k.startsWith(c.id + "/")).length;
+        card.querySelector<HTMLElement>('[data-bar="pages"]')!.style.setProperty("--w", String(done / c.pages.length));
+        card.querySelector<HTMLElement>('[data-bar="videos"]')!.style.setProperty("--w", String(vids.length ? seen / vids.length : 0));
+        card.querySelector('[data-label="pages"]')!.textContent = S.pages.replace("{done}", done).replace("{total}", c.pages.length);
+        card.querySelector('[data-label="videos"]')!.textContent = S.videos.replace("{done}", seen).replace("{total}", vids.length);
+        card.querySelector('[data-label="exercises"]')!.textContent = ex ? S.exercises.replace("{n}", ex) : "";
+        const next = c.pages.find((p: any) => !st.done[p.path]) ?? c.pages[0];
+        const started = c.pages.some((p: any) => st.visited[p.path]);
+        const a = card.querySelector<HTMLAnchorElement>("[data-next]")!;
+        a.href = next.url;
+        a.textContent = `${started ? S.continue : S.start}: ${next.title}`;
+        for (const p of c.pages) if (st.visited[p.path]) recent.push({ t: st.visited[p.path], title: p.title, label: `${c.title} · ${p.label}`, url: p.url });
+      }
+      recent.sort((a, b) => b.t - a.t);
+      const list = document.getElementById("recent")!;
+      if (recent.length) {
+        list.innerHTML = "";
+        for (const r of recent.slice(0, 8)) {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = r.url;
+          a.innerHTML = `<small></small><b></b>`;
+          a.querySelector("small")!.textContent = r.label;
+          a.querySelector("b")!.textContent = r.title;
+          li.appendChild(a);
+          list.appendChild(li);
+        }
+      }
+    }
+    draw();
+    const box = document.getElementById("reset-box")!;
+    box.querySelector("#reset")!.addEventListener("click", () => (box.querySelector<HTMLElement>(".confirm")!.hidden = false));
+    box.querySelector("#reset-no")!.addEventListener("click", () => (box.querySelector<HTMLElement>(".confirm")!.hidden = true));
+    box.querySelector("#reset-yes")!.addEventListener("click", () => {
+      clear();
+      location.reload();
+    });
+  </script>
+</Base>

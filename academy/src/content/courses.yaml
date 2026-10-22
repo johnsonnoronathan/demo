@@ -1,4 +1,6 @@
 - id: performance-testing
+  order: 2
+  level: intermediate
   title: Performance Testing
   tagline: Find what makes software slow before your users do.
   summary: >-
@@ -46,3 +48,35 @@
       title: Summary
       role: overall
       summary: Combine both into a workflow, report the results, and review the whole course.
+- id: test-cases
+  order: 1
+  level: beginner
+  title: Writing Test Cases
+  tagline: Write test cases anyone can run, and that find bugs.
+  summary: >-
+    The foundations of testing in six short lessons. Learn what a test case is and what
+    makes one trustworthy, choose inputs with partitions and boundaries, cover the unhappy
+    paths, turn a written case into an automated test, and keep a growing suite healthy.
+  audience: >-
+    Anyone who tests software or wants to: developers, testers, product people. No
+    previous testing experience needed; lesson 3.1 reads a little JavaScript.
+  prerequisites:
+    - Curiosity about how software breaks
+    - Node.js, only if you want to run lesson 3.1's tests yourself
+  outcomes:
+    - Read, write and run a test case by hand
+    - Rewrite vague test cases into specific, repeatable ones
+    - Choose test inputs with equivalence partitions and boundary values
+    - Cover negative cases and use decision tables to find gaps
+    - Turn a test case into an automated test with Arrange, Act, Assert
+    - Organise a suite with the test pyramid and a traceability matrix
+  chapters:
+    - id: foundations
+      title: Foundations
+      summary: What a test case is, and what separates a good one from a weak one.
+    - id: design
+      title: Designing test cases
+      summary: Choose which cases to write with partitions, boundaries and decision tables.
+    - id: automation
+      title: Automating and scaling
+      summary: Turn cases into code, then organise a suite that people trust.

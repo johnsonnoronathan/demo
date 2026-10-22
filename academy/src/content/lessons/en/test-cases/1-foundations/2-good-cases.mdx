@@ -1,0 +1,52 @@
+---
+title: "Good test cases, weak test cases"
+course: "test-cases"
+chapter: "foundations"
+kind: "lesson"
+order: 2
+slug: "good-cases"
+minutes: 15
+description: "Five habits that make a test case trustworthy, and the Given, When, Then shape many teams write them in."
+outcomes: ["Spot vague wording in a test case and rewrite it", "Apply five habits: atomic, independent, repeatable, specific, traceable", "Write a scenario in Given, When, Then form"]
+keyPoints: ["Replace vague words with real values and observable results.", "Keep each case atomic, independent, repeatable, specific and traceable.", "Given is the setup, When is the one action, Then is the expected result."]
+quiz: [{"q": "A title reads “Add to cart and checkout and apply coupon”. Which habit does it break?", "options": ["Traceable", "Atomic", "Repeatable", "None, it is fine"], "answer": 1, "why": "Three behaviors in one case means a failure doesn't tell you which one broke. Split it into three cases."}, {"q": "Case B only passes if case A ran first and created an order. What should change?", "options": ["Always run A before B", "Merge A and B into one case", "B sets up its own order in its preconditions", "Delete case B"], "answer": 2, "why": "Independent cases can run in any order, alone or in parallel. B should create the order it needs."}, {"q": "In Given, When, Then, where does the expected result go?", "options": ["Given", "When", "Then", "Feature"], "answer": 2, "why": "Given is the setup, When is the one action, Then is what you expect to observe."}]
+---
+
+A good test case gives the same verdict no matter who runs it, and when it fails, it points at one thing.
+
+## Weak words to watch for
+
+| Weak | Rewrite as |
+| --- | --- |
+| “a valid user” | `ada@larkspur.test` / `Lark!2026` |
+| “it works” | “The account page opens with ‘Welcome back, Ada’.” |
+| “should show an error” | “‘Email or password is incorrect’ appears under the form.” |
+| “test the cart” | One case per behavior: add, remove, change quantity… |
+
+
+## The five habits
+
+1. **Atomic.** One behavior per case. If the title needs “and”, split it.
+2. **Independent.** Never rely on another case running first; set up your own preconditions.
+3. **Repeatable.** Fixed data, fixed steps. Avoid “today’s date” unless you pin it.
+4. **Specific.** Values and observable outcomes, not intentions.
+5. **Traceable.** Reference the requirement, such as `REQ-01`.
+
+
+## Given, When, Then
+
+```gherkin
+Scenario: Wrong password is rejected
+  Given a customer account "ada@larkspur.test" exists
+  And its password is "Lark!2026"
+  When I sign in with password "lark2026"
+  Then I see "Email or password is incorrect"
+  And I remain on the sign-in page
+```
+
+
+Keep exactly one **When** per scenario. Two actions usually means two scenarios.
+
+## Try it
+
+Rewrite this weak case: *“Check that search works.”* Pick one behavior (for example, searching “Middlemarch” lists that title first) and write it in Given, When, Then form.

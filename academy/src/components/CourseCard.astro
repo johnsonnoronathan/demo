@@ -1,0 +1,41 @@
+---
+import { loadCourse, fullLocales, totalMinutes, totalVideo } from "../lib/course";
+import { href, localeInfo, type Locale } from "../i18n/locales";
+import { t, formatMinutes, formatClock } from "../i18n/ui";
+interface Props {
+  courseId: string;
+  locale: Locale;
+  index: number;
+  detailed?: boolean;
+}
+const { courseId, locale: L, index, detailed } = Astro.props;
+const { course, lessons } = await loadCourse(courseId, L);
+const minor = lessons.filter((l) => l.entry.data.kind === "lesson").length;
+const videos = lessons.filter((l) => l.video).length;
+const handsOn = lessons.reduce((a, l) => a + l.en.data.exercises.length, 0);
+const full = (await fullLocales(courseId)).map((c) => localeInfo(c).label).join(", ");
+---
+
+<article class={`course-card cc-tone-${index % 2}`}>
+  <a class="cc-link" href={href(L, `/${course.id}/`)}>
+    <div class="cc-band">
+      <span class="cc-step">{String(index + 1).padStart(2, "0")}</span>
+      <span class="cc-level">{t(L, `catalog.level.${course.level}`)}</span>
+      <span class="cc-play" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" /></svg>{formatClock(totalVideo(lessons))}</span>
+    </div>
+    <div class="cc-body">
+      <h3>{course.title}</h3>
+      <p class="cc-tag">{course.tagline}</p>
+      {detailed && <p class="cc-sum">{course.summary}</p>}
+      <ul class="cc-meta">
+        <li>{t(L, "catalog.lessons", { n: minor })}</li>
+        <li>{t(L, "catalog.videos", { n: videos })}</li>
+        <li>{formatMinutes(L, totalMinutes(lessons))}</li>
+        {handsOn > 0 && <li>{t(L, "catalog.handsOn", { n: handsOn })}</li>}
+      </ul>
+      <ol class="cc-chapters">{course.chapters.map((c) => <li>{c.title}</li>)}</ol>
+      <p class="cc-langs">{t(L, "catalog.translated", { langs: full })}</p>
+      <span class="cc-open">{t(L, "catalog.open")} →</span>
+    </div>
+  </a>
+</article>

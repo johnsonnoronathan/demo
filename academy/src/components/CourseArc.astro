@@ -1,33 +1,44 @@
 ---
 /** The course's overall–specific–overall shape, with the current chapter marked. */
-import { loadCourse, chapterLessons, type Course } from "../lib/course";
+import { chapterLessons, totalMinutes, type CourseInfo, type LessonView } from "../lib/course";
+import { href } from "../i18n/locales";
+import { t } from "../i18n/ui";
 interface Props {
-  course?: Course;
+  course?: CourseInfo;
+  lessons?: LessonView[];
   current?: string;
 }
 const course = Astro.props.course ?? Astro.locals.lesson!.course;
+const lessons = Astro.props.lessons ?? Astro.locals.lessons!;
 const current = Astro.props.current ?? Astro.locals.lesson?.chapter.id;
-const { lessons } = await loadCourse(course.id);
-const minutes = (id: string) => chapterLessons(lessons, id).reduce((a, l) => a + l.entry.data.minutes, 0);
+const L = course.locale;
+const hasRoles = course.chapters.every((c) => c.role);
 ---
 
-<div class="arc" aria-label="Course structure">
+<div class={`arc${hasRoles ? "" : " arc-plain"}`} aria-label={t(L, "course.built")} style={`--n:${course.chapters.length}`}>
   <ol class="arc-row">
     {
-      course.data.chapters.map((c, i) => (
-        <li class={`arc-ch arc-${c.role}${c.id === current ? " is-current" : ""}`}>
-          <a href={`/${course.id}/${c.id}/`} data-chapter-link={c.id}>
-            <span class="arc-n">Chapter {i + 1}</span>
+      course.chapters.map((c, i) => (
+        <li class={`arc-ch arc-${c.role ?? "plain"}${c.id === current ? " is-current" : ""}`}>
+          <a href={href(L, `/${course.id}/${c.id}/`)} data-chapter-link={c.id}>
+            <span class="arc-n">{t(L, "course.chapter", { n: i + 1 })}</span>
             <b>{c.title}</b>
-            <span class="arc-role">{c.role === "overall" ? "Overall" : "Specific"} · {minutes(c.id)} min</span>
+            <span class="arc-role">
+              {c.role ? `${t(L, c.role === "overall" ? "course.role.overall" : "course.role.specific")} · ` : ""}
+              {t(L, "lesson.min", { n: totalMinutes(chapterLessons(lessons, c.id)) })}
+            </span>
           </a>
         </li>
       ))
     }
   </ol>
-  <div class="arc-legend" aria-hidden="true">
-    <span class="arc-b arc-b-overall">The big picture</span>
-    <span class="arc-b arc-b-specific">One technique at a time</span>
-    <span class="arc-b arc-b-overall">Put it together</span>
-  </div>
+  {
+    hasRoles && (
+      <div class="arc-legend" aria-hidden="true">
+        <span class="arc-b arc-b-overall">{t(L, "course.arc.overall1")}</span>
+        <span class="arc-b arc-b-specific">{t(L, "course.arc.specific")}</span>
+        <span class="arc-b arc-b-overall">{t(L, "course.arc.overall2")}</span>
+      </div>
+    )
+  }
 </div>

@@ -6,24 +6,28 @@ import { z } from "astro/zod";
 const courses = defineCollection({
   loader: file("src/content/courses.yaml"),
   schema: z.object({
+    order: z.number(),
+    level: z.enum(["beginner", "intermediate"]),
     title: z.string(),
     tagline: z.string(),
     summary: z.string(),
     audience: z.string(),
     prerequisites: z.array(z.string()),
     outcomes: z.array(z.string()),
-    practice: z.object({
-      name: z.string(),
-      path: z.string(),
-      summary: z.string(),
-      setup: z.array(z.string()),
-    }),
+    practice: z
+      .object({
+        name: z.string(),
+        path: z.string(),
+        summary: z.string(),
+        setup: z.array(z.string()),
+      })
+      .optional(),
     chapters: z.array(
       z.object({
         id: z.string(),
         title: z.string(),
         // "overall" chapters frame the course; "specific" chapters go deep on one technique.
-        role: z.enum(["overall", "specific"]),
+        role: z.enum(["overall", "specific"]).optional(),
         summary: z.string(),
       })
     ),
@@ -43,7 +47,8 @@ const exercise = z.object({
   }),
 });
 
-/** One page of a course. Openings and summaries frame a chapter; lessons teach. */
+/** One page of a course in one language: src/content/lessons/<locale>/<course>/<chapter>/<page>.mdx.
+ *  Openings and summaries frame a chapter; lessons teach. */
 const lessons = defineCollection({
   // Ids come from the file path. The glob loader would otherwise use the `slug` field,
   // and every chapter has a page with slug "summary".
@@ -62,6 +67,9 @@ const lessons = defineCollection({
     keyPoints: z.array(z.string()).default([]),
     exercises: z.array(exercise).default([]),
     check: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+    quiz: z
+      .array(z.object({ q: z.string(), options: z.array(z.string()), answer: z.number(), why: z.string() }))
+      .default([]),
   }),
 });
 

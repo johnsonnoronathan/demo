@@ -1,0 +1,33 @@
+---
+/** A lesson video: the script travels as JSON and <tb-video> plays it. The poster frame is
+ *  the first scene, drawn by the player as soon as it loads. */
+import type { LessonView } from "../lib/course";
+import { localeInfo } from "../i18n/locales";
+import { clientStrings, t, formatClock } from "../i18n/ui";
+interface Props {
+  view: LessonView;
+  next?: LessonView;
+}
+const { view, next } = Astro.props;
+const L = view.locale;
+const data = {
+  key: `${view.key}@${view.videoLocale}`,
+  video: view.video,
+  speech: localeInfo(view.videoLocale ?? "en").speech,
+  mark: `Testbench · ${view.course.title} · ${view.entry.data.kind === "lesson" ? view.number : view.label}`,
+  next: next ? { title: next.title, href: next.url } : undefined,
+  s: clientStrings(L),
+};
+---
+
+<div class="vid-wrap" id="video">
+  <tb-video class="vid-host" lang={localeInfo(view.videoLocale ?? "en").html} aria-label={t(L, "video.label", { title: view.video!.title })}>
+    <script type="application/json" class="vid-data" set:html={JSON.stringify(data).replace(/</g, "\\u003c")} />
+    <noscript><p class="vid-noscript">{view.video!.title} · {formatClock(view.videoSeconds)}</p></noscript>
+  </tb-video>
+  {view.videoLocale !== L && <p class="vid-note">{t(L, "lesson.fallbackVideo")}</p>}
+</div>
+
+<script>
+  import "../video/player";
+</script>

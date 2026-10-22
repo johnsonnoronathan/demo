@@ -1,0 +1,78 @@
+import type { ContentTranslation } from "./index";
+
+const es: ContentTranslation = {
+  courses: {
+    "performance-testing": {
+      title: "Pruebas de rendimiento",
+      tagline: "Encuentra lo que hace lento el software antes que tus usuarios.",
+      summary: "Aprende a probar el rendimiento de una aplicación web desde los dos lados. Las pruebas estáticas inspeccionan código, consultas y recursos sin ejecutar nada. Las pruebas dinámicas ejecutan el sistema, le envían tráfico y miden lo que sienten los usuarios. Practicarás ambas con Larkspur Books, una pequeña librería en línea lenta a propósito.",
+      audience: "Desarrolladores y testers que leen JavaScript y SQL y usan una terminal. No hace falta experiencia previa en pruebas de rendimiento.",
+      prerequisites: ["Node.js 22.13 o posterior", "Una terminal y un editor de código", "Chrome, para Lighthouse y el perfilador de CPU", "k6 para el capítulo 3 (el curso incluye también una herramienta de carga integrada)"],
+      outcomes: [
+        "Convertir «debería ser rápido» en presupuestos y umbrales medibles",
+        "Encontrar consultas N+1, índices que faltan y recursos pesados leyendo código, planes y compilaciones",
+        "Medir la carga de la página en laboratorio con Lighthouse y leer las Core Web Vitals",
+        "Escribir y ejecutar pruebas de carga, estrés, pico y resistencia con k6",
+        "Localizar un cuello de botella de CPU en un gráfico de llamas y demostrar la solución",
+        "Llevar las comprobaciones estáticas y dinámicas a CI e informar de resultados útiles",
+      ],
+      practiceSummary: "Una librería en Node.js 22 con una tienda y tres endpoints JSON sobre SQLite. Sin dependencias. Lenta a propósito.",
+      chapters: {
+        overview: { title: "Visión general", summary: "Qué mide una prueba de rendimiento, las dos familias de pruebas y la aplicación de práctica." },
+        static: { title: "Pruebas estáticas", summary: "Encuentra problemas de rendimiento inspeccionando lo que construiste, sin ejecutarlo." },
+        dynamic: { title: "Pruebas dinámicas", summary: "Ejecuta el sistema, envíale tráfico y mide lo que sienten los usuarios." },
+        review: { title: "Resumen", summary: "Combina ambas en un flujo de trabajo, informa de los resultados y repasa todo el curso." },
+      },
+    },
+    "test-cases": {
+      title: "Cómo escribir casos de prueba",
+      tagline: "Escribe casos de prueba que cualquiera pueda ejecutar y que encuentren errores.",
+      summary: "Los fundamentos de las pruebas en seis lecciones breves. Aprende qué es un caso de prueba y qué lo hace fiable, elige entradas con particiones y valores límite, cubre los caminos infelices, convierte un caso escrito en una prueba automatizada y mantén sana una batería de pruebas que crece.",
+      audience: "Cualquiera que pruebe software o quiera hacerlo: desarrolladores, testers, gente de producto. No hace falta experiencia; la lección 3.1 lee un poco de JavaScript.",
+      prerequisites: ["Curiosidad por cómo falla el software", "Node.js, solo si quieres ejecutar tú mismo las pruebas de la lección 3.1"],
+      outcomes: [
+        "Leer, escribir y ejecutar a mano un caso de prueba",
+        "Reescribir casos vagos para que sean específicos y repetibles",
+        "Elegir entradas de prueba con particiones de equivalencia y valores límite",
+        "Cubrir casos negativos y usar tablas de decisión para encontrar huecos",
+        "Convertir un caso de prueba en una prueba automatizada con Arrange, Act, Assert",
+        "Organizar una batería con la pirámide de pruebas y una matriz de trazabilidad",
+      ],
+      chapters: {
+        foundations: { title: "Fundamentos", summary: "Qué es un caso de prueba y qué separa uno bueno de uno débil." },
+        design: { title: "Diseño de casos de prueba", summary: "Elige qué casos escribir con particiones, límites y tablas de decisión." },
+        automation: { title: "Automatizar y escalar", summary: "Convierte los casos en código y organiza una batería en la que la gente confíe." },
+      },
+    },
+  },
+  pages: {
+    "performance-testing/overview/opening": { title: "Visión general", description: "Qué cubre este curso, cómo está construido y cómo usar el aula y sus prompts para agentes." },
+    "performance-testing/overview/what-it-measures": { title: "Qué mide una prueba de rendimiento", description: "Latencia, rendimiento y errores: los tres números que informa toda prueba de rendimiento, y por qué la latencia se expresa en percentiles." },
+    "performance-testing/overview/static-and-dynamic": { title: "Pruebas estáticas y dinámicas", description: "Las dos familias de pruebas de rendimiento, qué puede y qué no puede encontrar cada una, y cómo planificar las preguntas antes de probar." },
+    "performance-testing/overview/summary": { title: "Visión general: resumen", description: "El vocabulario y el plan que usarás en el resto del curso." },
+    "performance-testing/static/opening": { title: "Pruebas estáticas", description: "Encuentra problemas de rendimiento leyendo lo que construiste, antes de que se ejecute nada." },
+    "performance-testing/static/budgets": { title: "Presupuestos de rendimiento", description: "Acuerda los límites antes de medir y deja que una comprobación los haga cumplir en cada cambio." },
+    "performance-testing/static/n-plus-one": { title: "Revisión de código: consultas N+1", description: "El error de rendimiento más común en código con base de datos, cómo encontrarlo leyendo y cómo eliminarlo." },
+    "performance-testing/static/query-plans": { title: "Leer planes de consulta", description: "Pregunta a la base de datos cómo ejecutaría una consulta, sin ejecutarla, y corrige los recorridos completos de tabla con el índice adecuado." },
+    "performance-testing/static/asset-weight": { title: "Peso de los recursos", description: "Encuentra qué hace pesada una página pesando sus archivos, y déjala dentro del presupuesto sin cambiar lo que ven los usuarios." },
+    "performance-testing/static/summary": { title: "Pruebas estáticas: resumen", description: "Lo que encontraste sin ejecutar la aplicación, y lo que las comprobaciones estáticas no pueden decirte." },
+    "performance-testing/dynamic/opening": { title: "Pruebas dinámicas", description: "Ejecuta el sistema, envíale tráfico y mide lo que realmente sienten los usuarios." },
+    "performance-testing/dynamic/lighthouse": { title: "Medición en laboratorio con Lighthouse", description: "Carga la página en un teléfono simulado y mide qué ve el usuario, y cuándo." },
+    "performance-testing/dynamic/load-testing": { title: "Pruebas de carga con k6", description: "Simula una tarde llena de compradores y deja que los umbrales decidan si la aplicación cumple sus presupuestos." },
+    "performance-testing/dynamic/stress-spike-soak": { title: "Pruebas de estrés, pico y resistencia", description: "Supera la carga esperada para encontrar el techo, sobrevivir a un aluvión y detectar la degradación lenta a lo largo de horas." },
+    "performance-testing/dynamic/bottlenecks": { title: "Encontrar el cuello de botella", description: "Perfila la aplicación bajo carga, lee el gráfico de llamas, corrige la ruta caliente y demuéstralo con la misma prueba." },
+    "performance-testing/dynamic/summary": { title: "Pruebas dinámicas: resumen", description: "Lo que te enseñó ejecutar la aplicación y que leerla no podía." },
+    "performance-testing/review/opening": { title: "Resumen", description: "Une las pruebas estáticas y dinámicas en una rutina, informa de los resultados y repasa el curso." },
+    "performance-testing/review/workflow": { title: "Un flujo de trabajo de pruebas de rendimiento", description: "Decide qué se ejecuta dónde: controles estáticos en cada pull request, pruebas dinámicas antes de publicar y monitorización en producción." },
+    "performance-testing/review/reporting": { title: "Informar de los resultados", description: "Redacta los resultados de rendimiento para que se pueda decidir con ellos y otra persona pueda repetir la prueba." },
+    "performance-testing/review/summary": { title: "Resumen del curso", description: "Todo lo que cubrió el curso, en un solo lugar, y adónde ir después." },
+    "test-cases/foundations/anatomy": { title: "¿Qué es un caso de prueba?", description: "Las partes de un caso de prueba, construido campo a campo y ejecutado a mano contra una página de inicio de sesión real." },
+    "test-cases/foundations/good-cases": { title: "Casos de prueba buenos y débiles", description: "Cinco hábitos que hacen fiable un caso de prueba, y la forma Given, When, Then con que muchos equipos los escriben." },
+    "test-cases/design/partitions": { title: "Particiones y límites", description: "Partición de equivalencia y análisis de valores límite: unas pocas entradas bien elegidas en lugar de miles." },
+    "test-cases/design/negative": { title: "Más allá del camino feliz", description: "Casos negativos, casos extremos y tablas de decisión para reglas que se combinan." },
+    "test-cases/automation/unit-tests": { title: "Del caso de prueba a la prueba automatizada", description: "Convierte un caso escrito en código con Arrange, Act, Assert, y mira cómo una prueba de límite atrapa un error real." },
+    "test-cases/automation/suites": { title: "Organizar una batería de pruebas", description: "La pirámide de pruebas, la trazabilidad a los requisitos y cómo mantener sana una batería que crece." },
+  },
+};
+
+export default es;

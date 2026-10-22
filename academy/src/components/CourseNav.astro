@@ -1,35 +1,43 @@
 ---
+/** The course menu. Every page with a video gets a flat marker: a play glyph and the
+ *  video's length, filled in as the video is watched. */
 import type { LessonView } from "../lib/course";
 import { chapterLessons } from "../lib/course";
+import { href } from "../i18n/locales";
+import { t, formatClock } from "../i18n/ui";
 interface Props {
   lessons: LessonView[];
   current?: LessonView;
 }
 const { lessons, current } = Astro.props;
 const course = lessons[0].course;
+const L = course.locale;
+const kindTitle = (l: LessonView) =>
+  l.entry.data.kind === "opening" ? t(L, "course.opening") : l.entry.data.kind === "summary" ? t(L, "course.chapterSummary") : l.title;
 ---
 
-<nav class="course-nav" aria-label={`${course.data.title} contents`}>
-  <a class="cn-course" href={`/${course.id}/`}>{course.data.title}</a>
+<nav class="course-nav" aria-label={t(L, "lesson.contents")}>
+  <a class="cn-course" href={href(L, `/${course.id}/`)}>{course.title}</a>
   {
-    course.data.chapters.map((c, i) => (
-      <div class={`cn-chapter${current?.chapter.id === c.id ? " is-open" : ""}`}>
+    course.chapters.map((c, i) => (
+      <div class="cn-chapter">
         <p class="cn-ch">
           <span class="cn-ch-n">{i + 1}</span>
           {c.title}
-          <span class={`cn-role cn-role-${c.role}`}>{c.role}</span>
+          {c.role && <span class={`cn-role cn-role-${c.role}`}>{t(L, c.role === "overall" ? "course.role.overall" : "course.role.specific")}</span>}
         </p>
         <ol>
           {chapterLessons(lessons, c.id).map((l) => (
             <li>
-              <a
-                href={l.url}
-                data-progress-link={l.path}
-                aria-current={l === current ? "page" : undefined}
-                class={`cn-${l.entry.data.kind}`}
-              >
+              <a href={l.url} data-progress-link={l.path} aria-current={l === current ? "page" : undefined} class={`cn-${l.entry.data.kind}`}>
                 <span class="cn-n">{l.entry.data.kind === "lesson" ? l.number : l.entry.data.kind === "opening" ? "▸" : "Σ"}</span>
-                <span class="cn-t">{l.entry.data.kind === "opening" ? "What you'll get" : l.entry.data.kind === "summary" ? "Chapter summary" : l.entry.data.title}</span>
+                <span class="cn-t">{kindTitle(l)}</span>
+                {l.video && (
+                  <span class="vmark" data-video-key={`${l.key}@${l.videoLocale}`} title={t(L, "lesson.video", { time: formatClock(l.videoSeconds) })}>
+                    <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2l7 4-7 4z" /></svg>
+                    <span>{formatClock(l.videoSeconds)}</span>
+                  </span>
+                )}
               </a>
             </li>
           ))}

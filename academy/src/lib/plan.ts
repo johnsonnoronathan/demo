@@ -1,46 +1,44 @@
-import { chapterLessons, totalMinutes, formatMinutes, type LessonView, type Course } from "./course";
+import { chapterLessons, totalMinutes, totalVideo, type LessonView, type CourseInfo } from "./course";
 import { buildPrompt } from "./prompt";
-import { scenes } from "../scenes";
+import { t, formatMinutes, formatClock } from "../i18n/ui";
 
 /** The lesson plan as Markdown: the same facts as the plan page, for agents and for pasting. */
-export function planToMarkdown(course: Course, lessons: LessonView[], site = ""): string {
-  const d = course.data;
+export function planToMarkdown(course: CourseInfo, lessons: LessonView[]): string {
+  const L = course.locale;
   const out: string[] = [
-    `# Lesson plan: ${d.title}`,
+    `# ${t(L, "plan.eyebrow")}: ${course.title}`,
     "",
-    `${d.summary}`,
+    course.summary,
     "",
-    `- Total time: ${formatMinutes(totalMinutes(lessons))}`,
-    `- Audience: ${d.audience}`,
-    `- Practice app: ${d.practice.name} at \`${d.practice.path}\`. ${d.practice.summary}`,
+    `- ${t(L, "plan.totalTime")}: ${formatMinutes(L, totalMinutes(lessons))}`,
+    `- ${t(L, "course.facts.videos")}: ${lessons.filter((l) => l.video).length} (${formatClock(totalVideo(lessons))})`,
+    `- ${course.audience}`,
+    ...(course.practice ? [`- ${t(L, "course.facts.app")}: ${course.practice.name}, \`${course.practice.path}\`. ${course.practice.summary}`] : []),
     "",
-    "## Course goals",
+    `## ${t(L, "plan.goals")}`,
     "",
-    ...d.outcomes.map((o) => `- ${o}`),
+    ...course.outcomes.map((o) => `- ${o}`),
     "",
-    "## Prerequisites",
+    `## ${t(L, "course.before")}`,
     "",
-    ...d.prerequisites.map((p) => `- ${p}`),
+    ...course.prerequisites.map((p) => `- ${p}`),
     "",
-    "## Structure",
+    `## ${t(L, "plan.structure")}`,
     "",
-    ...d.chapters.map((c, i) => `${i + 1}. **${c.title}** (${c.role}, ${chapterLessons(lessons, c.id).reduce((a, l) => a + l.entry.data.minutes, 0)} min): ${c.summary}`),
+    ...course.chapters.map((c, i) => `${i + 1}. **${c.title}** (${totalMinutes(chapterLessons(lessons, c.id))} min): ${c.summary}`),
     "",
   ];
-  d.chapters.forEach((c, i) => {
+  course.chapters.forEach((c, i) => {
     const ls = chapterLessons(lessons, c.id);
-    out.push(`## Chapter ${i + 1}: ${c.title}`, "", `${c.summary} (${formatMinutes(totalMinutes(ls))}, ${c.role})`, "");
+    out.push(`## ${t(L, "course.chapter", { n: i + 1 })}: ${c.title}`, "", `${c.summary} (${formatMinutes(L, totalMinutes(ls))})`, "");
     for (const l of ls) {
       const e = l.entry.data;
-      out.push(`### ${l.label}: ${e.title} (${e.minutes} min)`, "", e.description, "", `Classroom page: ${site}${l.mdUrl}`, "");
-      if (e.outcomes.length) out.push("Outcomes:", ...e.outcomes.map((o) => `- ${o}`), "");
-      if (e.concepts.length)
-        out.push("Concepts:", ...e.concepts.map((k) => `- ${k.title}${k.scene && scenes[k.scene] ? ` (animation: ${scenes[k.scene].title})` : ""}`), "");
-      for (const ex of e.exercises) {
-        out.push(`Hands-on: **${ex.title}** (${ex.minutes} min). ${ex.goal}`, "", "```text", buildPrompt(l, ex), "```", "");
-      }
-      if (e.keyPoints.length) out.push("Key points:", ...e.keyPoints.map((k) => `- ${k}`), "");
-      if (e.check.length) out.push("Self-check:", ...e.check.map((q, n) => `${n + 1}. ${q.q}\n   Answer: ${q.a}`), "");
+      out.push(`### ${l.label}: ${l.title} (${t(L, "lesson.min", { n: e.minutes })}${l.video ? `, ▶ ${formatClock(l.videoSeconds)}` : ""})`, "", l.description, "", l.mdUrl, "");
+      if (e.outcomes.length) out.push(`${t(L, "plan.outcomes")}:`, ...e.outcomes.map((o) => `- ${o}`), "");
+      if (e.concepts.length) out.push(`${t(L, "plan.concepts")}:`, ...e.concepts.map((k) => `- ${k.title}`), "");
+      for (const ex of e.exercises) out.push(`${t(L, "ex.kicker", { n: ex.minutes })}: **${ex.title}**. ${ex.goal}`, "", "```text", buildPrompt(l, ex.id), "```", "");
+      if (e.keyPoints.length) out.push(`${t(L, "plan.keyPoints")}:`, ...e.keyPoints.map((k) => `- ${k}`), "");
+      if (e.check.length) out.push(`${t(L, "plan.selfCheck")}:`, ...e.check.map((q, n) => `${n + 1}. ${q.q}\n   ${q.a}`), "");
     }
   });
   return out.join("\n");
