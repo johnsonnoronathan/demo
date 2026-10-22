@@ -1,0 +1,101 @@
+---
+title: "用 Lighthouse 做实验室测量"
+course: performance-testing
+chapter: dynamic
+kind: lesson
+order: 1
+slug: lighthouse
+minutes: 25
+description: "在模拟手机上加载页面，测量用户在什么时候看到什么。"
+outcomes:
+  - "从命令行对本地页面运行 Lighthouse"
+  - "从用户的角度解释 FCP、LCP、Total Blocking Time 和 Cumulative Layout Shift"
+  - "用一次动态的前后对比测量来确认静态修复"
+concepts:
+  - title: "观察页面加载：FCP 与 LCP"
+    scene: filmstrip
+  - title: "Core Web Vitals 与性能得分"
+  - title: "实验室数据与现场数据"
+keyPoints:
+  - "Lighthouse 在模拟的中端手机和慢速网络上加载页面，因此结果可重复，但偏悲观。"
+  - "FCP 是任何内容出现的时刻；LCP 是主要内容出现的时刻。LCP 低于 2.5 秒算良好。"
+  - "阻塞渲染的脚本会推迟 FCP；过重的图片会推迟 LCP。静态检查已经预测到了这两点。"
+  - "实验室数据用于比较不同构建。来自真实用户的现场数据才告诉你人们实际的体验。"
+exercises:
+  - id: lighthouse-before-after
+    title: "在实验室中测量资源修复的效果"
+    minutes: 15
+    goal: "对冻结的修复前页面和修复后的店面运行 Lighthouse，比较得分、FCP、LCP 和传输大小。"
+    agent:
+      steps:
+        - "Make sure the app is running on port 3000."
+        - "Run `npx lighthouse@12 http://localhost:3000/before.html --only-categories=performance --output=json --output-path=./notes/lh-before.json --chrome-flags=\"--headless=new\"`. If Chrome isn't found, set CHROME_PATH to a Chrome or Chromium binary and retry; if none exists, stop and report that."
+        - "Run the same command for http://localhost:3000/ with output `./notes/lh-after.json`."
+        - "From each JSON file, extract categories.performance.score and the numericValue of first-contentful-paint, largest-contentful-paint, total-blocking-time, cumulative-layout-shift and total-byte-weight."
+        - "Write a before/after table to `notes/lighthouse.md`."
+      done:
+        - "Both JSON reports exist in notes/"
+        - "notes/lighthouse.md has a table with score, FCP, LCP, TBT, CLS and total bytes for both pages"
+      report:
+        - "The before/after table"
+        - "Which static finding from chapter 2 explains each improvement"
+---
+
+预算检查说店面页面轻了 20 倍。但那只是预测。Lighthouse 测量的是这对拿着手机的人究竟意味着什么。
+
+## 观察页面加载
+
+Lighthouse 在 Chrome 中打开页面，模拟一台使用慢速 4G 网络的中端手机（CPU 慢 4 倍、约 1.6 Mbit/s、往返 150 ms），录下每一帧，并报告关键时刻发生的时间。
+
+<Scene name="filmstrip" />
+
+| 指标 | 它标记的时刻 | 良好 |
+| --- | --- | --- |
+| **首次内容绘制**（FCP） | 第一段文字或第一张图片出现 | ≤ 1.8 s |
+| **最大内容绘制**（LCP） | 最大的元素出现，通常是主图或主标题 | ≤ 2.5 s |
+| **总阻塞时间**（TBT） | 脚本让页面无法响应输入的时长 | ≤ 200 ms |
+| **累积布局偏移**（CLS） | 加载过程中布局跳动的程度 | ≤ 0.1 |
+
+LCP、CLS 和一项响应性指标（Interaction to Next Paint）构成了 Google 的 **Core Web Vitals**。0 到 100 的性能得分是各项实验室指标的加权组合。它适合当作标题数字，但预算应该写明具体指标，而不是得分。
+
+## 变化了什么，为什么
+
+| | 修复前 | 修复后 |
+| --- | --- | --- |
+| 性能得分 | 64 | 100 |
+| 首次内容绘制 | 4.3 s | 0.8 s |
+| 最大内容绘制 | 9.8 s | 1.5 s |
+| 总传输量 | 1,645 KiB | 68 KiB |
+
+每一项改进都能追溯到第 2 章的一个静态发现。FCP 提前，是因为那个 600 KB 的脚本不再阻塞渲染。LCP 提前，是因为首图只有原来的二十分之一大。传输量比预算检查得出的 1,140 KB 还大，是因为练习服务器不压缩响应，浏览器下载的是未压缩的脚本。
+
+## 实验室数据与现场数据
+
+Lighthouse 提供的是**实验室数据**：每次都是同一台模拟设备、同一种网络。正因如此，它很适合比较两个构建。但它并不是真实用户的体验。用户的手机、网络和缓存各不相同，而且他们会与页面交互。**现场数据**（真实用户监控，或公开网站的 Chrome CrUX 报告）才能告诉你这些。用实验室数据发现并验证修复；用现场数据决定修什么。
+
+## 动手练习：在实验室中测量资源修复的效果
+
+<Exercise id="lighthouse-before-after">
+
+1. 在应用运行时，测量原始页面的冻结副本：
+
+   ```bash
+   npx lighthouse@12 http://localhost:3000/before.html --only-categories=performance --view
+   ```
+
+   `--view` 会在完成后打开 HTML 报告。
+
+<Screenshot kind="browser" title="Lighthouse 报告 · before.html" alt="一份 Lighthouse 报告，橙色的性能得分为 64。指标：首次内容绘制 4.3 秒、最大内容绘制 9.8 秒，均为红色；总阻塞时间 20 毫秒、累积布局偏移 0，均为绿色。下方是一条胶片视图，直到约 4 秒都是空白帧。" caption="原始页面：在中端手机上空白超过四秒。" />
+
+2. 测量修复后的店面：
+
+   ```bash
+   npx lighthouse@12 http://localhost:3000/ --only-categories=performance --view
+   ```
+
+<Screenshot kind="browser" title="Lighthouse 报告 · /" alt="一份 Lighthouse 报告，绿色的性能得分为 100。首次内容绘制 0.8 秒、最大内容绘制 1.5 秒、总阻塞时间 0 毫秒、累积布局偏移 0，全部为绿色。" caption="完成第 2 章的资源修复之后。" />
+
+3. 在修复前的报告中打开 **Opportunities**。“Eliminate render-blocking resources”和“Properly size images”正是第 2.4 课的两个静态发现，现在还附上了它们的时间成本。
+4. 把两次运行记录到 `notes/lighthouse.md`。每个页面运行两到三次：实验室结果在多次运行之间会略有波动，所以要比较中位数。
+
+</Exercise>

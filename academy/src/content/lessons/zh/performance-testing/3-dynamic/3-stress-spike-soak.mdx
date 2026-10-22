@@ -1,0 +1,118 @@
+---
+title: "压力、峰值与浸泡测试"
+course: performance-testing
+chapter: dynamic
+kind: lesson
+order: 3
+slug: stress-spike-soak
+minutes: 30
+description: "超出预期负载去找到上限，扛住突发流量，并发现持续数小时的缓慢退化。"
+outcomes:
+  - "根据问题选择合适的负载形态：负载、压力、峰值或浸泡"
+  - "通过阶梯式压力测试找出接口的容量"
+  - "判断应用在峰值过后能否恢复"
+concepts:
+  - title: "四种负载形态"
+    scene: load-shapes
+  - title: "吞吐量上限与延迟拐点"
+    scene: capacity-knee
+  - title: "恢复与漂移"
+keyPoints:
+  - "负载测试检查预期流量；压力测试找出崩溃点；峰值测试检查能否扛住并恢复；浸泡测试发现缓慢漂移。"
+  - "当用户增加而吞吐量不再增长时，就到了上限。此后多出来的用户只会增加等待时间。"
+  - "容量是 p95 越过预算时的负载，而不是应用崩溃时的负载。"
+  - "在峰值测试中，既要判断能否扛住，也要判断能否恢复：流量高峰结束后，延迟和错误应回到正常水平。"
+  - "浸泡测试需要数小时，并要关注内存、连接数和延迟的趋势，而不只是最终的百分位数。"
+exercises:
+  - id: find-capacity
+    title: "找出 /api/recommendations 的容量"
+    minutes: 25
+    goal: "用阶梯式压力测试和峰值测试，找出 /api/recommendations 从哪里开始无法满足 400 ms 的预算，以及它能否从突发流量中恢复。"
+    agent:
+      steps:
+        - "With the app running, run `npm run load -- --url \"http://localhost:3000/api/recommendations?book_id=7\" --stages 5:1,5:2,5:4,5:8,5:16,5:32` and capture the table."
+        - "Identify the throughput ceiling (where req/s stops growing) and the first stage whose p95 exceeds 400 ms."
+        - "If k6 is installed, run `TARGET=\"/api/recommendations?book_id=7\" STEP=10s k6 run load/stress.k6.js` and capture the thresholds and http_req_failed."
+        - "If k6 is installed, run `TARGET=\"/api/recommendations?book_id=7\" k6 run load/spike.k6.js` and capture the per-phase durations (phase:before, phase:spike, phase:after)."
+        - "Write `notes/capacity.md` with the ceiling, the capacity in users and req/s at the 400 ms budget, and whether p95 in the after phase returned to the before level."
+      done:
+        - "notes/capacity.md states the ceiling in req/s and the capacity in users, both taken from captured output"
+        - "The spike result says whether the endpoint recovered, with before and after p95"
+      report:
+        - "The stepped load table"
+        - "Ceiling, capacity and recovery, each with the number it's based on"
+---
+
+负载测试回答的是“在预期流量下我们没问题吗？”。本课的测试提出更难的问题，而且每种测试使用不同的流量随时间变化的形态。
+
+<Scene name="load-shapes" />
+
+| 测试 | 形态 | 问题 | 通常时长 |
+| --- | --- | --- | --- |
+| 负载 | 逐步升到预期流量并保持 | 我们满足预算吗？ | 5–30 分钟 |
+| 压力 | 分阶段增加用户，直到崩溃 | 上限在哪里，它怎么崩溃？ | 10–30 分钟 |
+| 峰值 | 从低流量骤增到极高，再回落 | 我们能扛住突发流量并恢复吗？ | 5–15 分钟 |
+| 浸泡 | 普通负载，长时间保持 | 有没有东西泄漏或漂移？ | 数小时 |
+
+## 找出容量
+
+完成第 2 章之后，负载测试通过了。那么 Larkspur 还能多承受多少？在最慢的推荐接口上分阶段增加用户，并记录每一阶段的吞吐量和延迟。
+
+<Scene name="capacity-knee" />
+
+这时会发生两件事，其实是同一件事的两面。**吞吐量不再增长**：无论多少用户请求，这个接口每秒都只能处理约 58 个请求。而由于请求无法被更快地处理，**多出来的用户只能排队**：p95 随等待用户数成比例上升。
+
+p95 越过预算的那个点就是**实际容量**。它远早于应用崩溃或返回错误的点，也是做规划时应该使用的数字。这里是：8 到 16 个用户之间，约每秒 58 个请求。
+
+用 k6 做的压力测试会分阶段增加用户，直到远远超过这个点，以观察应用**如何**失败：
+
+```text
+    ✗ 'p(95)<300' p(95)=1.02s
+    ✓ 'rate<0.01' rate=0.59%
+    ✗ status is 200
+      ↳  99% — ✓ 4489 / ✗ 27
+```
+
+在 80 个用户时，有 27 个请求等待超过了 k6 的 10 秒超时。Larkspur 没有崩溃；它只是让人一直等，直到放弃。从某种意义上说很体面，从另一种意义上说很糟糕。
+
+## 峰值与恢复
+
+峰值测试在五秒内从 5 个用户跳到 100 个用户，保持一段时间，然后回落。值得关注的数字是**之后**发生的事：
+
+| 阶段 | p95 |
+| --- | --- |
+| 之前（5 个用户） | 26 ms |
+| 峰值期间（100 个用户） | 5.3 s，3.5% 的请求超时 |
+| 之后（再次回到 5 个用户） | 28 ms |
+
+流量高峰一过，Larkspur 就完全恢复了。许多系统做不到：队列一直满着，连接池一直耗尽，缓存已被清空，或者自动扩容在峰值过去之后才到来。只检查能否扛住的峰值测试会漏掉这些。
+
+## 浸泡测试
+
+有些问题只有随着时间推移才会出现：从不淘汰的缓存、从不归还的连接、把磁盘写满的日志文件。浸泡测试以普通负载运行数小时，并关注**趋势**：第三个小时的 p95 和第五分钟时一样吗？内存是否平稳？`load/soak.k6.js` 以 15 个用户运行 30 分钟；设置 `DURATION=5m` 可以先演练一遍。运行时观察服务器的内存（`top`、活动监视器或任务管理器）。
+
+## 动手练习：找出 /api/recommendations 的容量
+
+<Exercise id="find-capacity">
+
+1. 用内置工具逐级增加负载。每个阶段运行五秒。
+
+   ```bash
+   npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --stages 5:1,5:2,5:4,5:8,5:16,5:32
+   ```
+
+<Screenshot kind="terminal" title="npm run load，阶梯式" alt="一张表格，每个阶段一行：1、2、4、8、16 和 32 个虚拟用户。每秒请求数一列始终保持在约 55 到 61 之间，而 p95 从约 25 毫秒依次升到 46、105、286、532 和 957 毫秒。" caption="吞吐量持平；p95 每一阶段都在增长。预算在 8 到 16 个用户之间被突破。" />
+
+2. 找出上限（req/s 不再增长的地方）和容量（p95 低于 400 ms 的最后一个阶段）。
+3. 如果有 k6，对同一个接口运行阶梯式压力测试和峰值测试：
+
+   ```bash
+   TARGET="/api/recommendations?book_id=7" STEP=10s k6 run load/stress.k6.js
+   TARGET="/api/recommendations?book_id=7" k6 run load/spike.k6.js
+   ```
+
+<Screenshot kind="terminal" title="k6 run load/spike.k6.js" alt="k6 峰值测试汇总。phase:before 和 phase:after 的阈值通过，p95 约为 26 到 28 毫秒；phase:spike 失败，p95 约为 5.3 秒。失败请求率约为 3.5%。" caption="它勉强扛过了峰值，并且完全恢复。" />
+
+4. 写好 `notes/capacity.md`。第 3.4 课会找出上限为什么这么低。
+
+</Exercise>
