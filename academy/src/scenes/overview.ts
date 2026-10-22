@@ -17,8 +17,8 @@ const sample = (() => {
 })();
 const sorted = [...sample].sort((a, b) => a - b);
 const pct = (q: number) => sorted[Math.floor((q / 100) * sorted.length)];
-const P50 = Math.round(pct(50)), P95 = Math.round(pct(95)), P99 = Math.round(pct(99));
-const AVG = Math.round(sample.reduce((a, b) => a + b, 0) / sample.length);
+export const P50 = Math.round(pct(50)), P95 = Math.round(pct(95)), P99 = Math.round(pct(99));
+export const AVG = Math.round(sample.reduce((a, b) => a + b, 0) / sample.length);
 
 export const percentiles: SceneDef = {
   title: "Latency is a distribution",
