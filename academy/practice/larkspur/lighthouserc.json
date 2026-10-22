@@ -1,0 +1,13 @@
+{
+  "ci": {
+    "collect": { "url": ["http://localhost:3000/"], "numberOfRuns": 3 },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "first-contentful-paint": ["error", { "maxNumericValue": 1800 }],
+        "total-byte-weight": ["error", { "maxNumericValue": 358400 }],
+        "render-blocking-resources": ["warn", { "maxLength": 0 }]
+      }
+    }
+  }
+}

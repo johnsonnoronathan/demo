@@ -1,0 +1,14 @@
+{
+  "name": "testbench-academy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "8.0.3",
+    "astro": "7.3.6"
+  }
+}

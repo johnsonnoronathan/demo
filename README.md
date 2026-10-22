@@ -1,5 +1,15 @@
 # demo
 
+## Testbench: Performance Testing
+
+[`academy/`](academy/) is an Astro + MDX tutorial site built for people and for agents. Its first course, **Performance Testing**, has four chapters that run overall → specific → overall: Overview, Static testing, Dynamic testing, Summary. Each chapter opens with what you'll get and closes with a summary. Lessons pair animated concept scenes with hands-on exercises, and each exercise has a copyable agent prompt. The course has two views generated from the same source: the **Classroom** and the **Lesson plan**. Every page also has a Markdown twin, indexed in `/llms.txt`.
+
+```bash
+cd academy && npm install && npm run dev
+```
+
+The exercises run against [`academy/practice/larkspur`](academy/practice/larkspur), a dependency-free Node.js bookshop that is slow on purpose. See [`academy/README.md`](academy/README.md) for the authoring guide.
+
 ## Casebook
 
 [`casebook/`](casebook/) is a video-first course on test cases: six narrated lessons across three modules, from writing your first test case to an automated, organized suite. Open `casebook/index.html` in a browser; there is nothing to install or build.

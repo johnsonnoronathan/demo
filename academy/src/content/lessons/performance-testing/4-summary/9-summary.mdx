@@ -1,0 +1,40 @@
+---
+title: "Course summary"
+course: performance-testing
+chapter: review
+kind: summary
+order: 9
+slug: summary
+minutes: 10
+description: "Everything the course covered, in one place, and where to go next."
+check:
+  - q: "A teammate wants to add a nightly 4-hour soak test as a required check on every pull request. What would you suggest instead?"
+    a: "Keep pull requests to fast static gates (and at most a short load test). Run the soak test on a schedule against a stable environment, and alert on its results."
+  - q: "Your load test passes in CI on Monday and fails on Tuesday with no code change. What do you do first?"
+    a: "Rerun and compare. Shared runners are noisy; check whether the failure reproduces, whether other jobs ran on the same machine, and whether the margin to the threshold is too thin."
+  - q: "Name one problem in Larkspur that only static testing found first, and one that only dynamic testing found."
+    a: "Static: the N+1 loop, the full table scans or the heavy assets. Dynamic: the CPU hot path in recommendations, which matched no static rule."
+  - q: "What makes a performance finding actionable?"
+    a: "It names the cause and where it is, the impact in user terms with a measured number, the fix, and the evidence someone can check."
+---
+
+You started with a slow bookshop and a vague complaint. You end with measured budgets, three static gates, a load test with thresholds, a known capacity, and a report that explains every change.
+
+## The whole course
+
+<ChapterRecap scope="course" />
+
+## Check yourself
+
+<SelfCheck />
+
+## Where to go next
+
+- **Your own app.** Write the one-page plan from lesson 1.2 for something you work on. Pick one static gate and one dynamic test to add this week.
+- **Real-user monitoring.** Lab numbers find problems; field numbers decide priorities. Look at what your platform already records before adding anything.
+- **Distributed tracing.** When requests cross several services, a trace shows which one the time went to, the way a flame graph does inside one process.
+- **Database depth.** Your database's own `EXPLAIN` (PostgreSQL's `EXPLAIN ANALYZE`, MySQL's `EXPLAIN FORMAT=TREE`) and its slow-query log go much further than SQLite's.
+
+<Callout type="note" title="Reset the practice app">
+To run the course again from the start: `git checkout -- academy/practice/larkspur`, delete `db/migrations/001_indexes.sql` if you created it, and run `npm run seed`.
+</Callout>

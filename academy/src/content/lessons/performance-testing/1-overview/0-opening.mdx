@@ -1,0 +1,51 @@
+---
+title: "Overview"
+course: performance-testing
+chapter: overview
+kind: opening
+order: 0
+slug: ""
+minutes: 5
+description: "What this course covers, how it is built, and how to use the classroom and its agent prompts."
+outcomes:
+  - "Know what questions performance testing answers, and which numbers it reports"
+  - "Tell static testing from dynamic testing, and know when each one pays off"
+  - "Have the practice app running, with a first measurement written down"
+  - "Know how to hand a hands-on exercise to a coding agent, and what to check when it reports back"
+---
+
+"The site feels slow" is a complaint. "p95 for `/api/books` is 1.3 seconds against a 300 ms budget, because the endpoint runs 101 queries per request" is a finding someone can fix. This course teaches you to get from the first to the second, reliably.
+
+<Outcomes />
+
+## How the course is built
+
+The course moves from the big picture to specific techniques and back again. Chapter 1 frames the problem. Chapters 2 and 3 each go deep on one family of tests. Chapter 4 puts them together into a workflow and a report.
+
+<CourseArc />
+
+Every chapter follows the same shape:
+
+1. **An opening** like this one: what you'll get, and a map of the chapter.
+2. **Lessons.** Each mixes concepts and practice. Concepts come with a short **animation** you can play, pause and step through. Hands-on exercises run against the practice app and show **screenshots** of what you should see.
+3. **A summary** that collects the chapter's key points and gives you a few questions to check yourself.
+
+## The practice app
+
+Everything you test is **Larkspur Books**, a small bookshop in `academy/practice/larkspur`: a storefront page and three JSON endpoints over a SQLite database of 5,000 books, 50,000 reviews and 200,000 orders. It needs Node.js 22.13 or later and nothing else.
+
+Larkspur is slow on purpose. Each problem in it is one this course teaches you to find, and every number quoted in the lessons comes from a real run against it. Your numbers will differ with your machine; the shape of the results won't.
+
+## Working with an agent
+
+Hands-on exercises end with an **agent prompt**. Copy it into Claude Code or another coding agent and the agent can do the exercise for you, or with you. Each prompt is self-contained: where to work, the steps, how to tell it's done, and what to report back. The prompt also tells the agent to quote real command output instead of estimating numbers.
+
+Doing an exercise yourself first teaches more. Handing the repeat runs to an agent saves time. Either way, read what comes back: check that the numbers in the report appear in the output it quotes.
+
+<Callout type="tip" title="Agents can read the whole course">
+Every page has a Markdown version (see "For agents" in the page margin), and `/llms.txt` lists them all. Point an agent there when it needs context beyond a single exercise.
+</Callout>
+
+## In this chapter
+
+<ChapterMap />

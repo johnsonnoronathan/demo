@@ -1,0 +1,33 @@
+---
+/** The course's overall–specific–overall shape, with the current chapter marked. */
+import { loadCourse, chapterLessons, type Course } from "../lib/course";
+interface Props {
+  course?: Course;
+  current?: string;
+}
+const course = Astro.props.course ?? Astro.locals.lesson!.course;
+const current = Astro.props.current ?? Astro.locals.lesson?.chapter.id;
+const { lessons } = await loadCourse(course.id);
+const minutes = (id: string) => chapterLessons(lessons, id).reduce((a, l) => a + l.entry.data.minutes, 0);
+---
+
+<div class="arc" aria-label="Course structure">
+  <ol class="arc-row">
+    {
+      course.data.chapters.map((c, i) => (
+        <li class={`arc-ch arc-${c.role}${c.id === current ? " is-current" : ""}`}>
+          <a href={`/${course.id}/${c.id}/`} data-chapter-link={c.id}>
+            <span class="arc-n">Chapter {i + 1}</span>
+            <b>{c.title}</b>
+            <span class="arc-role">{c.role === "overall" ? "Overall" : "Specific"} · {minutes(c.id)} min</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+  <div class="arc-legend" aria-hidden="true">
+    <span class="arc-b arc-b-overall">The big picture</span>
+    <span class="arc-b arc-b-specific">One technique at a time</span>
+    <span class="arc-b arc-b-overall">Put it together</span>
+  </div>
+</div>

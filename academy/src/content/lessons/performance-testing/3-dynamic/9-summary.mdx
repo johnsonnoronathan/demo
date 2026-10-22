@@ -1,0 +1,33 @@
+---
+title: "Dynamic testing: summary"
+course: performance-testing
+chapter: dynamic
+kind: summary
+order: 9
+slug: summary
+minutes: 5
+description: "What running the app taught you that reading it couldn't."
+check:
+  - q: "Lighthouse reports LCP 1.5 s for your page. A customer says it took five seconds. Who's wrong?"
+    a: "Probably neither. Lighthouse is lab data from one simulated device; the customer's phone, network and cache differ. Use field data to see the real distribution."
+  - q: "During a stress test, req/s stays at 58 from 4 users to 32 users while p95 rises from 105 ms to 957 ms. What does that tell you?"
+    a: "58 req/s is the throughput ceiling. Beyond it, extra users only queue, so latency grows with the number of users waiting."
+  - q: "A spike test passes: no errors above 5%. What else should you look at before calling the app resilient?"
+    a: "Recovery: latency and error rate in the phase after the spike should return to their levels before it."
+  - q: "Why rerun the same load test after a fix, rather than a new one?"
+    a: "So the only thing that changed is the code. A different test, data set or machine would make the comparison meaningless."
+---
+
+You measured the page the way a phone sees it, put a busy evening through the app, found its ceiling and its behaviour in a surge, and used a profile to fix a problem that no static check could see.
+
+## Key points
+
+<ChapterRecap />
+
+## Static and dynamic, together
+
+Look at where each fix came from. The static checks in chapter 2 found three problems and predicted their cost. The dynamic tests here **confirmed** those predictions (Lighthouse, the load test) and **found what static analysis couldn't** (the CPU hot path). Neither family would have found everything alone. Chapter 4 turns that into a routine.
+
+## Check yourself
+
+<SelfCheck />

@@ -1,0 +1,27 @@
+---
+import { inline } from "../lib/inline";
+/** Key points of every lesson in this chapter (or, with scope="course", the whole course). */
+import { loadCourse, chapterLessons } from "../lib/course";
+interface Props {
+  scope?: "chapter" | "course";
+}
+const view = Astro.locals.lesson!;
+const { lessons } = await loadCourse(view.course.id);
+const pool = Astro.props.scope === "course" ? lessons : chapterLessons(lessons, view.chapter.id);
+const items = pool.filter((l) => l.entry.data.kind === "lesson");
+---
+
+<div class="recap">
+  {
+    items.map((l) => (
+      <section class="recap-item">
+        <h3>
+          <a href={l.url}>
+            <span class="recap-n">{l.number}</span> {l.entry.data.title}
+          </a>
+        </h3>
+        <ul>{l.entry.data.keyPoints.map((k) => <li set:html={inline(k)} />)}</ul>
+      </section>
+    ))
+  }
+</div>

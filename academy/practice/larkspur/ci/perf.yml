@@ -1,0 +1,47 @@
+# Reference workflow for lesson 4.1. Copy it to .github/workflows/perf.yml in your own
+# repository and adjust working-directory. It is not active where it sits.
+name: performance
+
+on:
+  pull_request:
+
+defaults:
+  run:
+    working-directory: academy/practice/larkspur
+
+jobs:
+  static:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run seed
+      - name: Asset budget
+        run: npm run budget
+      - name: Queries inside loops
+        run: npm run lint:queries
+      - name: Query plans use indexes
+        run: npm run check:plans
+
+  dynamic:
+    name: Dynamic checks
+    needs: static
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run seed
+      - name: Start the app
+        run: |
+          npm start &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/health && break; sleep 1; done
+      - name: Lighthouse
+        run: npx @lhci/cli@0.15.1 autorun
+      - uses: grafana/setup-k6-action@v1
+      - name: Load test (short)
+        run: k6 run --stage 20s:50 --stage 40s:50 --stage 10s:0 load/load.k6.js

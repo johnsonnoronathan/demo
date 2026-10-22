@@ -1,0 +1,78 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Course id, to show the Classroom / Lesson plan switch. */
+  course?: { id: string; title: string };
+  mode?: "classroom" | "plan";
+  /** Markdown twin of this page, for agents. */
+  markdown?: string;
+}
+const { title, description, course, mode, markdown } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {markdown && <link rel="alternate" type="text/markdown" href={markdown} title="Markdown version for agents" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=JetBrains+Mono:wght@400..600&family=Public+Sans:ital,wght@0,400..700;1,400&display=swap"
+    />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem("testbench:theme");
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-in">
+        <a class="brand" href="/" aria-label="Testbench home">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle>
+            <path d="M14 15l5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path>
+            <path d="M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+          </svg>
+          <span>Testbench</span>
+        </a>
+        {
+          course && (
+            <nav class="modes" aria-label={`${course.title} views`}>
+              <a href={`/${course.id}/`} aria-current={mode === "classroom" ? "page" : undefined}>Classroom</a>
+              <a href={`/${course.id}/plan/`} aria-current={mode === "plan" ? "page" : undefined}>Lesson plan</a>
+            </nav>
+          )
+        }
+        <div class="topbar-end">
+          <a class="agent-link" href="/llms.txt" title="Plain-text index of every course and lesson, for agents">llms.txt</a>
+          <button class="theme-btn" type="button" id="theme-toggle" aria-label="Switch theme">
+            <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.4 8.4 0 0 1 9.4 4a8.4 8.4 0 1 0 10.6 10.6z" fill="currentColor"></path></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+    <slot />
+    <footer class="foot">
+      <div class="foot-in">
+        <p>Testbench tutorials are written for people and for agents. Every page has a Markdown twin; hands-on exercises come with a prompt you can hand to a coding agent.</p>
+        <p class="foot-links"><a href="/llms.txt">llms.txt</a>{markdown && <a href={markdown}>This page as Markdown</a>}</p>
+      </div>
+    </footer>
+    <script>
+      import "../scripts/progress";
+      import "../scripts/theme";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+---
+import { inline } from "../lib/inline";
+/** "What you'll get": the outcomes in the current page's frontmatter. */
+interface Props {
+  title?: string;
+}
+const view = Astro.locals.lesson!;
+const { title = "What you'll get from this chapter" } = Astro.props;
+---
+
+<section class="outcomes">
+  <h2 class="outcomes-title">{title}</h2>
+  <ul>{view.entry.data.outcomes.map((o) => <li set:html={inline(o)} />)}</ul>
+</section>

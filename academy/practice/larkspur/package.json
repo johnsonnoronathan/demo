@@ -1,0 +1,21 @@
+{
+  "name": "larkspur-books",
+  "private": true,
+  "type": "module",
+  "description": "Practice app for the Testbench Performance Testing course. Slow on purpose.",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "seed": "node --disable-warning=ExperimentalWarning db/seed.mjs && npm run -s migrate",
+    "migrate": "node --disable-warning=ExperimentalWarning scripts/migrate.mjs",
+    "start": "node --disable-warning=ExperimentalWarning server.mjs",
+    "budget": "node scripts/check-budget.mjs",
+    "lint:queries": "node scripts/lint-queries.mjs src",
+    "explain": "node --disable-warning=ExperimentalWarning scripts/explain.mjs",
+    "check:plans": "node --disable-warning=ExperimentalWarning scripts/check-plans.mjs",
+    "check:static": "npm run -s budget && npm run -s lint:queries && npm run -s check:plans",
+    "load": "node scripts/mini-load.mjs",
+    "profile": "node --disable-warning=ExperimentalWarning --cpu-prof --cpu-prof-dir=profiles server.mjs"
+  }
+}

@@ -1,0 +1,34 @@
+---
+import { inline } from "../lib/inline";
+import AgentPrompt from "./AgentPrompt.astro";
+import { buildPrompt } from "../lib/prompt";
+
+interface Props {
+  id: string;
+}
+const view = Astro.locals.lesson;
+if (!view) throw new Error("<Exercise> must be rendered inside a lesson page");
+const ex = view.entry.data.exercises.find((e) => e.id === Astro.props.id);
+if (!ex) throw new Error(`Exercise "${Astro.props.id}" is not in the frontmatter of ${view.sourcePath}`);
+const prompt = buildPrompt(view, ex);
+const key = `${view.path}#${ex.id}`;
+---
+
+<section class="exercise" id={`ex-${ex.id}`}>
+  <header class="ex-head">
+    <span class="ex-kicker">Hands-on · {ex.minutes} min</span>
+    <p class="ex-goal"><b>Goal.</b> <Fragment set:html={inline(ex.goal)} /></p>
+  </header>
+  <div class="ex-body">
+    <slot />
+  </div>
+  <div class="ex-done-when">
+    <b>Done when</b>
+    <ul>{ex.agent.done.map((d) => <li set:html={inline(d)} />)}</ul>
+  </div>
+  <AgentPrompt prompt={prompt} title={ex.title} />
+  <label class="ex-check">
+    <input type="checkbox" data-progress-exercise={key} />
+    <span>I've done this exercise</span>
+  </label>
+</section>

@@ -1,0 +1,48 @@
+- id: performance-testing
+  title: Performance Testing
+  tagline: Find what makes software slow before your users do.
+  summary: >-
+    Learn to test a web application's performance from both sides. Static testing inspects
+    code, queries and assets without running anything. Dynamic testing runs the system,
+    puts traffic through it and measures what users feel. You practise both on Larkspur
+    Books, a small bookshop app that is slow on purpose.
+  audience: >-
+    Developers and testers who can read JavaScript and SQL and use a terminal. No previous
+    performance testing experience needed.
+  prerequisites:
+    - Node.js 22.13 or later
+    - A terminal and a code editor
+    - Chrome, for Lighthouse and the CPU profiler
+    - k6 for chapter 3 (the course also includes a built-in fallback load tool)
+  outcomes:
+    - Turn "it should be fast" into measurable budgets and thresholds
+    - Find N+1 queries, missing indexes and heavy assets by reading code, plans and builds
+    - Measure page load in the lab with Lighthouse and read Core Web Vitals
+    - Write and run load, stress, spike and soak tests with k6
+    - Locate a CPU bottleneck in a flame graph and prove the fix
+    - Put static and dynamic checks into CI, and report results people can act on
+  practice:
+    name: Larkspur Books
+    path: academy/practice/larkspur
+    summary: A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.
+    setup:
+      - cd academy/practice/larkspur
+      - npm run seed
+      - "npm start   # leave it running in its own terminal; http://localhost:3000"
+  chapters:
+    - id: overview
+      title: Overview
+      role: overall
+      summary: What performance testing measures, the two families of tests, and the practice app.
+    - id: static
+      title: Static testing
+      role: specific
+      summary: Find performance problems by inspecting what you built, without running it.
+    - id: dynamic
+      title: Dynamic testing
+      role: specific
+      summary: Run the system, put traffic through it and measure what users feel.
+    - id: review
+      title: Summary
+      role: overall
+      summary: Combine both into a workflow, report the results, and review the whole course.

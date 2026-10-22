@@ -1,0 +1,33 @@
+---
+interface Props {
+  /** What the screenshot shows. Also the alt text, and what agents read. */
+  alt: string;
+  caption?: string;
+  /** Leave empty while the real capture is pending; a labelled placeholder is drawn. */
+  src?: string;
+  kind?: "terminal" | "browser" | "devtools" | "editor";
+  /** Window title or URL shown in the frame. */
+  title?: string;
+}
+const { alt, caption, src, kind = "terminal", title } = Astro.props;
+---
+
+<figure class={`shot shot-${kind}`}>
+  <div class="shot-frame">
+    <div class="shot-bar">
+      <i></i><i></i><i></i>
+      {title && <span class="shot-title">{title}</span>}
+    </div>
+    {
+      src ? (
+        <img src={src} alt={alt} loading="lazy" />
+      ) : (
+        <div class="shot-placeholder" role="img" aria-label={alt}>
+          <span class="shot-badge">Screenshot placeholder</span>
+          <p>{alt}</p>
+        </div>
+      )
+    }
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

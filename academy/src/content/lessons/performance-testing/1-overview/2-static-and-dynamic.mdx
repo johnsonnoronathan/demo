@@ -1,0 +1,107 @@
+---
+title: "Static and dynamic testing"
+course: performance-testing
+chapter: overview
+kind: lesson
+order: 2
+slug: static-and-dynamic
+minutes: 20
+description: "The two families of performance tests, what each can and can't find, and how to plan which questions to ask before you test."
+outcomes:
+  - "Explain the difference between static and dynamic performance testing"
+  - "Pick the cheaper test that can still answer a given question"
+  - "Write a short test plan: questions, budgets, risks and the tests that cover them"
+concepts:
+  - title: "Static testing: inspect without running"
+    scene: static-vs-dynamic
+  - title: "Dynamic testing: run and measure"
+  - title: "A test plan starts with questions"
+keyPoints:
+  - "Static testing inspects code, queries, assets and configuration without running the system. It is fast and runs on every change, but it can only find likely problems."
+  - "Dynamic testing runs the system under realistic traffic and measures what users feel. It is slower and needs an environment, but it proves the impact."
+  - "Use static checks to catch known patterns early, and dynamic tests to confirm impact and find what no rule describes."
+  - "Plan with questions first (\"can checkout take 50 users at p95 under 300 ms?\"), then choose the cheapest test that answers each one."
+exercises:
+  - id: test-plan
+    title: "Draft a performance test plan for Larkspur"
+    minutes: 15
+    goal: "Write a one-page plan that lists the questions you'll answer about Larkspur, a budget for each, and whether a static or a dynamic test covers it."
+    agent:
+      steps:
+        - "Read `README.md`, `server.mjs`, the files in `src/routes/`, `public/index.html` and `budget.json` to learn what the app does."
+        - "Create `notes/perf-plan.md` with four sections: Questions, Budgets, Risks, Tests."
+        - "Under Questions, list at least four concrete questions, each naming an endpoint or page and a number of users."
+        - "Under Budgets, give each question a measurable limit (for example p95 in ms, KB of assets, queries per request)."
+        - "Under Risks, list anything in the code that looks likely to be slow, with file and line, without running the app."
+        - "Under Tests, map every question and risk to a static check or a dynamic test from this repository (`npm run budget`, `npm run lint:queries`, `npm run explain`, `npm run load`, the k6 scripts in `load/`)."
+      done:
+        - "notes/perf-plan.md has the four sections"
+        - "Every budget is a number with a unit, and every question maps to at least one test"
+        - "Risks cite file paths and line numbers"
+      report:
+        - "The Questions and Budgets sections"
+        - "The three risks you think are most serious, and why"
+---
+
+There are two ways to look for performance problems. You can **read** what you built, or you can **run** it and measure. This course calls them static and dynamic testing, and spends a chapter on each.
+
+<Scene name="static-vs-dynamic" />
+
+## Static testing
+
+Static testing inspects artifacts: source code, SQL, build output, configuration, budgets. Nothing is deployed and no traffic is generated, so a static check runs in seconds and can gate every pull request.
+
+It finds **patterns that are known to be slow**: a query inside a loop, a query plan that scans a whole table, a 600 KB script on the critical path. What it can't tell you is how much any of that hurts under real traffic, or find a problem that no rule describes.
+
+## Dynamic testing
+
+Dynamic testing runs the system and measures it: a lab page load with Lighthouse, a load test with k6, a CPU profile taken while traffic flows. It needs a running environment and minutes rather than seconds.
+
+In exchange it reports what users would actually feel, finds problems nobody predicted, and proves that a fix worked.
+
+| | Static | Dynamic |
+| --- | --- | --- |
+| Looks at | Code, queries, assets, config | The running system |
+| Speed | Seconds | Minutes to hours |
+| Runs on | Every pull request | Staging, before a release, on a schedule |
+| Finds | Known slow patterns | Real impact, unknown problems, capacity |
+| Can't | Measure impact | Point to the line of code by itself |
+| In this course | Chapter 2 | Chapter 3 |
+
+The two work best together. Static checks catch the common mistakes cheaply; dynamic tests confirm the important ones and find the rest. Chapter 4 wires both into one workflow.
+
+## Start a plan with questions
+
+Before choosing a tool, write down what you need to know. Good questions name a page or endpoint, a load and a number:
+
+- Can the storefront reach Largest Contentful Paint in under 2.5 s on a mid-range phone?
+- Does `/api/books` keep p95 under 300 ms with 50 concurrent shoppers?
+- How many users can the app serve before p95 passes the budget?
+- Does the app stay stable over an hour of ordinary traffic?
+
+Then pick the cheapest test that can answer each question, and note the risks you can already see in the code. That list is a test plan.
+
+<Callout type="note" title="Test environments">
+Dynamic results depend on the machine. Test on something close to production, or compare only runs from the same machine. A laptop is fine for learning and for before/after comparisons; it is not evidence of production capacity.
+</Callout>
+
+## Hands-on: Draft a performance test plan for Larkspur
+
+<Exercise id="test-plan">
+
+1. Skim the app: `server.mjs`, the three files in `src/routes/`, `public/index.html` and `budget.json`. Don't run anything yet; this is a static read.
+2. Create `notes/perf-plan.md` with four headings: **Questions**, **Budgets**, **Risks** and **Tests**.
+3. Write at least four questions like the ones above, and give each a budget with a unit.
+4. Under **Risks**, list what looks slow and where. Hint: look at what `listBooks` does inside its `for` loop.
+5. Under **Tests**, say which tool answers each question. Use this table as a start:
+
+   | Question or risk | Static check | Dynamic test |
+   | --- | --- | --- |
+   | Page weight | `npm run budget` | Lighthouse |
+   | Queries inside loops | `npm run lint:queries` | `x-query-count` under load |
+   | Slow lookups | `npm run explain` | k6 load test |
+   | Capacity | – | k6 stress test |
+
+<Screenshot kind="editor" title="notes/perf-plan.md" alt="A Markdown file open in an editor with four sections. Questions lists four items such as 'Does /api/books keep p95 under 300 ms with 50 users?'. Budgets gives numbers like 'p95 300 ms' and 'scripts 50 KB gzipped'. Risks cites src/routes/books.mjs line 11. Tests maps each item to a command." caption="A plan fits on one page. You'll fill in results as the course goes on." />
+
+</Exercise>

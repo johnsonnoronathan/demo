@@ -1,0 +1,168 @@
+---
+import { inline } from "../../lib/inline";
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import CourseArc from "../../components/CourseArc.astro";
+import AgentPrompt from "../../components/AgentPrompt.astro";
+import { loadCourse, chapterLessons, totalMinutes, formatMinutes } from "../../lib/course";
+import { buildPrompt } from "../../lib/prompt";
+import { planToMarkdown } from "../../lib/plan";
+import { scenes } from "../../scenes";
+
+export async function getStaticPaths() {
+  const courses = await getCollection("courses");
+  return courses.map((c) => ({ params: { course: c.id } }));
+}
+
+const { course, lessons } = await loadCourse(Astro.params.course!);
+const d = course.data;
+const markdown = planToMarkdown(course, lessons);
+const exercises = lessons.flatMap((l) => l.entry.data.exercises.map((ex) => ({ l, ex })));
+let clock = 0;
+const startAt = new Map(lessons.map((l) => { const s = clock; clock += l.entry.data.minutes; return [l, s]; }));
+const hm = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, "0")}`;
+const kindName = { opening: "Opening", lesson: "Lesson", summary: "Summary" } as const;
+---
+
+<Base title={`Lesson plan · ${d.title}`} description={`Lesson plan for ${d.title}: goals, timings, key points and exercises.`} course={{ id: course.id, title: d.title }} mode="plan" markdown={`/${course.id}/plan.md`}>
+  <main class="plan wrap">
+    <header class="plan-head">
+      <p class="eyebrow">Lesson plan</p>
+      <h1>{d.title}</h1>
+      <p class="plan-lede">{d.summary}</p>
+      <dl class="plan-facts">
+        <div><dt>Total time</dt><dd>{formatMinutes(totalMinutes(lessons))}</dd></div>
+        <div><dt>Chapters</dt><dd>{d.chapters.length}</dd></div>
+        <div><dt>Lessons</dt><dd>{lessons.filter((l) => l.entry.data.kind === "lesson").length}</dd></div>
+        <div><dt>Hands-on</dt><dd>{exercises.length}</dd></div>
+      </dl>
+      <div class="plan-actions">
+        <button type="button" class="btn btn-primary" id="copy-plan">Copy plan as Markdown</button>
+        <a class="btn" href={`/${course.id}/plan.md`}>Open as Markdown</a>
+        <a class="btn btn-ghost" href={`/${course.id}/`}>Go to the classroom</a>
+      </div>
+      <template id="plan-md">{markdown}</template>
+    </header>
+
+    <section class="plan-sec">
+      <h2>Structure</h2>
+      <CourseArc course={course} />
+    </section>
+
+    <section class="plan-sec plan-grid">
+      <div>
+        <h2>Course goals</h2>
+        <ul class="check-list">{d.outcomes.map((o) => <li>{o}</li>)}</ul>
+      </div>
+      <div>
+        <h2>Audience and setup</h2>
+        <p>{d.audience}</p>
+        <ul class="plain-list">{d.prerequisites.map((p) => <li>{p}</li>)}</ul>
+        <pre class="setup"><code>{d.practice.setup.join("\n")}</code></pre>
+      </div>
+    </section>
+
+    <section class="plan-sec">
+      <h2>Schedule</h2>
+      <div class="table-wrap">
+        <table class="schedule">
+          <thead>
+            <tr><th>Starts</th><th>Part</th><th>Title</th><th>Min</th><th>Concepts</th><th>Hands-on</th></tr>
+          </thead>
+          {
+            d.chapters.map((c, i) => {
+              const ls = chapterLessons(lessons, c.id);
+              return (
+                <tbody>
+                  <tr class="sch-chapter">
+                    <th colspan="3" scope="rowgroup">Chapter {i + 1} · {c.title} <span class={`role role-${c.role}`}>{c.role}</span></th>
+                    <td>{totalMinutes(ls)}</td><td></td><td></td>
+                  </tr>
+                  {ls.map((l) => (
+                    <tr>
+                      <td class="mono">{hm(startAt.get(l)!)}</td>
+                      <td class="mono">{l.entry.data.kind === "lesson" ? l.number : kindName[l.entry.data.kind]}</td>
+                      <td><a href={`#plan-${l.path.replaceAll("/", "-")}`}>{l.entry.data.title}</a></td>
+                      <td class="mono">{l.entry.data.minutes}</td>
+                      <td>{l.entry.data.concepts.map((k) => k.title).join(", ") || "–"}</td>
+                      <td>{l.entry.data.exercises.map((e) => e.title).join(", ") || "–"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              );
+            })
+          }
+        </table>
+      </div>
+    </section>
+
+    {
+      d.chapters.map((c, i) => {
+        const ls = chapterLessons(lessons, c.id);
+        return (
+          <section class="plan-sec plan-chapter" id={`chapter-${c.id}`}>
+            <header class="pc-head">
+              <span class="pc-n">Chapter {i + 1} · {c.role}</span>
+              <h2>{c.title}</h2>
+              <p>{c.summary} · {formatMinutes(totalMinutes(ls))}</p>
+            </header>
+            {ls.map((l) => {
+              const e = l.entry.data;
+              return (
+                <article class={`pl-item pl-${e.kind}`} id={`plan-${l.path.replaceAll("/", "-")}`}>
+                  <div class="pl-rail">
+                    <span class="pl-num">{e.kind === "lesson" ? l.number : kindName[e.kind]}</span>
+                    <span class="pl-min">{e.minutes} min</span>
+                  </div>
+                  <div class="pl-body">
+                    <h3><a href={l.url}>{e.title}</a></h3>
+                    <p class="pl-desc">{e.description}</p>
+                    <div class="pl-cols">
+                      {e.outcomes.length > 0 && (
+                        <div><h4>Outcomes</h4><ul>{e.outcomes.map((o) => <li set:html={inline(o)} />)}</ul></div>
+                      )}
+                      {e.concepts.length > 0 && (
+                        <div>
+                          <h4>Concepts</h4>
+                          <ul>{e.concepts.map((k) => <li>{k.title}{k.scene && scenes[k.scene] && <span class="pl-anim"> · animation</span>}</li>)}</ul>
+                        </div>
+                      )}
+                      {e.keyPoints.length > 0 && (
+                        <div><h4>Key points</h4><ul>{e.keyPoints.map((k) => <li set:html={inline(k)} />)}</ul></div>
+                      )}
+                    </div>
+                    {e.exercises.map((ex) => (
+                      <div class="pl-ex">
+                        <p><span class="tag tag-ex">hands-on · {ex.minutes} min</span> <b>{ex.title}.</b> <Fragment set:html={inline(ex.goal)} /></p>
+                        <AgentPrompt prompt={buildPrompt(l, ex)} title={ex.title} />
+                      </div>
+                    ))}
+                    {e.check.length > 0 && (
+                      <div class="pl-check">
+                        <h4>Self-check</h4>
+                        <ol>{e.check.map((q) => <li><span set:html={inline(q.q)} /> <em set:html={inline(q.a)} /></li>)}</ol>
+                      </div>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        );
+      })
+    }
+  </main>
+  <script>
+    const btn = document.getElementById("copy-plan") as HTMLButtonElement;
+    const tpl = document.getElementById("plan-md") as HTMLTemplateElement;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(tpl.content.textContent ?? "");
+        btn.textContent = "Copied";
+      } catch {
+        btn.textContent = "Copy blocked: use Open as Markdown";
+      }
+      setTimeout(() => (btn.textContent = "Copy plan as Markdown"), 2400);
+    });
+  </script>
+</Base>

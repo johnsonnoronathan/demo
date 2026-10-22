@@ -1,0 +1,31 @@
+---
+/** The minor lessons of the current chapter, with what each one covers. */
+import { loadCourse, chapterLessons, totalMinutes, formatMinutes } from "../lib/course";
+const view = Astro.locals.lesson!;
+const { lessons } = await loadCourse(view.course.id);
+const items = chapterLessons(lessons, view.chapter.id).filter((l) => l !== view);
+---
+
+<div class="chapter-map">
+  <p class="cm-total">{items.length} parts · {formatMinutes(totalMinutes(items))}</p>
+  <ol>
+    {
+      items.map((l) => (
+        <li class={`cm-${l.entry.data.kind}`}>
+          <a href={l.url} data-progress-link={l.path}>
+            <span class="cm-n">{l.entry.data.kind === "summary" ? "Σ" : l.number}</span>
+            <span class="cm-body">
+              <b>{l.entry.data.title}</b>
+              <span>{l.entry.data.description}</span>
+              <span class="cm-meta">
+                {l.entry.data.minutes} min
+                {l.entry.data.concepts.length > 0 && ` · ${l.entry.data.concepts.length} ${l.entry.data.concepts.length === 1 ? "concept" : "concepts"}`}
+                {l.entry.data.exercises.length > 0 && ` · ${l.entry.data.exercises.length} hands-on`}
+              </span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</div>

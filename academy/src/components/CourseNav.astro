@@ -1,0 +1,40 @@
+---
+import type { LessonView } from "../lib/course";
+import { chapterLessons } from "../lib/course";
+interface Props {
+  lessons: LessonView[];
+  current?: LessonView;
+}
+const { lessons, current } = Astro.props;
+const course = lessons[0].course;
+---
+
+<nav class="course-nav" aria-label={`${course.data.title} contents`}>
+  <a class="cn-course" href={`/${course.id}/`}>{course.data.title}</a>
+  {
+    course.data.chapters.map((c, i) => (
+      <div class={`cn-chapter${current?.chapter.id === c.id ? " is-open" : ""}`}>
+        <p class="cn-ch">
+          <span class="cn-ch-n">{i + 1}</span>
+          {c.title}
+          <span class={`cn-role cn-role-${c.role}`}>{c.role}</span>
+        </p>
+        <ol>
+          {chapterLessons(lessons, c.id).map((l) => (
+            <li>
+              <a
+                href={l.url}
+                data-progress-link={l.path}
+                aria-current={l === current ? "page" : undefined}
+                class={`cn-${l.entry.data.kind}`}
+              >
+                <span class="cn-n">{l.entry.data.kind === "lesson" ? l.number : l.entry.data.kind === "opening" ? "▸" : "Σ"}</span>
+                <span class="cn-t">{l.entry.data.kind === "opening" ? "What you'll get" : l.entry.data.kind === "summary" ? "Chapter summary" : l.entry.data.title}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    ))
+  }
+</nav>
