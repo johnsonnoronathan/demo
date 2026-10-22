@@ -1,16 +1,31 @@
 # demo
 
-## Testbench: Performance Testing
+## Testbench
 
-[`academy/`](academy/) is an Astro + MDX tutorial site built for people and for agents. Its first course, **Performance Testing**, has four chapters that run overall → specific → overall: Overview, Static testing, Dynamic testing, Summary. Each chapter opens with what you'll get and closes with a summary. Lessons pair animated concept scenes with hands-on exercises, and each exercise has a copyable agent prompt. The course has two views generated from the same source: the **Classroom** and the **Lesson plan**. Every page also has a Markdown twin, indexed in `/llms.txt`.
+[`academy/`](academy/) is a tutorial website for software testing, built with Astro and MDX for people and for agents. Every page has a video, with the written lesson underneath as the supplement.
+
+It has two courses:
+
+- **Writing Test Cases**: 6 lessons for beginners, each ending with a quiz.
+- **Performance Testing**: 20 pages in four chapters that run overall → specific → overall: Overview, Static testing, Dynamic testing, Summary.
+
+The site's other pages:
+
+- a catalog of the courses
+- a **My learning** page that tracks watched video time, completed pages and quiz scores
+- a page for agents
+
+The interface is available in seven languages: English, Chinese, Japanese, Korean, Spanish, French and German. The courses and their videos are fully translated in English and Simplified Chinese. The other five languages have translated titles and navigation, with the lesson text in English.
 
 ```bash
 cd academy && npm install && npm run dev
 ```
 
-The exercises run against [`academy/practice/larkspur`](academy/practice/larkspur), a dependency-free Node.js bookshop that is slow on purpose. See [`academy/README.md`](academy/README.md) for the authoring guide.
+Performance Testing's exercises run against [`academy/practice/larkspur`](academy/practice/larkspur), a dependency-free Node.js bookshop that is slow on purpose. Each exercise has a copyable agent prompt, and every page has a Markdown twin indexed in `/llms.txt`. See [`academy/README.md`](academy/README.md) for how the site works and how to author pages and videos.
 
 ## Casebook
+
+> Casebook was the first prototype. Its course now lives in Testbench as **Writing Test Cases**, with the same videos running on Testbench's video engine. The folder is kept for reference.
 
 [`casebook/`](casebook/) is a video-first course on test cases: six narrated lessons across three modules, from writing your first test case to an automated, organized suite. Open `casebook/index.html` in a browser; there is nothing to install or build.
 
