@@ -16,7 +16,11 @@ function el(tag: string, cls?: string | null, html?: string) {
   return n;
 }
 const on = (n: Element, v: boolean) => n.classList.toggle("on", v);
-const CHIP: Record<T.Chip, string> = { pass: "Pass", fail: "Fail", yes: "Yes", no: "No", gap: "Gap", warn: "Check" };
+let CHIP: Record<T.Chip, string> = { pass: "Pass", fail: "Fail", yes: "Yes", no: "No", gap: "Gap", warn: "Check" };
+/** Default chip labels in the video's language. */
+export function setChipLabels(labels?: Partial<Record<T.Chip, string>>) {
+  if (labels) CHIP = { ...CHIP, ...labels };
+}
 const chip = (kind: T.Chip, text?: string) => `<span class="v-chip v-chip-${kind}">${esc(text || CHIP[kind])}</span>`;
 
 /* Syntax colouring ------------------------------------------------------- */

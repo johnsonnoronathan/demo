@@ -17,6 +17,8 @@ const data = {
   mark: `Testbench · ${view.course.title} · ${view.entry.data.kind === "lesson" ? view.number : view.label}`,
   next: next ? { title: next.title, href: next.url } : undefined,
   s: clientStrings(L),
+  // Chips are on-screen text, so they follow the video's language, not the interface's.
+  chips: Object.fromEntries(["pass", "fail", "yes", "no", "gap", "warn"].map((k) => [k, t(view.videoLocale ?? "en", `video.chip.${k}`)])),
 };
 ---
 

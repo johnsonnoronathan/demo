@@ -7,7 +7,7 @@
  */
 import type { VideoDef } from "./types";
 import { timeline, sceneAt, cueAt, cuePos, type Timeline } from "./timeline";
-import { buildPane, type PaneView } from "./panes";
+import { buildPane, setChipLabels, type PaneView } from "./panes";
 import { load, save } from "../scripts/store";
 
 const W = 960, H = 540;
@@ -31,6 +31,7 @@ interface Data {
   mark: string;
   next?: { title: string; href: string };
   s: Record<string, string>;
+  chips?: Record<string, string>;
 }
 
 function pickVoice(lang: string) {
@@ -221,6 +222,7 @@ class TbVideo extends HTMLElement {
     const wrap = document.createElement("div");
     wrap.className = `vid-scene layout-${def.layout || "full"}`;
     if (def.cols) wrap.style.gridTemplateColumns = def.cols;
+    setChipLabels(this.d.chips);
     this.panes = def.panes.map((pd) => {
       const pv = buildPane(pd, { cues: def.cues.length });
       wrap.appendChild(pv.el);
