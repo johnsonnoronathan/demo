@@ -58,7 +58,7 @@
   summary: >-
     The foundations of testing, in short lessons. Learn what a test case is and what
     makes one trustworthy, choose inputs with partitions and boundaries, cover the unhappy
-    paths, turn a written case into an automated test, and keep a growing suite healthy.
+    paths, explore without a script, turn a written case into an automated test, and keep a growing suite healthy.
   audience: >-
     Anyone who tests software or wants to: developers, testers, product people. No
     previous testing experience needed; lesson 3.1 reads a little JavaScript.
