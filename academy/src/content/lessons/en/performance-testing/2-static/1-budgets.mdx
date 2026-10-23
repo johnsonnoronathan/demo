@@ -1,0 +1,116 @@
+---
+title: "Performance budgets"
+course: performance-testing
+chapter: static
+kind: lesson
+order: 1
+slug: budgets
+minutes: 20
+description: "Agree on limits before you measure, then let a check enforce them on every change."
+outcomes:
+  - "Explain what a performance budget is and who should agree on it"
+  - "Choose budget metrics that can be checked statically and dynamically"
+  - "Run an asset budget check and read its result"
+concepts:
+  - title: "Budgets turn opinions into pass or fail"
+    scene: budgets
+  - title: "Kinds of budget: quantity, timing, rule-based"
+  - title: "Where the numbers come from"
+keyPoints:
+  - "A budget is a limit agreed before measuring. It turns \"is this fast enough?\" into pass or fail."
+  - "Quantity budgets (KB, requests, queries) can be checked statically on every change. Timing budgets (p95, LCP) need a dynamic test."
+  - "Base budgets on user needs and competitors, then on today's numbers so they're achievable. Tighten them as you improve."
+  - "A budget check that fails the build gets fixed. A dashboard that turns red gets ignored."
+exercises:
+  - id: run-budget
+    title: "Run the asset budget and record what fails"
+    minutes: 10
+    goal: "Run Larkspur's asset budget, identify which files push it over, and add API timing budgets to your plan for chapter 3."
+    agent:
+      steps:
+        - "Read `budget.json` and summarise its limits."
+        - "Run `npm run budget` and capture the full output and the exit code."
+        - "List each failing budget with how far over it is, and the file or files responsible."
+        - "Append a 'Budgets' section to `notes/perf-plan.md` (create the file if it doesn't exist) with the asset budgets from budget.json and these API budgets: /api/books p95 300 ms, /api/orders p95 200 ms, /api/recommendations p95 400 ms, all at 50 users, error rate under 1%."
+        - "Do not change any code or assets yet; lesson 2.4 fixes them."
+      done:
+        - "You have the budget output and its exit code"
+        - "Each failing budget is attributed to a specific file"
+        - "notes/perf-plan.md lists both asset and API budgets"
+      report:
+        - "The budget table from the command output"
+        - "The files responsible for each failure, largest first"
+---
+
+"Make it fast" isn't a requirement anyone can test. A **performance budget** is: a limit on a measurable quantity, agreed before anyone measures, that a check can enforce.
+
+<Scene name="budgets" />
+
+## Three kinds of budget
+
+| Kind | Examples | Checked |
+| --- | --- | --- |
+| **Quantity** | JavaScript ≤ 50 KB gzipped, images ≤ 250 KB, ≤ 5 queries per request | Statically, on every build |
+| **Timing** | p95 ≤ 300 ms at 50 users, LCP ≤ 2.5 s on a mid-range phone | Dynamically, with Lighthouse or k6 |
+| **Rule-based** | Lighthouse performance score ≥ 90, no render-blocking scripts | Dynamically, with Lighthouse |
+
+Quantity budgets are the static ones, and the most useful early on: they can't be argued with, and they catch regressions the moment someone commits them. A timing budget tells you whether users are happy; a quantity budget tells you which change made them unhappy.
+
+## Where the numbers come from
+
+Good budgets come from three places, in this order:
+
+1. **What users need.** Google's Core Web Vitals call an LCP under 2.5 s "good". Studies of web shops put noticeable drop-off at around one second of extra delay.
+2. **What competitors do.** If a rival's product page loads in 1.8 s, that's your bar.
+3. **Where you are today.** A budget that fails on day one by a factor of ten will be switched off. Start at today's numbers, then ratchet down.
+
+Larkspur's `budget.json` sets quantity limits for the storefront:
+
+```json
+{
+  "page": "public/index.html",
+  "budgets": { "script": 50, "stylesheet": 20, "image": 250, "total": 350 }
+}
+```
+
+Scripts and stylesheets are measured gzipped, the way browsers download them; images as stored. The check script reads `index.html`, finds every script, stylesheet and image it references, weighs each file, and exits with code 1 if any budget is exceeded. Exit code 1 is what makes a CI job fail.
+
+<Callout type="tip" title="Budgets need an owner">
+Agree budgets with whoever owns the product, not only the engineers. When a new feature needs more room, that's a product decision: raise the budget on purpose, or cut something else.
+</Callout>
+
+## Hands-on: Run the asset budget and record what fails
+
+<Exercise id="run-budget">
+
+1. Run the check from the practice app folder. It doesn't need the app running.
+
+   ```bash
+   npm run budget
+   ```
+
+   ```text
+   Asset weight for public/index.html
+
+   type        size KB   file
+   script         95.9   /vendor/datefmt-all-locales.js
+   script          0.3   /app.js
+   stylesheet      0.5   /styles.css
+   image        1043.1   /hero.jpg
+
+   budget      actual   limit   result
+   script        96.2      50   FAIL  (+46.2 KB)
+   stylesheet     0.5      20   pass
+   image       1043.1     250   FAIL  (+793.1 KB)
+   total       1139.8     350   FAIL  (+789.8 KB)
+
+   3 budget(s) exceeded.
+   ```
+
+<Screenshot kind="terminal" title="npm run budget" alt="Terminal showing the asset table and the budget table. Scripts 96.2 KB against 50, images 1043.1 KB against 250 and total 1139.8 KB against 350 are marked FAIL; stylesheets 0.5 KB pass." caption="Three of four budgets fail. Two files account for almost all of it." />
+
+2. Check the exit code. `echo $?` prints `1` right after a failed run, which is what stops a CI pipeline.
+3. For each failure, name the file responsible. Here it's easy: one script and one image.
+4. Add the API timing budgets from the agent prompt to `notes/perf-plan.md`. You'll turn them into k6 thresholds in lesson 3.2.
+
+</Exercise>

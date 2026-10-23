@@ -1,0 +1,49 @@
+---
+import Base from "../layouts/Base.astro";
+import { courseEntries, loadCourse } from "../lib/course";
+import { buildPrompt } from "../lib/prompt";
+import { href, type Locale, withBase } from "../i18n/locales";
+import { t } from "../i18n/ui";
+interface Props {
+  locale: Locale;
+}
+const { locale: L } = Astro.props;
+const entries = await courseEntries();
+const perf = await loadCourse(entries.find((c) => c.id === "performance-testing")!.id, L);
+const sample = perf.lessons.find((l) => l.en.data.exercises.length)!;
+const prompt = buildPrompt(sample, sample.en.data.exercises[0].id).split("\n").slice(0, 14).join("\n") + "\n…";
+---
+
+<Base title={`${t(L, "agents.title")} · Testbench`} description={t(L, "agents.sub")} locale={L} path="/agents/" section="agents">
+  <main id="main" class="agents wrap">
+    <header class="page-head">
+      <h1>{t(L, "agents.title")}</h1>
+      <p class="sec-sub">{t(L, "agents.sub")}</p>
+    </header>
+    <div class="agents-grid">
+      <section>
+        <h2>{t(L, "agents.prompts")}</h2>
+        <p>{t(L, "agents.promptsD")}</p>
+        <pre class="setup" lang="en"><code>{prompt}</code></pre>
+      </section>
+      <section>
+        <h2>{t(L, "agents.markdown")}</h2>
+        <p>{t(L, "agents.markdownD")}</p>
+        <pre class="setup"><code>{`${sample.url}\n${sample.mdUrl}`}</code></pre>
+        <p><a href={sample.mdUrl}>{sample.mdUrl}</a></p>
+      </section>
+      <section>
+        <h2>{t(L, "agents.llms")}</h2>
+        <p>{t(L, "agents.llmsD")}</p>
+        <ul class="plain-list">
+          <li><a href={withBase("/llms.txt")}>{withBase("/llms.txt")}</a></li>
+          {entries.map((c) => <li><a href={href(L, `/${c.id}/llms-full.txt`)}>{href(L, `/${c.id}/llms-full.txt`)}</a></li>)}
+        </ul>
+      </section>
+      <section>
+        <h2>{t(L, "agents.how")}</h2>
+        <p>{t(L, "agents.howD")}</p>
+      </section>
+    </div>
+  </main>
+</Base>

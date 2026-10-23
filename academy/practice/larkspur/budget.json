@@ -1,0 +1,10 @@
+{
+  "page": "public/index.html",
+  "note": "Sizes in KB. Scripts and stylesheets are measured gzipped, images as stored.",
+  "budgets": {
+    "script": 50,
+    "stylesheet": 20,
+    "image": 250,
+    "total": 350
+  }
+}

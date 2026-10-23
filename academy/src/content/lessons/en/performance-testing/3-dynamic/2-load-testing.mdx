@@ -1,0 +1,145 @@
+---
+title: "Load testing with k6"
+course: performance-testing
+chapter: dynamic
+kind: lesson
+order: 2
+slug: load-testing
+minutes: 30
+description: "Simulate a busy evening of shoppers, and let thresholds decide whether the app meets its budgets."
+outcomes:
+  - "Explain virtual users, iterations, think time and stages"
+  - "Write a k6 script with checks, tags and thresholds"
+  - "Read a k6 summary and explain a failed threshold"
+concepts:
+  - title: "How a k6 load test works"
+    scene: virtual-users
+  - title: "Checks versus thresholds"
+  - title: "One slow endpoint slows the others"
+keyPoints:
+  - "A virtual user runs your script in a loop. Stages set how many run at once over time."
+  - "Think time (sleep) makes each user behave like a person, so 50 virtual users is close to 50 real shoppers."
+  - "Checks verify each response; thresholds turn the run's percentiles and error rate into pass or fail."
+  - "Tag requests per endpoint so each has its own threshold. A single-threaded server lets one slow endpoint delay all the others."
+  - "Always run a short smoke test first, to prove the script and the app work before you add load."
+exercises:
+  - id: k6-load
+    title: "Run a smoke test, then the load test"
+    minutes: 20
+    goal: "Run load/smoke.k6.js and load/load.k6.js against Larkspur and record which thresholds pass."
+    agent:
+      steps:
+        - "Check that k6 is installed with `k6 version`. If it isn't, stop and report that; suggest `npm run load` as a fallback."
+        - "With the app running, run `k6 run load/smoke.k6.js` and confirm all checks pass."
+        - "Read load/load.k6.js and summarise its stages, think time and thresholds."
+        - "Run `k6 run load/load.k6.js` (about 2 minutes). For a quicker run, use `k6 run --stage 15s:50 --stage 30s:50 --stage 5s:0 load/load.k6.js` and say that you did."
+        - "Record each threshold's result and the p95 per endpoint in `notes/load-test.md`, with the command and date."
+      done:
+        - "The smoke test passed before the load test ran"
+        - "notes/load-test.md lists every threshold with pass or fail and the measured value"
+      report:
+        - "The THRESHOLDS block of the k6 summary"
+        - "Whether the app meets the API budgets from your plan, and which chapter 2 fixes made the difference if it does"
+---
+
+The budgets from your plan say `/api/books` should answer within 300 ms at p95 with 50 shoppers. Only one kind of test can check that: put 50 shoppers' worth of traffic through the app and measure.
+
+<Scene name="virtual-users" />
+
+## The script
+
+k6 scripts are JavaScript. The default function is one **iteration** of one virtual user; `options` says how many users run, for how long, and what counts as passing.
+
+```js title="load/load.k6.js"
+export const options = {
+  stages: [
+    { duration: "30s", target: 50 }, // ramp up
+    { duration: "1m", target: 50 },  // hold: a busy evening
+    { duration: "15s", target: 0 },  // ramp down
+  ],
+  thresholds: {
+    http_req_failed: ["rate<0.01"],
+    "http_req_duration{endpoint:books}": ["p(95)<300"],
+    "http_req_duration{endpoint:orders}": ["p(95)<200"],
+    "http_req_duration{endpoint:recommendations}": ["p(95)<400"],
+  },
+};
+
+export default function () {
+  group("browse", () => {
+    const page = 1 + Math.floor(Math.random() * 20);
+    const res = http.get(`${BASE}/api/books?page=${page}`, { tags: { endpoint: "books" } });
+    check(res, { "books 200": (r) => r.status === 200 });
+  });
+  sleep(1); // think time
+  // …then orders, sleep, a book page with recommendations, sleep
+}
+```
+
+Three details make the difference between a load test and a stress generator:
+
+- **Think time.** `sleep(1)` between requests makes each virtual user behave like a person reading a page. Without it, 50 virtual users send far more traffic than 50 people would.
+- **Varied data.** Random pages, customers and books spread requests across the data, the way real traffic does. Asking for the same row every time measures the cache, not the app.
+- **Tags.** `tags: { endpoint: "books" }` gives each endpoint its own percentiles and its own threshold.
+
+## Checks and thresholds
+
+A **check** tests one response ("status is 200") and records the result; it never stops the test. A **threshold** judges the whole run against a budget, and makes k6 exit with a non-zero code when it's crossed. That exit code is what lets a load test gate a release.
+
+## What the summary tells you
+
+Here's the load test against Larkspur as it was **before** chapter 2's fixes:
+
+```text
+  █ THRESHOLDS
+
+    http_req_duration{endpoint:books}
+    ✗ 'p(95)<300' p(95)=1.17s
+
+    http_req_duration{endpoint:orders}
+    ✗ 'p(95)<200' p(95)=941.52ms
+
+    http_req_duration{endpoint:recommendations}
+    ✗ 'p(95)<400' p(95)=968.7ms
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+```
+
+Books failing is no surprise. But orders and recommendations failed too, even though on their own they were much faster. Node.js runs JavaScript on a single thread, and SQLite calls here are synchronous: while one request runs 101 queries, every other request waits its turn. **One slow endpoint slows them all.** That's a finding a per-endpoint microbenchmark would never show.
+
+After chapter 2's fixes, the same test on the same machine:
+
+```text
+    ✓ 'p(95)<300' p(95)=10.29ms      books
+    ✓ 'p(95)<200' p(95)=8.98ms       orders
+    ✓ 'p(95)<400' p(95)=34.33ms      recommendations
+    ✓ 'rate<0.01' rate=0.00%
+```
+
+Every budget passes. That answers the plan's question for 50 users. It doesn't say how many users the app could take, or what happens in a rush. Those are the next lesson's questions.
+
+## Hands-on: Run a smoke test, then the load test
+
+<Exercise id="k6-load">
+
+1. Start with a **smoke test**: one user for 30 seconds. If this fails, the script or the app is broken, and a big test would only produce big confusion.
+
+   ```bash
+   k6 run load/smoke.k6.js
+   ```
+
+2. Run the load test. It takes just under two minutes.
+
+   ```bash
+   k6 run load/load.k6.js
+   ```
+
+<Screenshot kind="terminal" title="k6 run load/load.k6.js" alt="The end of a k6 run summary. A THRESHOLDS section lists four thresholds with green check marks: books p95 about 10 ms, orders p95 about 9 ms, recommendations p95 about 34 ms, and failed requests 0.00%. Below it, TOTAL RESULTS with checks at 100% and HTTP request durations per endpoint." caption="After chapter 2's fixes, all four thresholds pass at 50 users." />
+
+3. If you skipped chapter 2's fixes, your run will fail like the "before" output above. Try it: `git stash`, restart the app, run again, then `git stash pop`.
+4. Record the results in `notes/load-test.md`.
+
+No k6? Run the same traffic shape per endpoint with the built-in tool, for example `npm run load -- --url "http://localhost:3000/api/books?page=1" --vus 50 --duration 60`. It has no think time, so expect higher latency than k6 reports.
+
+</Exercise>

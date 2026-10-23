@@ -1,0 +1,137 @@
+---
+import "../styles/global.css";
+import "../styles/video.css";
+import { LOCALES, href, localeInfo, type Locale, withBase } from "../i18n/locales";
+import { proposeUrl } from "../lib/site";
+import { t } from "../i18n/ui";
+import { courseEntries, localizeCourse } from "../lib/course";
+
+interface Props {
+  title: string;
+  description?: string;
+  locale: Locale;
+  /** The page's path without a locale prefix, so the language switcher keeps you on the same page. */
+  path: string;
+  /** Set on course pages, to show the Classroom / Lesson plan switch. */
+  course?: { id: string; title: string };
+  mode?: "classroom" | "plan";
+  /** Markdown twin of this page, for agents. */
+  markdown?: string;
+  section?: "home" | "courses" | "learning" | "agents";
+}
+const { title, description, locale: L, path, course, mode, markdown, section } = Astro.props;
+const courses = (await courseEntries()).map((c) => localizeCourse(c, L));
+const info = localeInfo(L);
+// Only the CJK face this page needs; each one is large.
+const cjkFont = ({ zh: "Noto+Sans+SC", ja: "Noto+Sans+JP", ko: "Noto+Sans+KR" } as Record<string, string>)[L];
+---
+
+<!doctype html>
+<html lang={info.html}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {markdown && <link rel="alternate" type="text/markdown" href={markdown} title="Markdown" />}
+    {LOCALES.map((l) => <link rel="alternate" hreflang={l.html} href={href(l.code, path)} />)}
+    <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href={`https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=JetBrains+Mono:wght@400..600&family=Public+Sans:ital,wght@0,400..700;1,400${cjkFont ? `&family=${cjkFont}:wght@400..800` : ""}&display=swap`}
+    />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem("testbench:theme");
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body data-locale={L}>
+    <a class="skip" href="#main">{t(L, "lesson.readIntro")}</a>
+    <header class="topbar">
+      <div class="topbar-in">
+        <a class="brand" href={href(L, "/")} aria-label="Testbench">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle>
+            <path d="M14 15l5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path>
+            <path d="M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+          </svg>
+          <span>Testbench</span>
+        </a>
+        <nav class="mainnav" aria-label="Testbench">
+          <a href={href(L, "/courses/")} aria-current={section === "courses" ? "page" : undefined}>{t(L, "nav.courses")}</a>
+          <a href={href(L, "/learning/")} aria-current={section === "learning" ? "page" : undefined}>{t(L, "nav.learning")}</a>
+          <a href={href(L, "/agents/")} aria-current={section === "agents" ? "page" : undefined}>{t(L, "nav.agents")}</a>
+        </nav>
+        {
+          course && (
+            <nav class="modes" aria-label={course.title}>
+              <a href={href(L, `/${course.id}/`)} aria-current={mode === "classroom" ? "page" : undefined}>{t(L, "nav.classroom")}</a>
+              <a href={href(L, `/${course.id}/plan/`)} aria-current={mode === "plan" ? "page" : undefined}>{t(L, "nav.plan")}</a>
+            </nav>
+          )
+        }
+        <div class="topbar-end">
+          <details class="lang">
+            <summary aria-label={t(L, "nav.language")}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg>
+              <span>{info.label}</span>
+            </summary>
+            <ul>
+              {LOCALES.map((l) => (
+                <li><a href={href(l.code, path)} lang={l.html} hreflang={l.html} aria-current={l.code === L ? "true" : undefined}>{l.label}</a></li>
+              ))}
+            </ul>
+          </details>
+          <button class="theme-btn" type="button" id="theme-toggle" data-l-light={t(L, "theme.toLight")} data-l-dark={t(L, "theme.toDark")}>
+            <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+            <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.4 8.4 0 0 1 9.4 4a8.4 8.4 0 1 0 10.6 10.6z" fill="currentColor"></path></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+    <slot />
+    <footer class="foot">
+      <div class="foot-in">
+        <div class="foot-about">
+          <a class="brand" href={href(L, "/")}>
+            <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg>
+            <span>Testbench</span>
+          </a>
+          <p>{t(L, "footer.about")}</p>
+        </div>
+        <div class="foot-col">
+          <h2>{t(L, "footer.learn")}</h2>
+          <ul>
+            {courses.map((c) => <li><a href={href(L, `/${c.id}/`)}>{c.title}</a></li>)}
+            <li><a href={href(L, "/courses/")}>{t(L, "nav.courses")}</a></li>
+            <li><a href={href(L, "/learning/")}>{t(L, "nav.learning")}</a></li>
+            <li><a href={proposeUrl} target="_blank" rel="noopener">{t(L, "feedback.propose")}</a></li>
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h2>{t(L, "footer.forAgents")}</h2>
+          <ul>
+            <li><a href={href(L, "/agents/")}>{t(L, "nav.agents")}</a></li>
+            <li><a href={withBase("/llms.txt")}>llms.txt</a></li>
+            {markdown && <li><a href={markdown}>{t(L, "footer.thisPageMd")}</a></li>}
+          </ul>
+        </div>
+        <div class="foot-col">
+          <h2>{t(L, "footer.languages")}</h2>
+          <ul class="foot-langs">
+            {LOCALES.map((l) => <li><a href={href(l.code, path)} lang={l.html}>{l.label}</a></li>)}
+          </ul>
+        </div>
+      </div>
+      <p class="foot-fine">{t(L, "footer.fineprint")}</p>
+    </footer>
+    <script>
+      import "../scripts/progress";
+      import "../scripts/theme";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,135 @@
+---
+title: "What performance testing measures"
+course: performance-testing
+chapter: overview
+kind: lesson
+order: 1
+slug: what-it-measures
+minutes: 20
+description: "Latency, throughput and errors: the three numbers every performance test reports, and why latency is quoted as percentiles."
+outcomes:
+  - "Name the three numbers a performance test reports and what each says about users"
+  - "Read p50, p95 and p99, and explain why an average hides problems"
+  - "Run the practice app and take a first, repeatable measurement"
+concepts:
+  - title: "Latency as a distribution: p50, p95, p99"
+    scene: percentiles
+  - title: "Throughput and error rate"
+  - title: "A measurement is only useful if you can repeat it"
+keyPoints:
+  - "Latency is how long one request takes, throughput is how many complete per second, and the error rate is the share that fail."
+  - "Latency is a distribution. Report percentiles: p50 for the typical request, p95 and p99 for the slow tail."
+  - "An average blends fast and slow requests into a number no user experienced. Don't set budgets on averages."
+  - "Write down how you measured (users, duration, endpoint), so the number can be repeated and compared."
+exercises:
+  - id: first-measurement
+    title: "Set up Larkspur and take a first measurement"
+    minutes: 15
+    goal: "Get the practice app running and record a baseline for /api/books: query count, p50, p95 and throughput at 10 users."
+    agent:
+      steps:
+        - "Run `npm run seed` and confirm it reports 500 authors, 5,000 books, 50,000 reviews and 200,000 orders."
+        - "Start the app with `npm start` in the background and wait until http://localhost:3000/health returns `ok`."
+        - "Run `curl -s -i http://localhost:3000/api/books` and note the `x-query-count` and `server-timing` headers."
+        - "Run `npm run load -- --url http://localhost:3000/api/books --vus 10 --duration 20` and capture the result row."
+        - "Create `notes/perf-baseline.md` inside the practice app with the date, the command used, and the measured requests/s, p50, p95, p99 and queries per request."
+        - "Stop the app when you're done."
+      done:
+        - "notes/perf-baseline.md exists and every number in it appears in the command output you captured"
+        - "The baseline names the endpoint, the number of virtual users and the duration"
+      report:
+        - "The baseline table you wrote"
+        - "One sentence on what the query count suggests about the endpoint"
+---
+
+A performance test answers questions like "how long do customers wait?" and "how much traffic can we take before that gets worse?". Whatever the tool, the answers come back as three numbers.
+
+| Number | Question it answers | Unit |
+| --- | --- | --- |
+| **Latency** (response time) | How long does one request take? | milliseconds |
+| **Throughput** | How many requests complete per second? | requests per second (req/s) |
+| **Error rate** | What share of requests fail or time out? | percent |
+
+They move together. When a system nears its limit, throughput stops rising, latency climbs, and soon after, errors appear. Chapter 3 shows that happening to Larkspur.
+
+## Latency is a distribution
+
+Send the same request a few hundred times and you get a few hundred different durations. Most are close together; a few are much slower, held up by a garbage-collection pause, a cold cache or a busy database. Play the animation to see the shape this makes.
+
+<Scene name="percentiles" />
+
+Because of that long tail, latency is reported as **percentiles**. The p95 is the duration that 95% of requests beat; 5% are slower. Think of it as the experience of one user in twenty, which on a busy site is a lot of people.
+
+| Statistic | What it tells you | Use it for |
+| --- | --- | --- |
+| p50 (median) | The typical request | Spotting broad regressions |
+| p95 | The slow tail most users will eventually hit | Budgets and test thresholds |
+| p99 | The worst regular experience | Systems where the tail matters (checkout, login) |
+| max | One outlier | Investigating, never for budgets |
+| average | Nothing a real user experienced | Avoid |
+
+The average pulls toward the slow tail but still sits far below it, so it hides the requests people complain about. Every budget and threshold in this course uses percentiles.
+
+## Throughput and errors
+
+Throughput is the rate of completed requests. On its own it says little: 16 req/s is plenty for a small shop and a disaster for a ticket sale. It becomes useful next to latency, as in "16 req/s at p95 under 300 ms".
+
+The error rate keeps the other two honest. A server that fails fast can post great latency numbers. Always check errors before you celebrate a speed-up.
+
+## Measurements you can repeat
+
+A number without its conditions is not a measurement. Record at least:
+
+- the endpoint or page,
+- how many virtual users, for how long,
+- the machine and whether anything else was running,
+- the exact command.
+
+Then you, a teammate or an agent can run it again after a change and compare like with like.
+
+## Hands-on: Set up Larkspur and take a first measurement
+
+<Exercise id="first-measurement">
+
+1. Build the database. It takes a few seconds and prints what it created.
+
+   ```bash
+   cd academy/practice/larkspur
+   npm run seed
+   ```
+
+2. Start the app in its own terminal and leave it running.
+
+   ```bash
+   npm start
+   # Larkspur Books on http://localhost:3000
+   ```
+
+<Screenshot kind="browser" title="localhost:3000" alt="The Larkspur Books storefront: a header, a large photo of bookshelves with the heading 'Find your next favourite book', and a grid of new arrivals showing title, author, price and star rating." caption="The storefront you'll test. It loads slowly; chapter 3 explains why." />
+
+3. Ask for one page of books and look at the headers. Larkspur reports how many database queries the request ran and how long the server spent on it.
+
+   ```bash
+   curl -s -i http://localhost:3000/api/books | head -4
+   ```
+
+   ```text
+   HTTP/1.1 200 OK
+   content-type: application/json
+   x-query-count: 101
+   server-timing: app;dur=60.4
+   ```
+
+   101 queries for one page of 50 books is worth remembering. Lesson 2.2 explains it.
+
+4. Put it under light load: 10 virtual users for 20 seconds, using the load tool that ships with the app.
+
+   ```bash
+   npm run load -- --url http://localhost:3000/api/books --vus 10 --duration 20
+   ```
+
+<Screenshot kind="terminal" title="npm run load" alt="Terminal output of the mini load tool: one row for 10 virtual users over 20 seconds showing about 16 requests per second, p50 around 570 ms, p95 around 1,300 ms, 0 errors and 101 queries per request." caption="Your numbers will differ. On our machine: 16 req/s, p50 573 ms, p95 1,320 ms, 101 queries per request." />
+
+5. Write the result to `notes/perf-baseline.md` with the command you ran. You'll compare against it after every fix.
+
+</Exercise>

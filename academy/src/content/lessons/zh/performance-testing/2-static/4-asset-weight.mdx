@@ -1,0 +1,113 @@
+---
+title: "资源体积"
+course: performance-testing
+chapter: static
+kind: lesson
+order: 4
+slug: asset-weight
+minutes: 20
+description: "通过称量文件找出页面为什么重，并在不改变用户所见的前提下把它压进预算。"
+outcomes:
+  - "找出页面加载的最重的文件，并判断它们是否必要"
+  - "在页面 HTML 中识别阻塞渲染的脚本"
+  - "把页面体积降到预算以下，并用预算检查证明"
+concepts:
+  - title: "页面体积都去哪了"
+    scene: asset-treemap
+  - title: "阻塞渲染的脚本"
+  - title: "让图片尺寸恰到好处"
+keyPoints:
+  - "称量页面实际加载的东西。通常少数几个文件就占了大部分体积。"
+  - "对每个重文件问两个问题：全部内容都需要吗？现在就需要吗？库打包的内容往往远超你实际用到的。"
+  - "<head> 中的普通 <script> 会阻塞渲染，直到它下载并执行完毕。使用 defer，或者把它移走。"
+  - "按显示尺寸提供图片，合理压缩，并为它们设置 width 和 height。"
+exercises:
+  - id: fix-assets
+    title: "让店面回到预算之内"
+    minutes: 15
+    goal: "修复 public/index.html 中最重的两个资源和阻塞渲染的脚本，直到 npm run budget 通过，且页面显示的内容不变。"
+    agent:
+      steps:
+        - "Run `npm run budget` and note the failing budgets."
+        - "In `public/index.html` only (leave `public/before.html` untouched), replace `/vendor/datefmt-all-locales.js` with `/vendor/datefmt-en.js`; the page only formats dates in en-US."
+        - "Add `defer` to both script tags so they no longer block rendering. `app.js` already waits for DOMContentLoaded, and deferred scripts run in order."
+        - "Replace `/hero.jpg` with `/hero-1200.jpg` and add `width=\"1200\" height=\"600\"` and `fetchpriority=\"high\"` to the img tag."
+        - "Run `npm run budget` again."
+        - "Start the app and load http://localhost:3000/ in a browser or with Playwright if available, and confirm the 'Updated <date>' line and the book grid still render. If no browser is available, say so."
+      done:
+        - "`npm run budget` passes all budgets and exits 0"
+        - "public/before.html is unchanged"
+        - "The page still shows the updated date and the book grid"
+      report:
+        - "The budget output before and after"
+        - "The diff of public/index.html"
+        - "How you confirmed the page still renders correctly"
+---
+
+第 2.1 课的预算检查发现，店面的体积是 1,140 KB，而预算只有 350 KB。预算失败告诉你**有**东西太大了；称量文件则告诉你**是什么**。
+
+<Scene name="asset-treemap" />
+
+## 对每个重文件问两个问题
+
+**全部内容都需要吗？** `datefmt-all-locales.js` 能用 420 种语言区域格式化日期，而页面只调用它一次，用的是 `en-US`。同一个库还提供单一区域的构建 `datefmt-en.js`，只有 1.5 KB，而不是 600 KB。这是 Web 上最常见的体积问题：为了一个用途，打包了整个库，或者所有语言区域、图标、polyfill。
+
+**尺寸合适吗？** `hero.jpg` 是 2400 × 1200 像素、JPEG 质量 97，直接从相机或设计工具导出。页面最多只以 1200 像素宽显示它。按显示尺寸、质量 72 导出的 `hero-1200.jpg` 只有 58 KB，而不是 1 MB，在屏幕上看起来毫无差别。
+
+## 阻塞渲染的脚本
+
+体积并不是 HTML 中唯一的静态警告。看看 head 部分：
+
+```html
+<script src="/vendor/datefmt-all-locales.js"></script>
+<script src="/app.js"></script>
+```
+
+`<head>` 中的普通 `<script>` 标签会让浏览器在脚本下载并执行完之前什么都不渲染。在手机网络上加载一个 600 KB 的脚本，就意味着几秒钟的白屏。第 3 章会精确测量是几秒。
+
+加上 `defer`，浏览器就会并行下载脚本、先渲染页面，再按顺序执行它们。`app.js` 本来就会等待 `DOMContentLoaded`，所以不需要改动别的地方。
+
+```html
+<script src="/vendor/datefmt-en.js" defer></script>
+<script src="/app.js" defer></script>
+```
+
+<Callout type="note" title="为图片设置宽和高">
+为图片加上 `width` 和 `height` 属性。这样浏览器在图片到达之前就能预留空间，下方的文字不会跳动（这种跳动以 Cumulative Layout Shift 来衡量）。在主图上设置 `fetchpriority="high"`，告诉浏览器尽早获取它。
+</Callout>
+
+## 动手练习：让店面回到预算之内
+
+<Exercise id="fix-assets">
+
+1. 编辑 `public/index.html`。不要动 `public/before.html`，它是一份冻结的副本，第 3 章要用来对比。
+
+   ```diff
+   - <script src="/vendor/datefmt-all-locales.js"></script>
+   - <script src="/app.js"></script>
+   + <script src="/vendor/datefmt-en.js" defer></script>
+   + <script src="/app.js" defer></script>
+   ...
+   - <img src="/hero.jpg" alt="Shelves of books in warm light">
+   + <img src="/hero-1200.jpg" width="1200" height="600" fetchpriority="high" alt="Shelves of books in warm light">
+   ```
+
+2. 再次运行预算检查。
+
+   ```text
+   budget      actual   limit   result
+   script         0.9      50   pass
+   stylesheet     0.5      20   pass
+   image         57.6     250   pass
+   total         59.0     350   pass
+
+   All budgets met.
+   ```
+
+<Screenshot kind="terminal" title="npm run budget" alt="终端显示修复后的预算表：脚本 0.9 KB、样式表 0.5 KB、图片 57.6 KB、总计 59.0 KB，全部标记为 pass，下方是 'All budgets met.'。" caption="从 1,140 KB 降到 59 KB。" />
+
+3. 打开店面，确认顾客看到的内容没有变化：照片、“Updated”日期行和图书网格都应该还在。
+
+<Screenshot kind="browser" title="localhost:3000" alt="修复后的 Larkspur 店面，看起来和之前一样：带标题的书架照片、显示今天日期的“Updated”行，以及新书网格。" caption="同样的页面，体积只有原来的二十分之一。" />
+
+</Exercise>

@@ -1,0 +1,41 @@
+---
+title: "动态测试"
+course: performance-testing
+chapter: dynamic
+kind: opening
+order: 0
+slug: ""
+minutes: 5
+description: "运行系统、发送流量，测量用户真正感受到的东西。"
+outcomes:
+  - "用 Lighthouse 在实验室环境中测量页面加载，读懂 FCP、LCP 和得分"
+  - "编写带阶段、检查和阈值的 k6 负载测试，并读懂它的汇总结果"
+  - "运行压力、峰值和浸泡测试，找出应用的实际容量"
+  - "在负载下分析应用、阅读火焰图，并用数字证明 CPU 修复有效"
+---
+
+第 2 章通过阅读发现问题。本章则通过运行来发现问题：像手机那样加载页面，给应用发送一个繁忙夜晚的流量，再不断加量直到它扛不住，最后在它吃力时查看进程内部。
+
+动态测试比静态测试成本更高。它们需要应用在运行，要花几分钟，而且数字取决于机器。作为回报，它们能回答静态检查回答不了的问题：有多慢、能承受多少用户，以及为什么。
+
+<Outcomes />
+
+## 开始之前
+
+安装本章使用的负载测试工具 k6：
+
+| 系统 | 命令 |
+| --- | --- |
+| macOS | `brew install k6` |
+| Windows | `winget install k6 --source winget` |
+| Debian、Ubuntu | 参见 [grafana.com/docs/k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) |
+
+如果无法安装，每个练习也都可以用练习应用自带的工具 `npm run load` 完成。Lighthouse 和 CPU 分析器需要用到 Chrome。
+
+<Callout type="note" title="在空闲的机器上运行测试">
+动态测试之前先关掉占资源的应用；只有在比较修复前后时，才把负载生成器和应用放在同一台机器上运行。来自不同机器或繁忙笔记本电脑的数字没有可比性。
+</Callout>
+
+## 本章内容
+
+<ChapterMap />

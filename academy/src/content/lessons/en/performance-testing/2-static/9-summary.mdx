@@ -1,0 +1,33 @@
+---
+title: "Static testing: summary"
+course: performance-testing
+chapter: static
+kind: summary
+order: 9
+slug: summary
+minutes: 5
+description: "What you found without running the app, and what static checks can't tell you."
+check:
+  - q: "A pull request adds a 40 KB charting library to every page. Which check from this chapter fails, and why is that the right place to catch it?"
+    a: "The asset budget (script, 50 KB). It runs in seconds on the pull request, before the change ships, and names the file responsible."
+  - q: "The query linter reports no findings. Does that prove the code has no N+1 queries?"
+    a: "No. It's a heuristic that reads loops in source text. A query behind a helper function, or an ORM loading relations lazily, can still cause N+1. Watch the query count per request too."
+  - q: "A plan shows SCAN countries (240 rows). Should you add an index?"
+    a: "Probably not. Scanning 240 rows is cheap and the table won't grow much. Scans matter on large or growing tables on hot paths."
+  - q: "Why do these static checks still leave you unable to promise p95 under 300 ms at 50 users?"
+    a: "They find known slow patterns but don't measure time under load. Only a dynamic test can show the latency users would see."
+---
+
+Without generating any traffic, you found and fixed three problems: 101 queries per page, two full table scans, and a page twenty times heavier than it needed to be. Each check takes seconds, and each would have caught its problem in the pull request that introduced it.
+
+## Key points
+
+<ChapterRecap />
+
+## What static testing didn't tell you
+
+Every fix in this chapter was guided by a pattern: a loop with a query, a scan in a plan, a heavy file. None of them told you how the app behaves when 50 people shop at once, how long the page takes to appear on a phone, or what happens to the CPU. And `/api/recommendations` didn't trigger a single static warning. It's slow anyway, as chapter 3 will show.
+
+## Check yourself
+
+<SelfCheck />

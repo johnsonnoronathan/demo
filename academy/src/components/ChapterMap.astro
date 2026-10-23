@@ -1,0 +1,33 @@
+---
+/** The other pages of the current chapter, with what each one covers. */
+import { chapterLessons, totalMinutes } from "../lib/course";
+import { t, formatMinutes, formatClock } from "../i18n/ui";
+const view = Astro.locals.lesson!;
+const L = view.locale;
+const items = chapterLessons(Astro.locals.lessons!, view.chapter.id).filter((l) => l !== view);
+---
+
+<div class="chapter-map">
+  <p class="cm-total">{t(L, "course.parts", { n: items.length, time: formatMinutes(L, totalMinutes(items)) })}</p>
+  <ol>
+    {
+      items.map((l) => (
+        <li class={`cm-${l.entry.data.kind}`}>
+          <a href={l.url} data-progress-link={l.path}>
+            <span class="cm-n">{l.entry.data.kind === "summary" ? "Σ" : l.number}</span>
+            <span class="cm-body">
+              <b>{l.title}</b>
+              <span>{l.description}</span>
+              <span class="cm-meta">
+                {l.video && <span class="vmark-inline">▶ {formatClock(l.videoSeconds)}</span>}
+                {t(L, "lesson.min", { n: l.entry.data.minutes })}
+                {l.en.data.concepts.length > 0 && ` · ${t(L, l.en.data.concepts.length === 1 ? "course.concept" : "course.concepts", { n: l.en.data.concepts.length })}`}
+                {l.en.data.exercises.length > 0 && ` · ${t(L, "course.handsOn", { n: l.en.data.exercises.length })}`}
+              </span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</div>

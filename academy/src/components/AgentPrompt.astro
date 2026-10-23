@@ -1,0 +1,57 @@
+---
+import { t } from "../i18n/ui";
+interface Props {
+  prompt: string;
+  title: string;
+}
+const { prompt, title } = Astro.props;
+const L = Astro.locals.locale ?? "en";
+---
+
+<div class="agent-prompt" data-copied={t(L, "agent.copied")} data-selected={t(L, "agent.selected")}>
+  <div class="ap-head">
+    <svg class="ap-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+      <path d="M7 10l3 2-3 2M12 15h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    <div class="ap-text">
+      <b>{t(L, "agent.title")}</b>
+      <span>{t(L, "agent.sub")}</span>
+    </div>
+    <button class="ap-copy" type="button" data-copy-label={t(L, "agent.copy")}>{t(L, "agent.copy")}</button>
+  </div>
+  <details class="ap-details">
+    <summary>{t(L, "agent.show")}</summary>
+    <pre class="ap-pre" data-agent-prompt={title} lang="en"><code>{prompt}</code></pre>
+  </details>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".agent-prompt").forEach((box) => {
+    const btn = box.querySelector<HTMLButtonElement>(".ap-copy")!;
+    const pre = box.querySelector<HTMLElement>(".ap-pre")!;
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", async () => {
+      let ok = false;
+      try {
+        await navigator.clipboard.writeText(pre.textContent ?? "");
+        ok = true;
+      } catch {
+        // Clipboard blocked: open the prompt and select it so Ctrl+C / Cmd+C works.
+        box.querySelector("details")!.open = true;
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+      btn.textContent = ok ? box.dataset.copied! : box.dataset.selected!;
+      btn.classList.toggle("is-done", ok);
+      setTimeout(() => {
+        btn.textContent = btn.dataset.copyLabel!;
+        btn.classList.remove("is-done");
+      }, 2200);
+    });
+  });
+</script>

@@ -1,0 +1,59 @@
+---
+title: "从测试用例到自动化测试"
+course: "test-cases"
+chapter: "automation"
+kind: "lesson"
+order: 1
+slug: "unit-tests"
+minutes: 15
+description: "用 Arrange、Act、Assert 把写好的测试用例变成代码，看边界值测试抓住一个真实的缺陷。"
+outcomes: ["把书面测试用例对应到 Arrange、Act、Assert", "用测试运行器编写单元测试", "先看到测试失败，再相信它的通过"]
+keyPoints: ["测试名就是标题，Arrange 是准备，Act 是操作步骤，Assert 是预期结果。", "边界值测试能在几毫秒内让差一错误变红。", "先看到测试失败一次，再相信它的通过。"]
+quiz: [{"q": "自动化测试的哪一部分包含预期结果？", "options": ["Arrange", "Act", "Assert", "import 语句"], "answer": 2, "why": "expect(...).toBe(...) 就是预期结果，由程序自动检查。"}, {"q": "为什么要先看到新测试失败，再让它通过？", "options": ["测试运行器要求这样做", "为了证明这个测试能发现缺陷", "失败的测试运行得更快", "为了充实报告"], "answer": 1, "why": "如果测试从来没有变红过，它检查的可能并不是你以为的东西。"}, {"q": "applyDiscount(20, \"SAVE10\") 返回了 20，但规则是满 $20 就打九折。最可能的缺陷是什么？", "options": ["四舍五入", "优惠码检查写错了", "用了 total <= 20 而不是 total < 20", "测试导入了错误的文件"], "answer": 2, "why": "当 total <= 20 时提前返回，恰好 $20 的订单就拿不到折扣。边界值测试暴露了这个问题。"}]
+---
+
+自动化测试就是由计算机替你执行的测试用例。两者的对应关系很直接：标题对应测试名，前置条件和测试数据对应 *Arrange*，测试步骤对应 *Act*，预期结果对应 *Assert*。
+
+## 对应关系
+
+| 测试用例字段 | 在代码中 |
+| --- | --- |
+| 标题 | `test("SAVE10 takes 10% off a $40 order", …)` |
+| 前置条件、测试数据 | Arrange：`const total = 40;` |
+| 测试步骤 | Act：`applyDiscount(total, "SAVE10")` |
+| 预期结果 | Assert：`expect(result).toBe(36)` |
+| 状态 | 测试运行器给出的 ✓ 或 ✗ |
+
+
+## 亲自运行
+
+```text
+npm install --save-dev vitest
+npx vitest run
+```
+
+
+```js
+// discount.test.js
+import { test, expect } from "vitest";
+import { applyDiscount } from "./discount.js";
+
+test.each([
+  [19.99, 19.99],  // 刚好低于边界
+  [20, 18],        // 边界值
+  [40, 36],        // 有效等价类
+])("SAVE10 on $%s gives $%s", (total, expected) => {
+  expect(applyDiscount(total, "SAVE10")).toBe(expected);
+});
+
+test("unknown codes leave the total alone", () => {
+  expect(applyDiscount(40, "SAVE99")).toBe(40);
+});
+```
+
+
+`test.each` 把一张输入表（就像第 2.1 课中的那张）变成每行一个测试。
+
+<Callout type="tip">
+**先看到红色。** 一个你从没见它失败过的测试，可能什么都没在测。故意把代码改坏一次，确认测试会变红。
+</Callout>

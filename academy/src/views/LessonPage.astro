@@ -1,0 +1,184 @@
+---
+import { render } from "astro:content";
+import Base from "../layouts/Base.astro";
+import CourseNav from "../components/CourseNav.astro";
+import Video from "../components/Video.astro";
+import Quiz from "../components/Quiz.astro";
+import Scene from "../components/Scene.astro";
+import Screenshot from "../components/Screenshot.astro";
+import Exercise from "../components/Exercise.astro";
+import Callout from "../components/Callout.astro";
+import Outcomes from "../components/Outcomes.astro";
+import ChapterMap from "../components/ChapterMap.astro";
+import ChapterRecap from "../components/ChapterRecap.astro";
+import SelfCheck from "../components/SelfCheck.astro";
+import CourseArc from "../components/CourseArc.astro";
+import { chapterUrl, neighbours, type LessonView } from "../lib/course";
+import { feedbackUrl } from "../lib/site";
+import { inline } from "../lib/inline";
+import { href, localeInfo } from "../i18n/locales";
+import { t, formatClock } from "../i18n/ui";
+import { timeline } from "../video/timeline";
+
+interface Props {
+  view: LessonView;
+  lessons: LessonView[];
+}
+const { view, lessons } = Astro.props;
+const L = view.locale;
+Astro.locals.lesson = view;
+Astro.locals.lessons = lessons;
+const d = view.entry.data;
+const { Content, headings } = await render(view.entry);
+const { prev, next } = neighbours(lessons, view);
+const toc = headings.filter((h) => h.depth === 2);
+const components = { Scene, Screenshot, Exercise, Callout, Outcomes, ChapterMap, ChapterRecap, SelfCheck, CourseArc };
+const tl = view.video ? timeline(view.video) : null;
+const textLang = localeInfo(view.fallback ? "en" : L).html;
+---
+
+<Base
+  title={`${d.kind === "lesson" ? `${view.number} ${view.title}` : view.title} · ${view.course.title}`}
+  description={view.description}
+  locale={L}
+  path={`/${view.path}/`}
+  course={{ id: view.course.id, title: view.course.title }}
+  mode="classroom"
+  markdown={view.mdUrl}
+  section="courses"
+>
+  <div class="classroom">
+    <details class="nav-drawer">
+      <summary>{t(L, "lesson.contents")}</summary>
+      <CourseNav lessons={lessons} current={view} />
+    </details>
+    <aside class="cr-nav">
+      <CourseNav lessons={lessons} current={view} />
+    </aside>
+
+    <main class={`cr-main kind-${d.kind}`} id="main">
+      <p class="crumbs">
+        <a href={href(L, "/courses/")}>{t(L, "nav.courses")}</a>
+        <span aria-hidden="true">/</span>
+        <a href={href(L, `/${view.course.id}/`)}>{view.course.title}</a>
+        <span aria-hidden="true">/</span>
+        <a href={chapterUrl(lessons, view.chapter.id)}>{t(L, "course.chapter", { n: view.chapterNumber })} · {view.chapter.title}</a>
+      </p>
+      <header class="lesson-head">
+        <p class="lesson-kicker">
+          <span>{view.label}</span>
+          {view.video && <span class="has-video">▶ {formatClock(view.videoSeconds)}</span>}
+          <span>{t(L, "lesson.min", { n: d.minutes })}</span>
+          {view.en.data.exercises.length > 0 && <span class="has-ex">{t(L, "course.handsOn", { n: view.en.data.exercises.length })}</span>}
+        </p>
+        <h1>{view.title}</h1>
+        <p class="lede">{view.description}</p>
+      </header>
+
+      {view.video && <Video view={view} next={next} />}
+
+      {
+        tl && (
+          <details class="transcript-box">
+            <summary>{t(L, "lesson.transcript")}</summary>
+            <ol class="transcript" lang={localeInfo(view.videoLocale ?? "en").html}>
+              {tl.cues.map((c, i) => (
+                <>
+                  {c.index === 0 && <li class="tr-chap">{tl.scenes[c.scene].def.label}</li>}
+                  <li>
+                    <button type="button" data-video-cue={i}>
+                      <span class="tr-time">{formatClock(c.start)}</span>
+                      <span>{c.text}</span>
+                    </button>
+                  </li>
+                </>
+              ))}
+            </ol>
+          </details>
+        )
+      }
+
+      <div id="lesson" class="lesson-body">
+        {view.fallback && L !== "en" && <p class="fallback-note">{t(L, "lesson.fallback", { lang: localeInfo(L).label })}</p>}
+
+        {
+          d.kind === "lesson" && d.outcomes.length > 0 && (
+            <section class="you-will" lang={textLang}>
+              <h2 class="yw-title">{t(L, "lesson.youWill")}</h2>
+              <ul>{d.outcomes.map((o) => <li set:html={inline(o)} />)}</ul>
+            </section>
+          )
+        }
+
+        <article class="prose" lang={textLang} data-lesson>
+          <Content components={components} />
+        </article>
+
+        <Quiz />
+
+        {
+          d.kind === "lesson" && d.keyPoints.length > 0 && (
+            <section class="key-points" id="key-points" lang={textLang}>
+              <h2>{t(L, "lesson.keyPoints")}</h2>
+              <ul>{d.keyPoints.map((k) => <li set:html={inline(k)} />)}</ul>
+            </section>
+          )
+        }
+      </div>
+
+      <div class="complete-row">
+        <button type="button" class="btn" data-complete={view.path} data-l-mark={t(L, "lesson.markComplete")} data-l-done={t(L, "lesson.completed")}>{t(L, "lesson.markComplete")}</button>
+      </div>
+
+      <p class="feedback">
+        <a href={feedbackUrl(view.title, view.url, L)} target="_blank" rel="noopener">{t(L, "feedback.suggest")}</a>
+        <span>{t(L, "feedback.hint")}</span>
+      </p>
+
+      <nav class="pager" aria-label={`${t(L, "lesson.prev")} / ${t(L, "lesson.next")}`}>
+        {prev ? (
+          <a href={prev.url} class="pg-prev"><small>{t(L, "lesson.prev")} · {prev.label}</small>{prev.title}</a>
+        ) : <span></span>}
+        {next ? (
+          <a href={next.url} class="pg-next"><small>{t(L, "lesson.next")} · {next.label}</small>{next.title}</a>
+        ) : (
+          <a href={href(L, `/${view.course.id}/plan/`)} class="pg-next"><small>{t(L, "lesson.finished")}</small>{t(L, "lesson.seePlan")}</a>
+        )}
+      </nav>
+    </main>
+
+    <aside class="cr-toc">
+      {
+        tl && (
+          <nav aria-label={t(L, "lesson.inVideo")} class="toc-video">
+            <p class="toc-h">{t(L, "lesson.inVideo")}</p>
+            <ol>
+              {tl.scenes.map((s, i) => (
+                <li>
+                  <button type="button" data-video-chapter={i}>
+                    <span class="tv-time">{formatClock(s.start)}</span>
+                    <span>{s.def.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      {
+        toc.length > 0 && (
+          <nav aria-label={t(L, "lesson.onPage")}>
+            <p class="toc-h">{t(L, "lesson.onPage")}</p>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+          </nav>
+        )
+      }
+      <div class="toc-agent">
+        <p class="toc-h">{t(L, "lesson.forAgents")}</p>
+        <a href={view.mdUrl}>{t(L, "lesson.asMarkdown")}</a>
+        <span>{t(L, "lesson.source")}: <code>{view.sourcePath.replace("academy/src/content/lessons/", "…/")}</code></span>
+      </div>
+    </aside>
+  </div>
+  <script is:inline define:vars={{ path: view.path }}>document.body.dataset.lesson = path;</script>
+</Base>

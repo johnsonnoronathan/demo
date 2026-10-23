@@ -1,0 +1,30 @@
+---
+/* The whole site is one router: every page, in every language, renders one of the views. */
+import Home from "../views/Home.astro";
+import Catalog from "../views/Catalog.astro";
+import Learning from "../views/Learning.astro";
+import Agents from "../views/Agents.astro";
+import CourseHome from "../views/CourseHome.astro";
+import Plan from "../views/Plan.astro";
+import LessonPage from "../views/LessonPage.astro";
+import { allRoutes, type Route } from "../lib/routes";
+import { loadCourse } from "../lib/course";
+
+export const getStaticPaths = allRoutes;
+
+const route = Astro.props as Route;
+Astro.locals.locale = route.locale;
+let lesson = null;
+if (route.kind === "lesson") {
+  const { lessons } = await loadCourse(route.courseId, route.locale);
+  lesson = { view: lessons.find((l) => l.path === route.path)!, lessons };
+}
+---
+
+{route.kind === "home" && <Home locale={route.locale} />}
+{route.kind === "catalog" && <Catalog locale={route.locale} />}
+{route.kind === "learning" && <Learning locale={route.locale} />}
+{route.kind === "agents" && <Agents locale={route.locale} />}
+{route.kind === "course" && <CourseHome locale={route.locale} courseId={route.courseId} />}
+{route.kind === "plan" && <Plan locale={route.locale} courseId={route.courseId} />}
+{lesson && <LessonPage view={lesson.view} lessons={lesson.lessons} />}

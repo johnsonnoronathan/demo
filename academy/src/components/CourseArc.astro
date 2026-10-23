@@ -1,0 +1,44 @@
+---
+/** The course's overall–specific–overall shape, with the current chapter marked. */
+import { chapterLessons, chapterUrl, totalMinutes, type CourseInfo, type LessonView } from "../lib/course";
+import { href } from "../i18n/locales";
+import { t } from "../i18n/ui";
+interface Props {
+  course?: CourseInfo;
+  lessons?: LessonView[];
+  current?: string;
+}
+const course = Astro.props.course ?? Astro.locals.lesson!.course;
+const lessons = Astro.props.lessons ?? Astro.locals.lessons!;
+const current = Astro.props.current ?? Astro.locals.lesson?.chapter.id;
+const L = course.locale;
+const hasRoles = course.chapters.every((c) => c.role);
+---
+
+<div class={`arc${hasRoles ? "" : " arc-plain"}`} aria-label={t(L, "course.built")} style={`--n:${course.chapters.length}`}>
+  <ol class="arc-row">
+    {
+      course.chapters.map((c, i) => (
+        <li class={`arc-ch arc-${c.role ?? "plain"}${c.id === current ? " is-current" : ""}`}>
+          <a href={chapterUrl(lessons, c.id)} data-chapter-link={c.id}>
+            <span class="arc-n">{t(L, "course.chapter", { n: i + 1 })}</span>
+            <b>{c.title}</b>
+            <span class="arc-role">
+              {c.role ? `${t(L, c.role === "overall" ? "course.role.overall" : "course.role.specific")} · ` : ""}
+              {t(L, "lesson.min", { n: totalMinutes(chapterLessons(lessons, c.id)) })}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+  {
+    hasRoles && (
+      <div class="arc-legend" aria-hidden="true">
+        <span class="arc-b arc-b-overall">{t(L, "course.arc.overall1")}</span>
+        <span class="arc-b arc-b-specific">{t(L, "course.arc.specific")}</span>
+        <span class="arc-b arc-b-overall">{t(L, "course.arc.overall2")}</span>
+      </div>
+    )
+  }
+</div>

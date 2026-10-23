@@ -1,0 +1,124 @@
+---
+title: "A performance testing workflow"
+course: performance-testing
+chapter: review
+kind: lesson
+order: 1
+slug: workflow
+minutes: 25
+description: "Decide what runs where: static gates on every pull request, dynamic tests before release, monitoring in production."
+outcomes:
+  - "Place each kind of performance check at the right stage of delivery"
+  - "Run all static gates with one command, and see one catch a regression"
+  - "Adapt a CI workflow that runs static gates, Lighthouse and a short k6 test"
+concepts:
+  - title: "Performance checks in the delivery pipeline"
+    scene: pipeline
+  - title: "Fast feedback first"
+  - title: "Keeping dynamic tests trustworthy in CI"
+keyPoints:
+  - "Run cheap static gates on every pull request, dynamic tests before release, and monitoring in production."
+  - "A gate is only useful if it fails the build. Make every check exit non-zero on a breach."
+  - "Keep CI load tests short and their thresholds generous enough for shared runners; run long stress and soak tests on a schedule."
+  - "Feed production numbers back into budgets. The loop is what keeps performance from drifting."
+exercises:
+  - id: ci-gates
+    title: "Run the gates, then watch one catch a regression"
+    minutes: 20
+    goal: "Run all static gates with one command, deliberately reintroduce a regression to see a gate fail, then adapt the reference CI workflow."
+    agent:
+      steps:
+        - "Run `npm run check:static` and capture the output and exit code. If any gate fails, list which and why, and stop here."
+        - "Reintroduce a regression on a scratch basis: in `public/index.html`, change `/vendor/datefmt-en.js` back to `/vendor/datefmt-all-locales.js`."
+        - "Run `npm run check:static` again and capture which gate fails and its message."
+        - "Revert the change with `git checkout -- public/index.html` (or by hand if the file isn't committed) and confirm `npm run check:static` passes again."
+        - "Read `ci/perf.yml`. Write `notes/ci.md` describing what each job does, what makes it fail, and what you'd change for a team's own repository (paths, branches, thresholds). Do not create files under .github/ unless asked."
+      done:
+        - "check:static passes before and after the experiment, and failed during it"
+        - "notes/ci.md explains each job and its failure conditions"
+      report:
+        - "The failing gate's output during the regression"
+        - "Your notes on adapting ci/perf.yml"
+---
+
+Everything in chapters 2 and 3 was done by hand, once. A real codebase changes every day. The question is where each check runs, so that problems surface quickly and cheaply.
+
+<Scene name="pipeline" />
+
+## What runs where
+
+| Stage | Runs | Takes | Catches |
+| --- | --- | --- | --- |
+| Every pull request | Static gates: budget, query lint, query plans | Seconds | Known slow patterns, before review |
+| Before release, on staging | Lighthouse, a short k6 load test against budgets | Minutes | Regressions in what users feel |
+| On a schedule (nightly, weekly) | Stress, spike and soak tests | Up to hours | Capacity and drift |
+| Production | Real-user monitoring, server metrics | Always | What the lab can't reproduce |
+
+The rule is **fast feedback first**. A static gate that fails in 4 seconds on a pull request costs the author nothing to fix. The same problem found by a nightly soak test costs a day; found by customers, much more.
+
+## One command for the static gates
+
+The practice app bundles its static gates into one script:
+
+```bash
+npm run check:static
+```
+
+```text
+budget      actual   limit   result
+script         0.9      50   pass
+…
+All budgets met.
+No queries inside loops found.
+pass  SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY …
+pass  SELECT name FROM authors WHERE id = ?
+pass  SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?
+pass  SELECT id, tags FROM books WHERE id = ?
+
+All 4 query plans use indexes.
+```
+
+`check:plans` is new: it explains every query listed in `hot-queries.sql` and fails if any would scan a table of 1,000 rows or more. It turns lesson 2.3 into a gate. The cost is a habit: when you add a query to a route, add it to the file.
+
+## Dynamic tests in CI
+
+`ci/perf.yml` is a reference GitHub Actions workflow with two jobs. **Static** runs the three gates. **Dynamic** starts the app, runs Lighthouse CI against `lighthouserc.json` (LCP under 2.5 s, page weight under 350 KB), and a 70-second version of the k6 load test.
+
+```yaml title="ci/perf.yml (excerpt)"
+  dynamic:
+    needs: static
+    steps:
+      # …checkout, Node, seed, start the app…
+      - name: Lighthouse
+        run: npx @lhci/cli@0.15.1 autorun
+      - uses: grafana/setup-k6-action@v1
+      - name: Load test (short)
+        run: k6 run --stage 20s:50 --stage 40s:50 --stage 10s:0 load/load.k6.js
+```
+
+<Callout type="warn" title="Shared CI runners are noisy">
+CI machines are shared and vary from run to run. Keep load tests in CI short, compare against budgets with some headroom, and treat a single failure as a reason to rerun and look, not as proof. Capacity numbers belong on a dedicated, production-like environment.
+</Callout>
+
+## Close the loop
+
+Production monitoring watches the same metrics your tests use: p95 per endpoint, error rate, LCP from real users. When real traffic grows or changes shape, those numbers tell you to revise the budgets, and the budgets drive the next round of tests.
+
+## Hands-on: Run the gates, then watch one catch a regression
+
+<Exercise id="ci-gates">
+
+1. Run all the static gates:
+
+   ```bash
+   npm run check:static; echo "exit $?"
+   ```
+
+2. Undo one of your fixes on purpose. In `public/index.html`, point the date library back at the all-locales file, and run the gates again.
+
+<Screenshot kind="terminal" title="npm run check:static" alt="Terminal output where the asset budget fails: script 96.2 KB against a 50 KB limit marked FAIL with +46.2 KB, followed by '1 budget(s) exceeded.' and exit code 1. The later gates don't run." caption="The regression is caught in seconds, with the file and the size that caused it." />
+
+3. Revert the change and confirm the gates pass again.
+4. Read `ci/perf.yml` and write down what you'd change to use it in your own repository: working directory, the branch it runs on, and whether its thresholds fit your CI runners.
+
+</Exercise>

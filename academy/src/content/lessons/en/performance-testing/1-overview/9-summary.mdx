@@ -1,0 +1,33 @@
+---
+title: "Overview: summary"
+course: performance-testing
+chapter: overview
+kind: summary
+order: 9
+slug: summary
+minutes: 5
+description: "The vocabulary and the plan you'll use for the rest of the course."
+check:
+  - q: "A dashboard shows an average response time of 140 ms. Why isn't that enough to say the endpoint is fast?"
+    a: "The average hides the tail. p95 could be several hundred milliseconds, meaning one user in twenty waits much longer. Ask for p95 and p99."
+  - q: "Which family of test would you use to check, on every pull request, that no one adds a 600 KB script to the storefront?"
+    a: "A static check: measure the assets against a budget at build time. It takes seconds and needs no running server."
+  - q: "Your static checks all pass. Can you say the app handles 50 users at p95 under 300 ms?"
+    a: "No. Static checks find known patterns; only a dynamic test under that load can show the p95 users would see."
+  - q: "What must you record next to a measured p95 so someone else can repeat it?"
+    a: "The endpoint, the number of virtual users and the duration, the machine, and the exact command."
+---
+
+You now have the vocabulary for the rest of the course, a running practice app, a baseline and a plan.
+
+## Key points
+
+<ChapterRecap />
+
+## Check yourself
+
+<SelfCheck />
+
+## Next
+
+Chapter 2 starts with the cheapest tests there are: the ones that never run your code. You'll turn the budgets in your plan into a check that fails the build, then find three of Larkspur's problems by reading code, query plans and build output.

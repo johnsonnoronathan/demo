@@ -1,0 +1,115 @@
+---
+import Base from "../layouts/Base.astro";
+import CourseArc from "../components/CourseArc.astro";
+import Video from "../components/Video.astro";
+import { loadCourse, chapterLessons, chapterUrl, totalMinutes, totalVideo, type LessonView } from "../lib/course";
+import { href, type Locale } from "../i18n/locales";
+import { t, formatMinutes, formatClock } from "../i18n/ui";
+import { inline } from "../lib/inline";
+
+interface Props {
+  locale: Locale;
+  courseId: string;
+}
+const { locale: L, courseId } = Astro.props;
+const { course, lessons } = await loadCourse(courseId, L);
+Astro.locals.lessons = lessons;
+const exercises = lessons.reduce((a, l) => a + l.en.data.exercises.length, 0);
+const scenes = lessons.reduce((a, l) => a + l.en.data.concepts.filter((c) => c.scene).length, 0);
+const videos = lessons.filter((l) => l.video).length;
+const paths = lessons.map((l) => l.path).join(" ");
+const intro = lessons.find((l) => l.video)!;
+const kindLabel = (l: LessonView) =>
+  l.entry.data.kind === "opening" ? t(L, "course.opening") : l.entry.data.kind === "summary" ? t(L, "course.chapterSummary") : l.title;
+---
+
+<Base title={`${course.title} · Testbench`} description={course.summary} locale={L} path={`/${course.id}/`} course={{ id: course.id, title: course.title }} mode="classroom" markdown={href(L, `/${course.id}.md`)} section="courses">
+  <main class="course-home" id="main">
+    <section class="ch-hero wrap">
+      <div class="ch-hero-copy">
+        <p class="eyebrow">{t(L, `catalog.level.${course.level}`)} · {formatMinutes(L, totalMinutes(lessons))} · {t(L, "catalog.videos", { n: videos })}</p>
+        <h1>{course.title}</h1>
+        <p class="ch-tagline">{course.tagline}</p>
+        <p class="ch-summary">{course.summary}</p>
+        <div class="ch-cta">
+          <a class="btn btn-primary btn-lg" href={lessons[0].url} data-continue={paths} data-l-continue={t(L, "course.continue")} data-l-review={t(L, "course.review")}>{t(L, "course.start")}</a>
+          <a class="btn btn-lg" href={href(L, `/${course.id}/plan/`)}>{t(L, "course.readPlan")}</a>
+        </div>
+        <dl class="ch-facts">
+          <div><dt>{t(L, "course.facts.videos")}</dt><dd>{videos}<small>{formatClock(totalVideo(lessons))}</small></dd></div>
+          {scenes > 0 && <div><dt>{t(L, "course.facts.animations")}</dt><dd>{scenes}</dd></div>}
+          {exercises > 0 && <div><dt>{t(L, "course.facts.exercises")}</dt><dd>{exercises}</dd></div>}
+          {course.practice && <div><dt>{t(L, "course.facts.app")}</dt><dd class="ch-facts-app">{course.practice.name}</dd></div>}
+        </dl>
+      </div>
+      <div class="ch-intro">
+        <p class="ch-intro-label">{t(L, "course.trailer")} · {intro.title}</p>
+        <Video view={intro} next={lessons[lessons.indexOf(intro) + 1]} />
+      </div>
+    </section>
+
+    <section class="wrap">
+      <h2 class="sec-h">{t(L, "course.built")}</h2>
+      {course.chapters.every((c) => c.role) && <p class="sec-sub">{t(L, "course.builtSub")}</p>}
+      <CourseArc course={course} lessons={lessons} />
+    </section>
+
+    <section class="wrap chapters">
+      {
+        course.chapters.map((c, i) => {
+          const ls = chapterLessons(lessons, c.id);
+          return (
+            <article class="chapter-card">
+              <header>
+                <span class="cc-n">{t(L, "course.chapter", { n: i + 1 })}</span>
+                <h2><a href={chapterUrl(lessons, c.id)}>{c.title}</a></h2>
+                <p>{c.summary}</p>
+                <div class="meter" data-chapter-progress={ls.map((l) => l.path).join(" ")}>
+                  <i></i>
+                  <span class="cp-label" data-tpl={t(L, "course.done", { done: "{done}", total: "{total}" })}>{t(L, "course.done", { done: 0, total: ls.length })}</span>
+                  <span>{formatMinutes(L, totalMinutes(ls))}</span>
+                </div>
+              </header>
+              <ol class="cc-list">
+                {ls.map((l) => (
+                  <li>
+                    <a href={l.url} data-progress-link={l.path} class={`cc-${l.entry.data.kind}`}>
+                      <span class="cc-num">{l.entry.data.kind === "lesson" ? l.number : l.entry.data.kind === "opening" ? "▸" : "Σ"}</span>
+                      <span class="cc-title">{kindLabel(l)}</span>
+                      {l.video ? (
+                        <span class="vmark" data-video-key={`${l.key}@${l.videoLocale}`}>
+                          <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 2l7 4-7 4z" /></svg>
+                          <span>{formatClock(l.videoSeconds)}</span>
+                        </span>
+                      ) : <span></span>}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          );
+        })
+      }
+    </section>
+
+    <section class="wrap two-col">
+      <div>
+        <h2 class="sec-h">{t(L, "course.youWill")}</h2>
+        <ul class="check-list">{course.outcomes.map((o) => <li set:html={inline(o)} />)}</ul>
+      </div>
+      <div>
+        <h2 class="sec-h">{t(L, "course.before")}</h2>
+        <p class="sec-sub">{course.audience}</p>
+        <ul class="plain-list">{course.prerequisites.map((p) => <li set:html={inline(p)} />)}</ul>
+        {
+          course.practice && (
+            <>
+              <h3 class="mini-h">{t(L, "course.setup")}</h3>
+              <pre class="setup"><code>{course.practice.setup.join("\n")}</code></pre>
+            </>
+          )
+        }
+      </div>
+    </section>
+  </main>
+</Base>

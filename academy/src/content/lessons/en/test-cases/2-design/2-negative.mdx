@@ -1,0 +1,46 @@
+---
+title: "Beyond the happy path"
+course: "test-cases"
+chapter: "design"
+kind: "lesson"
+order: 2
+slug: "negative"
+minutes: 15
+description: "Negative cases, edge cases, and decision tables for rules that combine."
+outcomes: ["List the usual ways input goes wrong", "Write negative test cases with clear expected messages", "Build a decision table and spot gaps in requirements"]
+keyPoints: ["Every happy path has unhappy siblings: empty, wrong format, extremes, bad timing.", "Negative cases check that the software fails gracefully, with a clear message.", "Decision tables list every combination of conditions and expose unspecified ones."]
+quiz: [{"q": "Which is a negative test case for the email field?", "options": ["ada@larkspur.test is accepted", "ada.larkspur.test shows “Enter a valid email”", "The field has a label", "The page loads in under a second"], "answer": 1, "why": "It feeds deliberately bad input and checks that the software rejects it clearly."}, {"q": "Three yes/no conditions combine. How many rows can the full decision table have?", "options": ["3", "6", "8", "9"], "answer": 2, "why": "Each condition doubles the combinations: 2 × 2 × 2 = 8. Some rows may collapse."}, {"q": "A decision table row has no specified outcome. What should you do?", "options": ["Skip that row", "Decide the outcome yourself", "Ask the product owner before testing", "Mark it as passed"], "answer": 2, "why": "It's a gap in the requirements. Raising it is part of testing."}]
+---
+
+Negative test cases prove the software fails gracefully: a clear message, no crash, no corrupted data. Most real bugs live here.
+
+## A checklist for any input
+
+- **Empty:** blank, whitespace only, missing entirely.
+- **Format:** wrong type, wrong pattern, leading zeros, unexpected characters (`' " < >`, emoji, accents).
+- **Size:** zero, negative, huge, very long text.
+- **Timing:** double submit, back button, expired session, two tabs at once.
+- **Permissions:** signed out, wrong account, admin-only pages.
+
+
+## Decision tables
+
+Write each condition as a column and list every combination. With three yes/no conditions you get up to eight rows; collapse rows where one condition decides the outcome on its own (an unknown code fails whatever the cart holds).
+
+| Known | Not expired | ≥ $20 | Expected |
+| --- | --- | --- | --- |
+| Y | Y | Y | 10% off |
+| Y | Y | N | “Add $X more…” |
+| Y | N | Y | “This code has expired” |
+| Y | N | N | *Ask the product owner* |
+| N | – | – | “We don't recognise that code” |
+
+
+<Callout type="tip">
+**A gap is a finding.** When the table shows a combination nobody specified, raise it before testing. That question is cheaper now than a bug later.
+</Callout>
+
+
+## Try it
+
+Larkspur offers free delivery for members, or for anyone spending $50 or more, but never to overseas addresses. Build the decision table.

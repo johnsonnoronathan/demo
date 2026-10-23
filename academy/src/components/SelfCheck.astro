@@ -1,0 +1,20 @@
+---
+/** Self-check questions from the frontmatter, with answers behind a disclosure. */
+import { inline } from "../lib/inline";
+import { t } from "../i18n/ui";
+const view = Astro.locals.lesson!;
+---
+
+<ol class="self-check">
+  {
+    view.entry.data.check.map((c) => (
+      <li>
+        <p class="sc-q" set:html={inline(c.q)} />
+        <details>
+          <summary>{t(view.locale, "check.show")}</summary>
+          <p set:html={inline(c.a)} />
+        </details>
+      </li>
+    ))
+  }
+</ol>

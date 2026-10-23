@@ -1,0 +1,137 @@
+---
+title: "Reading query plans"
+course: performance-testing
+chapter: static
+kind: lesson
+order: 3
+slug: query-plans
+minutes: 25
+description: "Ask the database how it would run a query, without running it, and fix full table scans with the right index."
+outcomes:
+  - "Get a query plan from SQLite with EXPLAIN QUERY PLAN"
+  - "Tell a SCAN from a SEARCH, and know when a scan is a problem"
+  - "Design an index for a query's WHERE and ORDER BY, add it as a migration, and confirm the plan changed"
+concepts:
+  - title: "SCAN versus SEARCH"
+    scene: query-plan
+  - title: "Choosing index columns: filter first, then sort"
+  - title: "Indexes cost writes and space"
+keyPoints:
+  - "EXPLAIN QUERY PLAN shows how the database will run a query, without running it. That makes it a static check."
+  - "SCAN reads every row of a table; SEARCH uses an index to jump to the matching rows. A SCAN of a large table on a hot path is a bug."
+  - "Index the columns you filter on first, then the columns you sort by, so the database can skip the sort too."
+  - "Indexes speed up reads and slow down writes. Add the ones your queries need, not one per column."
+exercises:
+  - id: add-indexes
+    title: "Turn two full table scans into index searches"
+    minutes: 20
+    goal: "Find the full table scans behind /api/orders and the books page, add indexes in a migration, and confirm both plans and timings improve."
+    agent:
+      steps:
+        - "Run `npm run explain -- \"SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20\"` and capture the plan."
+        - "Run `npm run explain -- \"SELECT avg(stars) FROM reviews WHERE book_id = ?\"` and capture the plan."
+        - "Create `db/migrations/001_indexes.sql` with `CREATE INDEX idx_orders_email ON orders(customer_email, created_at);` and `CREATE INDEX idx_reviews_book ON reviews(book_id);`."
+        - "Run `npm run migrate`."
+        - "Run both explain commands again and capture the new plans."
+        - "With the app running, compare the `server-timing` header of /api/orders?email=reader42@larkspur.test and /api/books before and after (restart the app after migrating; take the median of five requests each)."
+      done:
+        - "Neither plan contains 'full table scan'"
+        - "Both plans show SEARCH ... USING INDEX"
+        - "`npm run migrate` reports the migration applied, and running it again reports nothing to migrate"
+      report:
+        - "Both plans before and after"
+        - "server-timing medians before and after for both endpoints"
+---
+
+A query says **what** you want. The database decides **how** to get it: which table to read first, whether to use an index, whether to sort. That decision is the **query plan**, and every serious database will show it to you without running the query. Reading plans is static testing for SQL.
+
+## SCAN versus SEARCH
+
+The orders endpoint asks for one customer's 20 latest orders:
+
+```sql
+SELECT id, book_id, total_cents, created_at FROM orders
+WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20
+```
+
+Ask SQLite how it would run that:
+
+```bash
+npm run explain -- "SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20"
+```
+
+```text
+QUERY PLAN
+└─ SCAN orders   ← full table scan (200,000 rows)
+└─ USE TEMP B-TREE FOR ORDER BY
+```
+
+Two warnings in two lines. `SCAN orders` means SQLite will read every one of the 200,000 rows to find one customer's 13. `USE TEMP B-TREE FOR ORDER BY` means it will then sort the matches in a temporary structure.
+
+<Scene name="query-plan" />
+
+`SCAN` isn't always bad. In the books query from lesson 2.2, `SCAN books` sits inside a `LIMIT 50` subquery, so it stops after 50 rows. And scanning a 30-row lookup table is faster than any index. The question to ask is: **how many rows will this read, and how often does it run?** A full scan of a large table on a request path is a bug that gets worse every day the table grows.
+
+## Designing the index
+
+An index is a sorted copy of some columns, with a pointer back to each row. Pick its columns in this order:
+
+1. **Columns you filter on with `=`**: here, `customer_email`.
+2. **Columns you sort by**: here, `created_at`. Because the index is already sorted by email and then date, SQLite can read the newest 20 straight off it and skip the sort.
+
+```sql
+CREATE INDEX idx_orders_email ON orders(customer_email, created_at);
+```
+
+The reviews lookup from lesson 2.2 has the same problem: `WHERE book_id = ?` with no index on `book_id` means scanning 50,000 reviews. After the join fix it happens once per page instead of 50 times, but it's still a scan.
+
+```sql
+CREATE INDEX idx_reviews_book ON reviews(book_id);
+```
+
+<Callout type="warn" title="Indexes aren't free">
+Every index makes inserts and updates a little slower and takes disk space. Add indexes for queries that run often or on large tables, check the plan uses them, and drop the ones nothing uses.
+</Callout>
+
+## Hands-on: Turn two full table scans into index searches
+
+<Exercise id="add-indexes">
+
+1. Run both `explain` commands from the agent prompt and keep the output. Both should end in `full table scan`.
+2. With the app running, measure before you change anything:
+
+   ```bash
+   for i in 1 2 3 4 5; do curl -s -o /dev/null -D - "http://localhost:3000/api/orders?email=reader42@larkspur.test" | grep -i server-timing; done
+   ```
+
+3. Create the migration. Migrations are SQL files in `db/migrations/`, applied in name order and recorded so they only run once:
+
+   ```sql title="db/migrations/001_indexes.sql"
+   CREATE INDEX idx_orders_email ON orders(customer_email, created_at);
+   CREATE INDEX idx_reviews_book ON reviews(book_id);
+   ```
+
+   ```bash
+   npm run migrate
+   # applied 001_indexes.sql (140 ms)
+   ```
+
+4. Explain both queries again.
+
+   ```text
+   QUERY PLAN
+   └─ SEARCH orders USING INDEX idx_orders_email (customer_email=?)
+   ```
+
+   The sort step is gone too: the index already delivers rows in date order.
+
+<Screenshot kind="terminal" title="npm run explain" alt="Two query plans one above the other. The first, before the migration, reads 'SCAN orders ← full table scan (200,000 rows)' and 'USE TEMP B-TREE FOR ORDER BY'. The second, after, reads 'SEARCH orders USING INDEX idx_orders_email (customer_email=?)'." caption="Before and after the migration: a scan of 200,000 rows becomes an index search." />
+
+5. Restart the app and measure again. On our machine:
+
+   | Endpoint | Before | After |
+   | --- | --- | --- |
+   | `/api/orders` | 11 ms | 0.1 ms |
+   | `/api/books` (with the join from 2.2) | 26 ms | 0.5 ms |
+
+</Exercise>
