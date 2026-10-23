@@ -82,3 +82,33 @@
     - id: automation
       title: Automating and scaling
       summary: Turn cases into code, then organise a suite that people trust.
+- id: api-testing
+  order: 3
+  level: beginner
+  title: API Testing
+  tagline: Check that an HTTP API answers the way it promises.
+  summary: >-
+    A short introduction to testing HTTP APIs in two lessons. Learn the three things to
+    check on every response (the status code, the shape of the body, and what happens
+    when the request is wrong), try them by hand with curl, then turn them into automated
+    checks that run against your own API.
+  audience: >-
+    Developers and testers who have used a terminal and can read a little JavaScript. No
+    previous API testing experience needed.
+  prerequisites:
+    - Node.js 22 or later
+    - curl
+    - An HTTP API of your own to test, for lesson 2.1
+  outcomes:
+    - Read an HTTP response and say whether its status code fits the request
+    - Check the shape of a JSON response, not only that one came back
+    - Choose error cases for an endpoint and say what each should return
+    - Write automated API checks with Node's built-in test runner
+    - Apply the checks to your own API, with an agent implementing the fixes
+  chapters:
+    - id: basics
+      title: What to check
+      summary: Status codes, response shape and error cases, checked by hand with curl.
+    - id: own-api
+      title: Checks for your own API
+      summary: Turn the hand checks into automated tests and run them against your own API.
