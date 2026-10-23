@@ -13,7 +13,7 @@ import ChapterMap from "../components/ChapterMap.astro";
 import ChapterRecap from "../components/ChapterRecap.astro";
 import SelfCheck from "../components/SelfCheck.astro";
 import CourseArc from "../components/CourseArc.astro";
-import { neighbours, type LessonView } from "../lib/course";
+import { chapterUrl, neighbours, type LessonView } from "../lib/course";
 import { inline } from "../lib/inline";
 import { href, localeInfo } from "../i18n/locales";
 import { t, formatClock } from "../i18n/ui";
@@ -61,7 +61,7 @@ const textLang = localeInfo(view.fallback ? "en" : L).html;
         <span aria-hidden="true">/</span>
         <a href={href(L, `/${view.course.id}/`)}>{view.course.title}</a>
         <span aria-hidden="true">/</span>
-        <a href={href(L, `/${view.course.id}/${view.chapter.id}/`)}>{t(L, "course.chapter", { n: view.chapterNumber })} · {view.chapter.title}</a>
+        <a href={chapterUrl(lessons, view.chapter.id)}>{t(L, "course.chapter", { n: view.chapterNumber })} · {view.chapter.title}</a>
       </p>
       <header class="lesson-head">
         <p class="lesson-kicker">

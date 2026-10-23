@@ -159,6 +159,11 @@ export function chapterLessons(lessons: LessonView[], chapterId: string) {
   return lessons.filter((l) => l.chapter.id === chapterId);
 }
 
+/** A chapter's landing page: its opening when it has one, otherwise its first lesson. */
+export function chapterUrl(lessons: LessonView[], chapterId: string) {
+  return chapterLessons(lessons, chapterId)[0]?.url;
+}
+
 export function neighbours(lessons: LessonView[], current: LessonView) {
   const i = lessons.indexOf(current);
   return { prev: lessons[i - 1], next: lessons[i + 1] };

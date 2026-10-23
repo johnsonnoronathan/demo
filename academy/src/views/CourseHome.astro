@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import CourseArc from "../components/CourseArc.astro";
 import Video from "../components/Video.astro";
-import { loadCourse, chapterLessons, totalMinutes, totalVideo, type LessonView } from "../lib/course";
+import { loadCourse, chapterLessons, chapterUrl, totalMinutes, totalVideo, type LessonView } from "../lib/course";
 import { href, type Locale } from "../i18n/locales";
 import { t, formatMinutes, formatClock } from "../i18n/ui";
 import { inline } from "../lib/inline";
@@ -62,7 +62,7 @@ const kindLabel = (l: LessonView) =>
             <article class="chapter-card">
               <header>
                 <span class="cc-n">{t(L, "course.chapter", { n: i + 1 })}</span>
-                <h2><a href={href(L, `/${course.id}/${c.id}/`)}>{c.title}</a></h2>
+                <h2><a href={chapterUrl(lessons, c.id)}>{c.title}</a></h2>
                 <p>{c.summary}</p>
                 <div class="meter" data-chapter-progress={ls.map((l) => l.path).join(" ")}>
                   <i></i>

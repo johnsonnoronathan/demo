@@ -1,6 +1,6 @@
 ---
 /** The course's overall–specific–overall shape, with the current chapter marked. */
-import { chapterLessons, totalMinutes, type CourseInfo, type LessonView } from "../lib/course";
+import { chapterLessons, chapterUrl, totalMinutes, type CourseInfo, type LessonView } from "../lib/course";
 import { href } from "../i18n/locales";
 import { t } from "../i18n/ui";
 interface Props {
@@ -20,7 +20,7 @@ const hasRoles = course.chapters.every((c) => c.role);
     {
       course.chapters.map((c, i) => (
         <li class={`arc-ch arc-${c.role ?? "plain"}${c.id === current ? " is-current" : ""}`}>
-          <a href={href(L, `/${course.id}/${c.id}/`)} data-chapter-link={c.id}>
+          <a href={chapterUrl(lessons, c.id)} data-chapter-link={c.id}>
             <span class="arc-n">{t(L, "course.chapter", { n: i + 1 })}</span>
             <b>{c.title}</b>
             <span class="arc-role">
