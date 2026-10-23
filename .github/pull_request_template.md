@@ -8,7 +8,7 @@
 
 ## Review checklist (academy/STANDARD.md)
 
-Tick only what you have checked. A reviewer confirms these before merging.
+Tick what you have checked. If a rule doesn't apply, tick it and write "n/a" with the reason. Leave a box unticked only if you aren't sure it holds. A reviewer confirms these before merging.
 
 - [ ] **R1** The course covers learning, method and validation
 - [ ] **R2** It ends by applying the skill to the learner's own work, if it teaches a practice skill

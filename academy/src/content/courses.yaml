@@ -56,7 +56,7 @@
   title: Writing Test Cases
   tagline: Write test cases anyone can run, and that find bugs.
   summary: >-
-    The foundations of testing in seven short lessons. Learn what a test case is and what
+    The foundations of testing, in short lessons. Learn what a test case is and what
     makes one trustworthy, choose inputs with partitions and boundaries, cover the unhappy
     paths, explore without a script, turn a written case into an automated test, and keep a growing suite healthy.
   audience: >-

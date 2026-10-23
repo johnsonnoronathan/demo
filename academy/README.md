@@ -2,12 +2,12 @@
 
 A tutorial website for software testing, written for people and for agents. Built with Astro and MDX.
 
-Every page has a video, and the written page sits under it as the supplement. The site has two courses:
+Every page has a video, and the written page sits under it as the supplement. The courses are defined in `src/content/courses.yaml`:
 
-| Course | Level | Chapters | Pages |
-| --- | --- | --- | --- |
-| **Writing Test Cases** | Beginner | Foundations · Designing test cases · Automating and scaling | 6 |
-| **Performance Testing** | Intermediate | Overview · Static testing · Dynamic testing · Summary | 22 |
+| Course | Level | Chapters |
+| --- | --- | --- |
+| **Writing Test Cases** | Beginner | Foundations · Designing test cases · Automating and scaling |
+| **Performance Testing** | Intermediate | Overview · Static testing · Dynamic testing · Summary |
 
 ```bash
 cd academy
