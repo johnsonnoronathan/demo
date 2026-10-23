@@ -6,7 +6,7 @@
 
 | | |
 | --- | --- |
-| **For learners** | Two courses: *Writing Test Cases* (beginner, 6 lessons) and *Performance Testing* (intermediate, 22 pages, from first measurement to a formal acceptance test and your own project). Progress, watched video time and quiz scores are saved in your browser. The interface is in 7 languages; English and Chinese are fully translated. |
+| **For learners** | Two courses: *Writing Test Cases* (beginner, 7 lessons) and *Performance Testing* (intermediate, 22 pages, from first measurement to a formal acceptance test and your own project). Progress, watched video time and quiz scores are saved in your browser. The interface is in 7 languages; English and Chinese are fully translated. |
 | **For agents** | Each exercise has a **Copy prompt** button that hands the implementation to Claude Code or another coding agent. Every page also has a Markdown version, and `/llms.txt` lists them all. |
 | **For contributors** | A new tutorial is content, not code: Markdown pages plus video scripts. A pull request adds it, automatic checks keep the layout from breaking, and a merge publishes it. |
 
