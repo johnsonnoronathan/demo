@@ -4,6 +4,11 @@ export default defineVideo({
   "title": "Organizing a test suite",
   "scenes": [
     {
+      "label": "Introduction",
+      "cues": ["A suite of test cases is only useful if people can find, trust and run it. Let's organize one."],
+      "panes": [{ "type": "title", "kicker": "Lesson 3.2 · Automating", "heading": "Organizing a test suite", "sub": "Pyramid · traceability · upkeep", "subAt": 0.5 }]
+    },
+    {
       "label": "The test pyramid",
       "cues": [
         "As test cases pile up, structure matters. A common guide is the test pyramid.",

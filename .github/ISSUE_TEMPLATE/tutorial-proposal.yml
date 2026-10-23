@@ -1,0 +1,55 @@
+name: Propose a tutorial
+description: Suggest a new course, or a new chapter for an existing one. Agree the outline here before writing pages.
+title: "[Proposal] "
+labels: [proposal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every course follows [the Testbench standard](https://github.com/johnsonnoronathan/demo/blob/main/academy/STANDARD.md). This form asks for what a reviewer needs to say yes to an outline.
+  - type: input
+    id: course
+    attributes:
+      label: Working title
+    validations:
+      required: true
+  - type: textarea
+    id: audience
+    attributes:
+      label: Audience and level
+      description: Who is it for, what should they already know, and is it beginner, intermediate or advanced?
+    validations:
+      required: true
+  - type: textarea
+    id: outcomes
+    attributes:
+      label: Outcomes
+      description: At least three things a learner can do afterwards.
+    validations:
+      required: true
+  - type: textarea
+    id: outline
+    attributes:
+      label: Chapters and lessons
+      description: For each lesson, the concept it teaches and how the learner checks it (exercise or quiz).
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Method and validation
+      description: The method a learner will follow, and how they verify the result (an acceptance test, a self-check, a quiz).
+    validations:
+      required: true
+  - type: textarea
+    id: practice
+    attributes:
+      label: Practice and real projects
+      description: Is there a practice project? How does the course take the learner to their own work?
+  - type: checkboxes
+    id: standard
+    attributes:
+      label: Standard
+      options:
+        - label: I've read academy/STANDARD.md, and every page will have a video.
+          required: true

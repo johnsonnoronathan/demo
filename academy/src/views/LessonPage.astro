@@ -14,6 +14,7 @@ import ChapterRecap from "../components/ChapterRecap.astro";
 import SelfCheck from "../components/SelfCheck.astro";
 import CourseArc from "../components/CourseArc.astro";
 import { chapterUrl, neighbours, type LessonView } from "../lib/course";
+import { feedbackUrl } from "../lib/site";
 import { inline } from "../lib/inline";
 import { href, localeInfo } from "../i18n/locales";
 import { t, formatClock } from "../i18n/ui";
@@ -109,7 +110,7 @@ const textLang = localeInfo(view.fallback ? "en" : L).html;
           )
         }
 
-        <article class="prose" lang={textLang}>
+        <article class="prose" lang={textLang} data-lesson>
           <Content components={components} />
         </article>
 
@@ -128,6 +129,11 @@ const textLang = localeInfo(view.fallback ? "en" : L).html;
       <div class="complete-row">
         <button type="button" class="btn" data-complete={view.path} data-l-mark={t(L, "lesson.markComplete")} data-l-done={t(L, "lesson.completed")}>{t(L, "lesson.markComplete")}</button>
       </div>
+
+      <p class="feedback">
+        <a href={feedbackUrl(view.title, view.url, L)} target="_blank" rel="noopener">{t(L, "feedback.suggest")}</a>
+        <span>{t(L, "feedback.hint")}</span>
+      </p>
 
       <nav class="pager" aria-label={`${t(L, "lesson.prev")} / ${t(L, "lesson.next")}`}>
         {prev ? (

@@ -1,0 +1,30 @@
+name: Academy checks
+
+# The gate for every change to the tutorial site: content rules, build, links, and layout
+# in a real browser. See academy/STANDARD.md for what each rule means.
+on:
+  pull_request:
+    paths: ["academy/**", ".github/workflows/academy-*.yml"]
+  push:
+    branches: [main]
+    paths: ["academy/**", ".github/workflows/academy-*.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: academy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: academy/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check

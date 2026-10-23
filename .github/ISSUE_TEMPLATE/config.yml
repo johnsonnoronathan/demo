@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: The Testbench tutorial standard
+    url: https://github.com/johnsonnoronathan/demo/blob/main/academy/STANDARD.md
+    about: What every course must meet, and how the checks work.

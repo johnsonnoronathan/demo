@@ -52,7 +52,7 @@ function catalogue() {
 const mine = normalise(target.tags); // once per request
 const scored = catalogue()
   .map((b) => ({ id: b.id, score: similarity(mine, b.tagSet) }));`,
-        highlights: [{ at: 1, until: 2.2, lines: [1, 2, 3, 4, 7], note: "57 → 699 req/s", good: true }],
+        highlights: [{ at: 1, until: 2, lines: [1, 2, 3, 4, 7], note: "57 → 699 req/s", good: true }],
       }],
     },
   ],

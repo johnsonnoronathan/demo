@@ -1,0 +1,62 @@
+---
+title: "<Title in sentence case>"
+course: <course-id>
+chapter: <chapter-id>
+kind: lesson
+order: 1
+slug: <slug>
+minutes: 20
+description: "<One sentence, at most 200 characters, shown under the title and in maps.>"
+outcomes:
+  - "<What the learner can do afterwards>"
+  - "<Another outcome>"
+concepts:
+  - title: "<Concept this lesson teaches>"
+    # scene: <registered-scene-name>   (optional)
+keyPoints:
+  - "<A sentence worth remembering>"
+  - "<Another one>"
+exercises:
+  - id: <exercise-id>
+    title: "<What the learner does>"
+    minutes: 15
+    # target: own   (required if the course has no practice project)
+    goal: "<One sentence: what done looks like>"
+    agent:
+      steps:
+        - "<What the agent does first: usually run the check and capture output and exit code>"
+        - "<The implementation step, smallest change that fixes the cause>"
+        - "Do not change any budget, threshold or criterion to make a check pass."
+      done:
+        - "<Observable condition>"
+      report:
+        - "<What to send back, quoted from real output>"
+# Or, for a lesson without an exercise, a quiz of at least 2 questions:
+# quiz:
+#   - q: "<Question that tests the method>"
+#     options: ["<A>", "<B>", "<C>"]
+#     answer: 1
+#     why: "<Why B is right and the others aren't>"
+---
+
+<Opening paragraph: the problem this lesson solves, in two or three sentences.>
+
+## <First concept>
+
+<Short paragraphs, one idea each.>
+
+## Hands-on: <exercise title>
+
+<Exercise id="<exercise-id>">
+
+1. <The learner runs the check.>
+
+   ```bash
+   <command>
+   ```
+
+2. <What to read in the output, and what it means.>
+3. <Copy the agent prompt below; the agent implements the fix.>
+4. When the agent reports back, **run step 1 again yourself** and compare your numbers with the ones it quoted.
+
+</Exercise>

@@ -1,0 +1,36 @@
+name: Feedback on a page
+description: Something on a Testbench page is wrong, unclear, broken, or could be better.
+title: "[Feedback] "
+labels: [feedback]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The page's address. Filled in for you when you use the link at the bottom of a lesson.
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: The language you were reading in (en, zh, ja, ko, es, fr, de).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of feedback?
+      options:
+        - Something is wrong (a fact, a number, a command)
+        - Something is unclear
+        - The layout or video is broken
+        - The exercise or agent prompt didn't work
+        - An idea to make it better
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What did you see, and what did you expect? For a broken exercise, paste the command and its output.
+    validations:
+      required: true

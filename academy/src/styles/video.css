@@ -335,3 +335,11 @@ tb-video.narrow .vid-btn { min-width: 34px; }
   .vid-canvas .rv { transform: none !important; transition: opacity 0.2s linear; }
   .v-cl.swapped .v-cc, .v-cl.pop, .v-pin.bug, .v-caret { animation: none; }
 }
+
+/* On a phone the stage is ~200px tall: a round play button in the corner keeps the poster's title readable. */
+@media (max-width: 620px) {
+  .vid-big { left: auto; right: 10px; bottom: 10px; transform: none; padding: 5px; gap: 0; }
+  .vid-big:hover { transform: scale(1.04); }
+  .vid-big > :not(.vid-big-icon) { display: none; }
+  .vid-big-icon { width: 44px; height: 44px; }
+}

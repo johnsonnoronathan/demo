@@ -37,7 +37,7 @@ export default defineVideo({
         highlights: [
           { at: 0.2, until: 1, lines: [3, 4], note: "阻塞渲染", bad: true },
           { at: 1, until: 2, lines: [3, 4], good: true },
-          { at: 2, until: 3.1, lines: [7], good: true },
+          { at: 2, until: 3, lines: [7], good: true },
         ],
         swaps: [
           { at: 1.1, line: 3, text: `  <script src="/vendor/datefmt-en.js" defer></script>` },
