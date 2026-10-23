@@ -1,29 +1,84 @@
-# demo
+# Testbench
 
-## Testbench
+**A tutorial website for software testing.** Every page is a short narrated video with the written lesson underneath. Every hands-on exercise splits the work: you run the checks and read the numbers, a coding agent implements the fix, and you verify it and decide.
 
 **Live site:** https://johnsonnoronathan.github.io/demo/
 
-[`academy/`](academy/) is a tutorial website for software testing, built with Astro and MDX for people and for agents. Every page has a video, with the written lesson underneath as the supplement.
+| | |
+| --- | --- |
+| **For learners** | Two courses: *Writing Test Cases* (beginner, 6 lessons) and *Performance Testing* (intermediate, 22 pages, from first measurement to a formal acceptance test and your own project). Progress, watched video time and quiz scores are saved in your browser. The interface is in 7 languages; English and Chinese are fully translated. |
+| **For agents** | Each exercise has a **Copy prompt** button that hands the implementation to Claude Code or another coding agent. Every page also has a Markdown version, and `/llms.txt` lists them all. |
+| **For contributors** | A new tutorial is content, not code: Markdown pages plus video scripts. A pull request adds it, automatic checks keep the layout from breaking, and a merge publishes it. |
 
-It has two courses:
+## How it works
 
-- **Writing Test Cases**: 6 lessons for beginners, each ending with a quiz.
-- **Performance Testing**: 22 pages in four chapters that run overall → specific → overall: Overview, Static testing, Dynamic testing, Summary. It takes you from the concepts to a formal acceptance test with a go/no-go decision. You then apply the static checks to your own project: you run the checks and verify, and a coding agent implements the fixes.
+### A lesson
 
-The site's other pages:
+Every exercise follows the same loop, so learning ends in a result you have checked yourself:
 
-- a catalog of the courses
-- a **My learning** page that tracks watched video time, completed pages and quiz scores
-- a page for agents
-
-The interface is available in seven languages: English, Chinese, Japanese, Korean, Spanish, French and German. The courses and their videos are fully translated in English and Simplified Chinese. The other five languages have translated titles and navigation, with the lesson text in English.
-
-```bash
-cd academy && npm install && npm run dev
+```mermaid
+flowchart LR
+  W[Watch the video] --> R[Read the lesson]
+  R --> M["Measure<br/>you run the check"]
+  M --> I["Implement<br/>the agent writes the fix"]
+  I --> V["Verify<br/>you rerun the same check"]
+  V --> D{Decide}
+  D -- not yet --> I
+  D -- accept --> N[Next lesson]
 ```
 
-Performance Testing's exercises run against [`academy/practice/larkspur`](academy/practice/larkspur), a dependency-free Node.js bookshop that is slow on purpose. Each exercise has a copyable agent prompt, and every page has a Markdown twin indexed in `/llms.txt`. See [`academy/README.md`](academy/README.md) for how the site works and how to author pages and videos.
+The agent never loosens a limit to make a check pass, and your rerun is the number that counts. *Performance Testing* ends with this loop at full scale: an acceptance test with a go/no-go decision (lesson 4.3), then the same checks on your own codebase (lesson 4.4).
+
+### From a pull request to the live site
+
+The site is static and has no backend: GitHub is both the inbox and the publisher.
+
+```mermaid
+flowchart LR
+  P["Proposal issue<br/>outline agreed"] --> PR["Pull request<br/>pages + video scripts"]
+  PR --> C{"npm run check<br/>content · build · links · layout"}
+  C -- fails --> PR
+  C -- passes --> RV["Review<br/>R rules in the checklist"]
+  RV --> MG[Merge to main]
+  MG --> GP[GitHub Pages]
+  GP --> F["Feedback link<br/>on every lesson"]
+  F --> P
+```
+
+- **Content** is three things: a course entry in `courses.yaml`, one MDX file per page, and one video script per page. The site's pages, video player and progress tracking are shared by every course.
+- **The checks** enforce [`academy/STANDARD.md`](academy/STANDARD.md):
+  - content rules: every page has a video, every exercise has the learner/agent split, translations match the English
+  - a production build and a check of every link
+  - every page opened in a real browser at phone and desktop width
+- **Videos** are not video files. Each is a script of narration cues and on-screen panes. The browser plays it with captions, chapters and speech, so a translation only changes the words.
+
+## Run it locally
+
+```bash
+cd academy
+npm install
+npm run dev        # http://localhost:4321
+npm run check      # the same checks a pull request runs
+```
+
+## Add a tutorial
+
+1. Open a **Propose a tutorial** issue and agree the outline.
+2. Write it on a branch. With Claude Code, the [`new-tutorial`](.claude/skills/new-tutorial/SKILL.md) skill walks the agent through the standard and runs the checks.
+3. Open a pull request. When the checks pass and a reviewer approves, merging publishes it.
+
+## What's where
+
+| Path | What it is |
+| --- | --- |
+| [`academy/`](academy/) | The site (Astro + MDX). [`academy/README.md`](academy/README.md) explains its parts in detail. |
+| [`academy/STANDARD.md`](academy/STANDARD.md) | The rules every tutorial meets, checked and reviewed |
+| `academy/src/content/` | Courses and pages, per language |
+| `academy/src/videos/` | Video scripts, per language |
+| [`academy/practice/larkspur/`](academy/practice/larkspur/) | The slow-on-purpose bookshop app that Performance Testing's exercises run against |
+| [`.claude/skills/new-tutorial/`](.claude/skills/new-tutorial/) | The skill an agent follows to add a tutorial |
+| `.github/` | Pull request checks, publishing, issue forms |
+| [`skeletons/`](skeletons/) | Skeleton Lab, a separate demo (below) |
 
 ## Skeleton Lab
 

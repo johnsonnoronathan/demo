@@ -115,13 +115,24 @@ An exercise with `target: own` in its frontmatter gets a prompt that works on th
 
 **Writing Test Cases** is six short lessons. Each one ends with a quiz.
 
-## Publishing on GitHub Pages
+## Checks and publishing
 
-```bash
-npm run build:pages     # builds dist/ for https://johnsonnoronathan.github.io/demo/
-```
+`npm run check` runs every gate in [STANDARD.md](STANDARD.md), in order:
 
-The build reads `SITE_URL` and `BASE_PATH`, and every internal link goes through `href()` and `withBase()` in `src/i18n/locales.ts`, so the site works under a sub-path. Publish `dist/` to the `gh-pages` branch, with a `.nojekyll` file so GitHub serves the `_astro/` folder.
+| Command | Checks | Takes |
+| --- | --- | --- |
+| `npm run check:content` | Course, page, video, translation and layout-safety rules | seconds |
+| `npm run build:pages` | The production build for https://johnsonnoronathan.github.io/demo/ | seconds |
+| `BASE_PATH=/demo npm run check:links` | Every internal link and asset resolves under the base path | seconds |
+| `BASE_PATH=/demo npm run check:layout` | Every page in a real browser at 390 and 1280 px: no sideways scrolling, no script errors, one h1, a video on every lesson | about a minute |
+
+On GitHub, `.github/workflows/academy-checks.yml` runs `npm run check` on every pull request. When `main` changes, `.github/workflows/academy-pages.yml` runs the checks again and publishes `dist/` to the `gh-pages` branch, which GitHub Pages serves.
+
+The build reads `SITE_URL` and `BASE_PATH`. Every internal link goes through `href()` and `withBase()` in `src/i18n/locales.ts`, so the site works under a sub-path.
+
+## Feedback
+
+Every lesson ends with a **Suggest an improvement** link. It opens a GitHub issue from `.github/ISSUE_TEMPLATE/page-feedback.yml`, with the page and language already filled in. The footer links to a **Propose a tutorial** form. The repository address is in `src/lib/site.ts`.
 
 ## Built for agents
 
