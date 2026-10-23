@@ -88,7 +88,7 @@
   title: API Testing
   tagline: Check that an HTTP API answers the way it promises.
   summary: >-
-    A short introduction to testing HTTP APIs in two lessons. Learn the three things to
+    A short introduction to testing HTTP APIs. Learn the three things to
     check on every response (the status code, the shape of the body, and what happens
     when the request is wrong), try them by hand with curl, then turn them into automated
     checks that run against your own API.
