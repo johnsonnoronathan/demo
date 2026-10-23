@@ -29,7 +29,7 @@ const es: ContentTranslation = {
     "test-cases": {
       title: "Cómo escribir casos de prueba",
       tagline: "Escribe casos de prueba que cualquiera pueda ejecutar y que encuentren errores.",
-      summary: "Los fundamentos de las pruebas en seis lecciones breves. Aprende qué es un caso de prueba y qué lo hace fiable, elige entradas con particiones y valores límite, cubre los caminos infelices, convierte un caso escrito en una prueba automatizada y mantén sana una batería de pruebas que crece.",
+      summary: "Los fundamentos de las pruebas, en lecciones breves. Aprende qué es un caso de prueba y qué lo hace fiable, elige entradas con particiones y valores límite, cubre los caminos infelices, convierte un caso escrito en una prueba automatizada y mantén sana una batería de pruebas que crece.",
       audience: "Cualquiera que pruebe software o quiera hacerlo: desarrolladores, testers, gente de producto. No hace falta experiencia; la lección 3.1 lee un poco de JavaScript.",
       prerequisites: ["Curiosidad por cómo falla el software", "Node.js, solo si quieres ejecutar tú mismo las pruebas de la lección 3.1"],
       outcomes: [

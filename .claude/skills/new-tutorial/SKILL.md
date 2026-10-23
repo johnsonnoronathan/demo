@@ -16,11 +16,12 @@ Testbench is one site. A new tutorial is **content**: a course entry, MDX pages 
    - lesson with a quiz: `academy/src/content/lessons/en/test-cases/2-design/1-partitions.mdx`
    - summary: `academy/src/content/lessons/en/performance-testing/2-static/9-summary.mdx`
    - video: `academy/src/videos/en/performance-testing/static/budgets.ts` and the pane types in `academy/src/video/types.ts`
-3. Agree the outline with the person you're working for: audience, level, 3 or more outcomes, chapters, and for each lesson the concept it teaches and how the learner checks it (exercise or quiz). Don't write pages before the outline is agreed.
+3. Branch from the branch that has `academy/` (normally `main`).
+4. **A new course or chapter:** agree the outline with the person you're working for (audience, level, 3 or more outcomes, chapters, and for each lesson the concept it teaches and how the learner checks it). Don't write pages before the outline is agreed. If no one is available to agree it, put the outline at the top of the pull request description and say it wasn't agreed. **A new lesson in an existing chapter, a fix or a translation** needs no outline: go straight to the order of work.
 
 ## Order of work
 
-1. **Course entry.** Add the course to `academy/src/content/courses.yaml`. Give it the next free `order`. Add `practice:` only if the course ships a practice project; otherwise every exercise uses `target: own`.
+1. **Course entry.** For a new course, add it to `academy/src/content/courses.yaml` with the next free `order`. Add `practice:` only if the course ships a practice project; otherwise every exercise uses `target: own`. For a lesson in an existing course, read "Extending an existing course" in the standard first: no lesson counts in prose, new outcomes at the end, and renumber title cards when V4 says so.
 2. **Pages.** One MDX file per page under `academy/src/content/lessons/en/<course>/<n-chapter>/`. Start from `templates/lesson.mdx` (and `opening.mdx`, `summary.mdx` if chapters have roles). File names start with the order: `0-opening.mdx`, `1-<slug>.mdx`, `9-summary.mdx`.
 3. **Videos.** One script per page under `academy/src/videos/en/<course>/<chapter>/<slug>.ts` (`opening.ts` for openings). Start from `templates/video.ts`. Write the narration first; the timing follows from it.
 4. **Check early and often.** Run `npm run check:content` in `academy/` after every few files. It takes seconds and names the rule and file for each problem.
@@ -29,6 +30,7 @@ Testbench is one site. A new tutorial is **content**: a course entry, MDX pages 
 
 ## Writing the pages
 
+- **Judgement skills (R4).** If the skill has no check to rerun (exploring, planning, reviewing), the learner produces the judgement, the agent turns it into artifacts (bug reports, automated tests), and the learner reviews them against criteria the exercise states. That still counts as the split.
 - **The learner/agent split (P5, R4).** Inside `<Exercise id="…">` write the learner's numbered steps: run the check, read the output (show the expected output in a code block), decide. The `agent:` block in frontmatter is what the agent does: implement, then report with quoted output. Always include a step forbidding the agent from loosening any limit. The learner's last step is to rerun the check themselves.
 - **Validation (P4, R1).** Every lesson ends with something the learner can verify: an exercise with "done when", or a quiz whose questions test the method. Explain every quiz answer in `why`.
 - **Real numbers (R3).** Never invent a measurement. Run the command and paste the output. If you can't run it, write the step without a number and tell the person you're working for.

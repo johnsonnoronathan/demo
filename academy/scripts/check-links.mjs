@@ -42,9 +42,28 @@ for (const file of pages) {
   }
 }
 
+// L6: the Markdown version of a page (what agents read) keeps every code example intact.
+const lessons = fileURLToPath(new URL("../src/content/lessons", import.meta.url));
+const norm = (t) => t.split("\n").map((l) => l.trim()).filter(Boolean).join("\n");
+let blocks = 0;
+for (const src of walk(lessons).filter((f) => f.endsWith(".mdx"))) {
+  const text = readFileSync(src, "utf8");
+  const fm = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+  const get = (k) => fm.match(new RegExp(`^${k}:\\s*"?([^"\\n]*)"?\\s*$`, "m"))?.[1] ?? "";
+  const locale = relative(lessons, src).split(/[\\/]/)[0];
+  const slug = get("slug");
+  const md = join(dist, locale === "en" ? "" : locale, get("course"), slug ? `${get("chapter")}/${slug}.md` : `${get("chapter")}.md`);
+  if (!existsSync(md)) { problems.set(`${relative(lessons, src)}: no Markdown version at ${relative(dist, md)}`, true); continue; }
+  const out = norm(readFileSync(md, "utf8"));
+  for (const [, , , code] of text.matchAll(/^([ \t]*)(```|~~~)[^\n]*\n([\s\S]*?)^\1\2[ \t]*$/gm)) {
+    blocks++;
+    if (!out.includes(norm(code))) problems.set(`${relative(lessons, src)}: a code example is changed or missing in ${relative(dist, md)} (starts "${code.trim().split("\n")[0].slice(0, 50)}")`, true);
+  }
+}
+
 if (problems.size) {
-  for (const p of problems.keys()) console.log(`FAIL L4  ${p}`);
+  for (const p of problems.keys()) console.log(`FAIL ${/code example|Markdown version/.test(p) ? "L6" : "L4"}  ${p}`);
   console.log(`\n${problems.size} broken link(s) across ${pages.length} pages.`);
   process.exit(1);
 }
-console.log(`Link check passed: ${checked} links on ${pages.length} pages${base ? ` under ${base}/` : ""}.`);
+console.log(`Link check passed: ${checked} links on ${pages.length} pages${base ? ` under ${base}/` : ""}; ${blocks} code examples intact in the Markdown versions.`);

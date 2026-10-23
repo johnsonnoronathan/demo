@@ -75,8 +75,9 @@ export function localizeCourse(entry: CourseEntry, locale: Locale): CourseInfo {
     tagline: tr.tagline ?? d.tagline,
     summary: tr.summary ?? d.summary,
     audience: tr.audience ?? d.audience,
-    prerequisites: tr.prerequisites ?? d.prerequisites,
-    outcomes: tr.outcomes ?? d.outcomes,
+    // Item by item, so a new English item shows in English until it's translated.
+    prerequisites: d.prerequisites.map((x, i) => tr.prerequisites?.[i] ?? x),
+    outcomes: d.outcomes.map((x, i) => tr.outcomes?.[i] ?? x),
     practice: d.practice && { ...d.practice, summary: tr.practiceSummary ?? d.practice.summary },
     chapters: d.chapters.map((c) => ({ ...c, title: tr.chapters?.[c.id]?.title ?? c.title, summary: tr.chapters?.[c.id]?.summary ?? c.summary })),
   };

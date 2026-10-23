@@ -29,7 +29,7 @@ const de: ContentTranslation = {
     "test-cases": {
       title: "Testfälle schreiben",
       tagline: "Schreiben Sie Testfälle, die jeder ausführen kann und die Fehler finden.",
-      summary: "Die Grundlagen des Testens in sechs kurzen Lektionen. Sie lernen, was ein Testfall ist und was ihn verlässlich macht, wählen Eingaben mit Äquivalenzklassen und Grenzwerten, decken die Fehlerpfade ab, machen aus einem geschriebenen Fall einen automatisierten Test und halten eine wachsende Testsuite gesund.",
+      summary: "Die Grundlagen des Testens in kurzen Lektionen. Sie lernen, was ein Testfall ist und was ihn verlässlich macht, wählen Eingaben mit Äquivalenzklassen und Grenzwerten, decken die Fehlerpfade ab, machen aus einem geschriebenen Fall einen automatisierten Test und halten eine wachsende Testsuite gesund.",
       audience: "Alle, die Software testen oder es lernen wollen: Entwickler, Tester, Produktleute. Keine Testerfahrung nötig; in Lektion 3.1 wird etwas JavaScript gelesen.",
       prerequisites: ["Neugier darauf, wie Software kaputtgeht", "Node.js, nur wenn Sie die Tests aus Lektion 3.1 selbst ausführen möchten"],
       outcomes: [
