@@ -208,6 +208,22 @@ for (const [key, v] of videos) {
   if (secs < 20 || secs > 600) fail("V3", at, `runs ${Math.round(secs)} s; keep a video between 20 s and 10 min`);
 }
 
+// V4 numbering: a title card that names a lesson number must name this page's number.
+const numberOf = new Map();
+for (const c of courses) {
+  c.chapters.forEach((ch, ci) => {
+    const lessons = [...en.values()].filter((p) => p.data.course === c.id && p.data.chapter === ch.id && p.data.kind === "lesson").sort((a, b) => a.data.order - b.data.order);
+    lessons.forEach((p, li) => numberOf.set(p.key, `${ci + 1}.${li + 1}`));
+  });
+}
+for (const [key, v] of videos) {
+  const [, ...rest] = key.split("/");
+  const want = numberOf.get(rest.join("/"));
+  const kicker = v?.scenes?.[0]?.panes?.[0]?.kicker ?? "";
+  const got = kicker.match(/\b(\d+\.\d+)\b/)?.[1];
+  if (want && got && got !== want) fail("V4", `videos/${key}.ts`, `title card says ${got}, but this page is lesson ${want}; renumber it`);
+}
+
 /* Translations ----------------------------------------------------------- */
 const pick = (d) => JSON.stringify({ kind: d.kind, order: d.order, slug: d.slug, minutes: d.minutes, ex: (d.exercises ?? []).map((e) => ({ id: e.id, target: e.target, agent: e.agent })), quiz: (d.quiz ?? []).map((q) => [q.options?.length, q.answer]), scenes: (d.concepts ?? []).map((c) => c.scene ?? null), check: d.check?.length ?? 0 });
 for (const p of pages.filter((p) => p.locale !== "en" && !p.error)) {
@@ -229,7 +245,11 @@ for (const [locale, tr] of Object.entries(translations)) {
   for (const [id, c] of Object.entries(tr.courses ?? {})) {
     const course = courseById.get(id);
     if (!course) { fail("T4", `i18n/content/${locale}.ts`, `course "${id}" doesn't exist`); continue; }
-    if (c.outcomes && c.outcomes.length !== course.outcomes.length) fail("T4", `i18n/content/${locale}.ts`, `${id}: ${c.outcomes.length} outcomes, English has ${course.outcomes.length}`);
+    for (const k of ["outcomes", "prerequisites"]) {
+      const n = c[k]?.length ?? 0, m = course[k]?.length ?? 0;
+      if (n > m) fail("T4", `i18n/content/${locale}.ts`, `${id}: ${n} ${k}, but English has only ${m}`);
+      else if (c[k] && n < m) warn("T4", `i18n/content/${locale}.ts`, `${id}: ${m - n} of ${m} ${k} show in English until translated`);
+    }
   }
 }
 
