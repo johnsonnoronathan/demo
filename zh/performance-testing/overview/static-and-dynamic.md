@@ -1,0 +1,143 @@
+# 第 1.2 课: 静态测试与动态测试
+
+性能测试 · 第 1 章: 概述 · 20 分钟
+
+> 性能测试的两大类、各自能发现和不能发现什么，以及测试前如何规划要回答的问题。
+
+**学完本课你将能够:**
+- 解释静态性能测试和动态性能测试的区别
+- 为给定的问题挑选仍能回答它的、成本更低的测试
+- 写一份简短的测试计划：问题、预算、风险，以及覆盖它们的测试
+
+## 文字稿: 静态测试与动态测试 (1:16)
+
+**0:00 引言.** 寻找性能问题有两种方式。你可以阅读你构建的东西，也可以运行它并进行测量。
+
+**0:08 两大类.** 静态测试阅读的是产物：代码、查询计划、构建输出和预算。 什么都不用运行，所以一次静态检查只要几秒钟，可以作为每个拉取请求的门禁。它能发现已知会变慢的模式。 动态测试则要运行系统，并向它发送流量。 它测量用户的真实感受，发现没人预料到的问题，并证明修复确实有效。
+
+**0:37 并排对比.** 放在一起比较：静态测试成本低、介入早。动态测试更慢，但它是看到真实影响的唯一途径。 两者结合效果最好。静态检查以低成本捕获常见错误，动态测试确认重要的问题，并找出其余的问题。
+
+**0:56 从问题开始.** 在选择工具之前，先写下你需要知道什么。 好的问题会指明一个页面或接口、一个负载，以及一个数字。 然后为每个问题挑选能回答它的最低成本测试。在练习中，你会为 Larkspur 写出这样一份计划。
+
+## 课文
+
+寻找性能问题有两种方式。你可以**阅读**你构建的东西，也可以**运行**它并进行测量。本课程把它们分别称为静态测试和动态测试，并各用一章来讲解。
+
+> **概念动画: 测试性能的两种方式**
+>
+> 1. 静态测试阅读你构建的东西：代码、查询、资源和预算。
+> 2. 什么都不用运行，所以只需几秒，适合放进每个拉取请求。它发现的是可能的问题。
+> 3. 动态测试运行系统并向它发送流量。
+> 4. 它测量用户真正感受到的东西：响应时间、吞吐量和错误。
+
+## 静态测试
+
+静态测试检查的是产物：源代码、SQL、构建输出、配置和预算。既不需要部署，也不产生流量，所以一次静态检查只需几秒钟，可以作为每个拉取请求的门禁。
+
+它能发现**已知会变慢的模式**：循环中的查询、扫描整张表的查询计划、关键路径上一个 600 KB 的脚本。它无法告诉你这些问题在真实流量下会造成多大影响，也发现不了任何规则都没有描述过的问题。
+
+## 动态测试
+
+动态测试运行系统并对其进行测量：用 Lighthouse 在实验室中测量页面加载，用 k6 做负载测试，在流量持续时采集 CPU 性能分析。它需要一个运行中的环境，耗时以分钟而不是秒计。
+
+作为回报，它能报告用户的真实感受，发现没人预料到的问题，并证明修复确实有效。
+
+| | 静态 | 动态 |
+| --- | --- | --- |
+| 检查对象 | 代码、查询、资源、配置 | 运行中的系统 |
+| 速度 | 几秒 | 几分钟到几小时 |
+| 运行时机 | 每个拉取请求 | 预发布环境、发布前、定期运行 |
+| 能发现 | 已知的慢模式 | 真实影响、未知问题、容量 |
+| 不能 | 测量影响 | 单靠自身定位到具体代码行 |
+| 本课程中 | 第 2 章 | 第 3 章 |
+
+两者结合使用效果最好。静态检查以低成本捕获常见错误；动态测试确认重要的问题，并找出其余的问题。第 4 章会把两者接入同一套工作流程。
+
+## 计划从问题开始
+
+在选择工具之前，先写下你需要知道什么。好的问题会指明一个页面或接口、一个负载和一个数字：
+
+- 店面能否在中端手机上于 2.5 s 内完成最大内容绘制（LCP）？
+- `/api/books` 能否在 50 个并发购物者下保持 p95 低于 300 ms？
+- 在 p95 超出预算之前，应用能服务多少用户？
+- 应用能否在一小时的常规流量下保持稳定？
+
+然后为每个问题挑选能回答它的最低成本测试，并记下你已经能在代码中看到的风险。这份清单就是一份测试计划。
+
+> **测试环境.** 动态测试的结果取决于机器。要在接近生产环境的机器上测试，或者只比较在同一台机器上的运行结果。笔记本电脑适合学习和做前后对比，但不能作为生产容量的证据。
+
+## 动手练习：为 Larkspur 起草一份性能测试计划
+
+**动手练习 · 15 分钟.** 目标： 写一份一页纸的计划，列出你要回答的关于 Larkspur 的问题、每个问题的预算，以及由静态测试还是动态测试来覆盖。
+
+1. 浏览一遍应用：`server.mjs`、`src/routes/` 中的三个文件、`public/index.html` 和 `budget.json`。先不要运行任何东西，这是一次静态阅读。
+2. 创建 `notes/perf-plan.md`，包含四个标题：**问题**、**预算**、**风险**和**测试**。
+3. 仿照上面的例子写至少四个问题，并为每个问题给出带单位的预算。
+4. 在**风险**下，列出看起来会慢的地方及其位置。提示：看看 `listBooks` 在它的 `for` 循环里做了什么。
+5. 在**测试**下，说明由哪个工具回答每个问题。可以从这张表开始：
+
+   | 问题或风险 | 静态检查 | 动态测试 |
+   | --- | --- | --- |
+   | 页面体积 | `npm run budget` | Lighthouse |
+   | 循环中的查询 | `npm run lint:queries` | 负载下的 `x-query-count` |
+   | 慢查找 | `npm run explain` | k6 负载测试 |
+   | 容量 | – | k6 压力测试 |
+
+![编辑器中打开的一个 Markdown 文件，分为四个部分。Questions 列出四项，例如“Does /api/books keep p95 under 300 ms with 50 users?”。Budgets 给出“p95 300 ms”和“scripts 50 KB gzipped”等数字。Risks 引用了 src/routes/books.mjs 第 11 行。Tests 把每一项对应到一条命令。](screenshot-pending)
+*Screenshot (notes/perf-plan.md): 一份计划一页纸就够了。随着课程推进，你会逐步填入结果。*
+
+**完成标准**
+- notes/perf-plan.md has the four sections
+- Every budget is a number with a unit, and every question maps to at least one test
+- Risks cite file paths and line numbers
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 1.2, "Static and dynamic testing".
+
+Exercise: Draft a performance test plan for Larkspur
+Goal: Write a one-page plan that lists the questions you'll answer about Larkspur, a budget for each, and whether a static or a dynamic test covers it.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read `README.md`, `server.mjs`, the files in `src/routes/`, `public/index.html` and `budget.json` to learn what the app does.
+2. Create `notes/perf-plan.md` with four sections: Questions, Budgets, Risks, Tests.
+3. Under Questions, list at least four concrete questions, each naming an endpoint or page and a number of users.
+4. Under Budgets, give each question a measurable limit (for example p95 in ms, KB of assets, queries per request).
+5. Under Risks, list anything in the code that looks likely to be slow, with file and line, without running the app.
+6. Under Tests, map every question and risk to a static check or a dynamic test from this repository (`npm run budget`, `npm run lint:queries`, `npm run explain`, `npm run load`, the k6 scripts in `load/`).
+
+Done when:
+- notes/perf-plan.md has the four sections
+- Every budget is a number with a unit, and every question maps to at least one test
+- Risks cite file paths and line numbers
+
+Report back:
+- The Questions and Budgets sections
+- The three risks you think are most serious, and why
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/1-overview/2-static-and-dynamic.mdx
+```
+
+## 要点
+
+- 静态测试在不运行系统的情况下检查代码、查询、资源和配置。它速度快，每次改动都能运行，但只能发现可能存在的问题。
+- 动态测试在真实流量下运行系统，测量用户的实际感受。它更慢，需要一个环境，但能证明影响有多大。
+- 用静态检查及早发现已知模式，用动态测试确认影响，并发现任何规则都描述不了的问题。
+- 先用问题来规划（“结账能否在 50 个用户下保持 p95 低于 300 ms？”），再为每个问题选择能回答它的最低成本测试。
+
+---
+
+上一页: [第 1.1 课: 性能测试测量什么](/demo/zh/performance-testing/overview/what-it-measures.md)
+下一页: [第 1 章 · 小结: 概述：小结](/demo/zh/performance-testing/overview/summary.md)

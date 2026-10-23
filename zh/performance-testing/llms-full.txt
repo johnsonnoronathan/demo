@@ -1,0 +1,3012 @@
+# 第 1 章 · 开篇: 概述
+
+性能测试 · 第 1 章: 概述 · 5 分钟
+
+> 这门课程讲什么、如何组织，以及如何使用课堂和其中的智能体提示词。
+
+## 文字稿: 概述 (1:45)
+
+**0:00 欢迎.** 欢迎来到 Testbench 的性能测试课程。在这门课里，你将学会在用户发现之前，找出让软件变慢的原因。 “网站感觉很慢”只是一句抱怨。附上原因的数字，才是一个发现。这门课教你从前者走到后者。
+
+**0:18 四个章节.** 课程分为四章。首先是概述：性能测试测量什么，以及怎么测。 然后是静态测试：不运行任何东西，通过阅读代码、查询计划和构建输出来发现问题。 接着是动态测试：在真实的流量下运行应用，测量用户的实际感受。 最后是总结：把两者结合成一套工作流程，并写成一份能让人据此行动的报告。
+
+**0:48 练习应用.** 你将在 Larkspur Books 上练习，这是一个小型网上书店，有 5,000 本书和 200,000 个订单。 它是故意做得很慢的。一页图书要执行 101 次数据库查询，在手机上，主图要将近 10 秒才能显示出来。 学完这门课，你会找出并修复其中的每一个问题，而且每项修复都有数字为证。
+
+**1:11 每个页面怎么用.** 每个页面的用法都一样。先看一段简短的视频，就像这一段。 然后按自己的节奏，阅读视频下方的课程内容。 接着完成动手练习中你的部分：亲自运行检查，读懂数字。 把实现交给编程智能体。复制练习的提示词，智能体会完成修复，并引用它的输出。 然后验证：亲自重新运行同样的检查。你看到的数字才算数，决定也由你来做。
+
+## 课文
+
+“网站感觉很慢”是一句抱怨。“`/api/books` 的 p95 是 1.3 秒，而预算是 300 ms，因为这个接口每个请求要执行 101 次查询”则是一个别人能着手修复的发现。这门课教你可靠地从前者走到后者。
+
+## 你将收获什么
+
+- 了解性能测试回答哪些问题，以及它报告哪些数字
+- 分清静态测试和动态测试，知道各自在什么时候最划算
+- 让练习应用跑起来，并记下第一次测量结果
+- 知道如何把动手练习交给编程智能体，以及它汇报时要检查什么
+
+## 课程如何组织
+
+课程从全局出发，深入具体技术，最后再回到全局。第 1 章界定问题。第 2 章和第 3 章各自深入讲解一类测试。第 4 章把它们组合成一套工作流程和一份报告。
+
+1. **概述** (总): 性能测试测量什么、两类测试方法，以及练习用的应用。
+2. **静态测试** (分): 不运行系统，通过检查你构建的东西来发现性能问题。
+3. **动态测试** (分): 运行系统、发送流量，测量用户的实际感受。
+4. **总结** (总): 把两者结合成一套工作流程，报告结果，进行验收，应用到你自己的项目，并回顾整门课程。
+
+每一章的结构都相同：
+
+1. **开篇**，就像本页：你将收获什么，以及本章的地图。
+2. **课程**。每节课都兼有概念和实践。概念配有一段简短的**动画**，可以播放、暂停和逐步查看。动手练习在练习应用上进行，并附有你应该看到的**截图**。
+3. **小结**，汇总本章要点，并提供几道自测题。
+
+## 练习应用
+
+你测试的一切都基于 **Larkspur Books**，它是位于 `academy/practice/larkspur` 的一个小型书店：一个店面页面和三个 JSON 接口，背后是一个 SQLite 数据库，包含 5,000 本书、50,000 条评论和 200,000 个订单。它只需要 Node.js 22.13 或更高版本，别无其他依赖。
+
+Larkspur 是故意做得很慢的。其中每个问题都是本课程要教你发现的，课程中引用的每个数字都来自对它的真实运行。你的数字会因机器不同而不同，但结果的趋势不会变。
+
+## 与智能体协作
+
+这门课教你测试性能，智能体帮你完成工作。每个练习中的分工都一样：
+
+| 你 | 智能体 |
+| --- | --- |
+| 学习概念：看视频、读课程 | |
+| 运行检查和测试，读懂数字 | |
+| | 实现：修复、脚本、门禁、CI 配置 |
+| | 汇报结果，引用真实的命令输出 |
+| 验证：重新运行同样的检查并比较 | |
+| 决定：验收、拒绝，或设定新的预算 | |
+
+每个练习都分两部分。先是**你的部分**：你亲自运行的步骤，以及你应该看到的输出。然后是**智能体的部分**：一段提示词，你把它复制到 Claude Code 或其他编程智能体中，由它完成改动。提示词是自包含的：在哪里操作、步骤、如何判断完成，以及要汇报什么。它要求智能体引用真实的输出而不是估算，并且绝不为了让检查通过而放宽预算。
+
+当智能体说已经完成时，亲自重新运行一遍检查。你看到的数字才算数。到课程结束时，你会在自己的项目上使用同样的循环（第 4.4 课），并以一次正式的验收决定收尾（第 4.3 课）。
+
+> **智能体可以阅读整门课程.** 每个页面都有一个 Markdown 版本（见页边的“For agents”），`/llms.txt` 列出了全部页面。当智能体需要单个练习之外的上下文时，把它指向那里。
+
+## 本章内容
+
+- 第 1.1 课: [性能测试测量什么](/demo/zh/performance-testing/overview/what-it-measures.md) (20 分钟). 延迟、吞吐量和错误：每次性能测试都会报告的三个数字，以及为什么延迟要用百分位数来表示。
+- 第 1.2 课: [静态测试与动态测试](/demo/zh/performance-testing/overview/static-and-dynamic.md) (20 分钟). 性能测试的两大类、各自能发现和不能发现什么，以及测试前如何规划要回答的问题。
+- 第 1 章 · 小结: [概述：小结](/demo/zh/performance-testing/overview/summary.md) (5 分钟). 后续课程会用到的术语和计划。
+
+---
+
+下一页: [第 1.1 课: 性能测试测量什么](/demo/zh/performance-testing/overview/what-it-measures.md)
+
+
+# 第 1.1 课: 性能测试测量什么
+
+性能测试 · 第 1 章: 概述 · 20 分钟
+
+> 延迟、吞吐量和错误：每次性能测试都会报告的三个数字，以及为什么延迟要用百分位数来表示。
+
+**学完本课你将能够:**
+- 说出性能测试报告的三个数字，以及每个数字反映了用户的什么体验
+- 读懂 p50、p95 和 p99，并解释为什么平均值会掩盖问题
+- 运行练习应用，完成第一次可重复的测量
+
+## 文字稿: 性能测试测量什么 (1:26)
+
+**0:00 引言.** 无论用什么工具，性能测试都会报告三个数字。我们来认识一下它们。
+
+**0:07 三个数字.** 延迟：一个请求要花多长时间，单位是毫秒。 吞吐量：每秒能完成多少个请求。 还有错误率：失败或超时的请求所占的比例。 这三个数字会一起变化。当系统接近极限时，吞吐量不再上升，延迟开始攀升，紧接着就会出现错误。
+
+**0:30 百分位数.** 把同一个请求发送 400 次，你会得到 400 个不同的耗时。 按耗时堆叠起来，它们会形成一个驼峰，右侧拖着一条由慢请求组成的长尾。 中位数，也就是 p50，代表典型请求。一半比它快，一半比它慢。 p95 和 p99 描述的是长尾。每二十个用户中，就有一个要等待至少 p95 那么久。 平均值落在中间，却不对应任何真实的请求。所以预算和阈值都使用百分位数。
+
+**1:04 第一次测量.** 在练习中，你会启动练习应用，请求一页图书。响应显示它执行了 101 次数据库查询。 然后给它施加轻量负载：10 个虚拟用户，持续 20 秒。 在我们的机器上，结果是每秒 16 个请求，p95 超过 1 秒。把它连同你运行的命令一起记下来，这就是你的基线。
+
+## 课文
+
+性能测试回答的是这样的问题：“顾客要等多久？”以及“在体验变差之前，我们能承受多少流量？”。无论用什么工具，答案都以三个数字的形式给出。
+
+| 数字 | 回答的问题 | 单位 |
+| --- | --- | --- |
+| **延迟**（响应时间） | 一个请求要花多长时间？ | 毫秒 |
+| **吞吐量** | 每秒完成多少个请求？ | 每秒请求数（req/s） |
+| **错误率** | 有多大比例的请求失败或超时？ | 百分比 |
+
+这三个数字会一起变化。当系统接近极限时，吞吐量不再上升，延迟开始攀升，紧接着就会出现错误。第 3 章会展示 Larkspur 上发生的这一过程。
+
+## 延迟是一个分布
+
+把同一个请求发送几百次，你会得到几百个不同的耗时。大多数彼此接近；少数会慢得多，原因可能是垃圾回收暂停、缓存未预热或数据库繁忙。播放动画，看看它们形成的形状。
+
+> **概念动画: 延迟是一个分布**
+>
+> 1. 每个请求花费的时间都不一样。这里是发往同一个接口的 400 个请求。
+> 2. 按耗时堆叠起来，它们形成一个隆起，右侧拖着长长的尾巴。
+> 3. 中位数 p50 代表典型请求：95 毫秒。一半更快，一半更慢。
+> 4. p95 和 p99 描述尾部：371 毫秒和 556 毫秒。每二十个用户中就有一个至少要等 371 毫秒。
+> 5. 平均值 133 毫秒不对应任何真实请求，还掩盖了尾部。预算和阈值都使用百分位数。
+
+由于存在这条长尾，延迟要用**百分位数**来报告。p95 是 95% 的请求都能快于它的耗时；另外 5% 更慢。可以把它理解为每二十个用户中有一个人的体验，而在繁忙的网站上，这是很多人。
+
+| 统计量 | 它告诉你什么 | 用途 |
+| --- | --- | --- |
+| p50（中位数） | 典型请求 | 发现大范围的性能退化 |
+| p95 | 大多数用户迟早会遇到的慢速长尾 | 预算和测试阈值 |
+| p99 | 经常出现的最差体验 | 长尾很重要的系统（结账、登录） |
+| max | 一个离群值 | 用于排查，绝不用于预算 |
+| 平均值 | 没有任何真实用户经历过的东西 | 避免使用 |
+
+平均值会被慢速长尾拉高，但仍然远低于长尾本身，因此它会掩盖那些让人抱怨的请求。本课程中的每个预算和阈值都使用百分位数。
+
+## 吞吐量和错误
+
+吞吐量是已完成请求的速率。单独看它说明不了什么：16 req/s 对一个小店来说绰绰有余，对一场门票抢购来说却是灾难。只有和延迟放在一起才有意义，比如“16 req/s 时 p95 低于 300 ms”。
+
+错误率让另外两个数字保持可信。一台快速失败的服务器可以交出很漂亮的延迟数字。在庆祝提速之前，一定要先检查错误。
+
+## 可重复的测量
+
+没有测量条件的数字算不上测量。至少要记录：
+
+- 接口或页面，
+- 多少个虚拟用户、持续多长时间，
+- 所用的机器，以及当时是否有其他程序在运行，
+- 确切的命令。
+
+这样，你自己、同事或智能体就能在改动之后再次运行，并在相同条件下进行比较。
+
+## 动手练习：搭建 Larkspur 并完成第一次测量
+
+**动手练习 · 15 分钟.** 目标： 让练习应用跑起来，并为 /api/books 记录一条基线：10 个用户下的查询次数、p50、p95 和吞吐量。
+
+1. 构建数据库。只需几秒钟，完成后会打印创建的内容。
+
+   ```bash
+   cd academy/practice/larkspur
+   npm run seed
+   ```
+
+2. 在单独的终端中启动应用，并让它保持运行。
+
+   ```bash
+   npm start
+   # Larkspur Books on http://localhost:3000
+   ```
+
+![Larkspur Books 店面：页眉，一张大幅书架照片，标题为“Find your next favourite book”，下方是新书网格，显示书名、作者、价格和星级评分。](screenshot-pending)
+*Screenshot (localhost:3000): 你将要测试的店面。它加载得很慢，第 3 章会解释原因。*
+
+3. 请求一页图书并查看响应头。Larkspur 会报告该请求执行了多少次数据库查询，以及服务器在它上面花了多长时间。
+
+   ```bash
+   curl -s -i http://localhost:3000/api/books | head -4
+   ```
+
+   ```text
+   HTTP/1.1 200 OK
+   content-type: application/json
+   x-query-count: 101
+   server-timing: app;dur=60.4
+   ```
+
+   一页 50 本书要执行 101 次查询，这一点值得记住。第 2.2 课会解释它。
+
+4. 施加轻量负载：使用应用自带的负载工具，让 10 个虚拟用户运行 20 秒。
+
+   ```bash
+   npm run load -- --url http://localhost:3000/api/books --vus 10 --duration 20
+   ```
+
+![迷你负载工具的终端输出：一行结果，10 个虚拟用户运行 20 秒，约每秒 16 个请求，p50 约 570 ms，p95 约 1,300 ms，0 个错误，每个请求 101 次查询。](screenshot-pending)
+*Screenshot (npm run load): 你的数字会有所不同。在我们的机器上：16 req/s，p50 573 ms，p95 1,320 ms，每个请求 101 次查询。*
+
+5. 把结果连同你运行的命令写入 `notes/perf-baseline.md`。之后每次修复，你都要和它进行比较。
+
+**完成标准**
+- notes/perf-baseline.md exists and every number in it appears in the command output you captured
+- The baseline names the endpoint, the number of virtual users and the duration
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 1.1, "What performance testing measures".
+
+Exercise: Set up Larkspur and take a first measurement
+Goal: Get the practice app running and record a baseline for /api/books: query count, p50, p95 and throughput at 10 users.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run seed` and confirm it reports 500 authors, 5,000 books, 50,000 reviews and 200,000 orders.
+2. Start the app with `npm start` in the background and wait until http://localhost:3000/health returns `ok`.
+3. Run `curl -s -i http://localhost:3000/api/books` and note the `x-query-count` and `server-timing` headers.
+4. Run `npm run load -- --url http://localhost:3000/api/books --vus 10 --duration 20` and capture the result row.
+5. Create `notes/perf-baseline.md` inside the practice app with the date, the command used, and the measured requests/s, p50, p95, p99 and queries per request.
+6. Stop the app when you're done.
+
+Done when:
+- notes/perf-baseline.md exists and every number in it appears in the command output you captured
+- The baseline names the endpoint, the number of virtual users and the duration
+
+Report back:
+- The baseline table you wrote
+- One sentence on what the query count suggests about the endpoint
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/1-overview/1-what-it-measures.mdx
+```
+
+## 要点
+
+- 延迟是一个请求花费的时间，吞吐量是每秒完成的请求数，错误率是失败请求所占的比例。
+- 延迟是一个分布。要报告百分位数：p50 代表典型请求，p95 和 p99 代表慢速长尾。
+- 平均值把快请求和慢请求混在一起，得到一个没有任何用户真正经历过的数字。不要基于平均值设定预算。
+- 记下你是如何测量的（用户数、时长、接口），这样数字才能被重复和比较。
+
+---
+
+上一页: [第 1 章 · 开篇: 概述](/demo/zh/performance-testing/overview.md)
+下一页: [第 1.2 课: 静态测试与动态测试](/demo/zh/performance-testing/overview/static-and-dynamic.md)
+
+
+# 第 1.2 课: 静态测试与动态测试
+
+性能测试 · 第 1 章: 概述 · 20 分钟
+
+> 性能测试的两大类、各自能发现和不能发现什么，以及测试前如何规划要回答的问题。
+
+**学完本课你将能够:**
+- 解释静态性能测试和动态性能测试的区别
+- 为给定的问题挑选仍能回答它的、成本更低的测试
+- 写一份简短的测试计划：问题、预算、风险，以及覆盖它们的测试
+
+## 文字稿: 静态测试与动态测试 (1:16)
+
+**0:00 引言.** 寻找性能问题有两种方式。你可以阅读你构建的东西，也可以运行它并进行测量。
+
+**0:08 两大类.** 静态测试阅读的是产物：代码、查询计划、构建输出和预算。 什么都不用运行，所以一次静态检查只要几秒钟，可以作为每个拉取请求的门禁。它能发现已知会变慢的模式。 动态测试则要运行系统，并向它发送流量。 它测量用户的真实感受，发现没人预料到的问题，并证明修复确实有效。
+
+**0:37 并排对比.** 放在一起比较：静态测试成本低、介入早。动态测试更慢，但它是看到真实影响的唯一途径。 两者结合效果最好。静态检查以低成本捕获常见错误，动态测试确认重要的问题，并找出其余的问题。
+
+**0:56 从问题开始.** 在选择工具之前，先写下你需要知道什么。 好的问题会指明一个页面或接口、一个负载，以及一个数字。 然后为每个问题挑选能回答它的最低成本测试。在练习中，你会为 Larkspur 写出这样一份计划。
+
+## 课文
+
+寻找性能问题有两种方式。你可以**阅读**你构建的东西，也可以**运行**它并进行测量。本课程把它们分别称为静态测试和动态测试，并各用一章来讲解。
+
+> **概念动画: 测试性能的两种方式**
+>
+> 1. 静态测试阅读你构建的东西：代码、查询、资源和预算。
+> 2. 什么都不用运行，所以只需几秒，适合放进每个拉取请求。它发现的是可能的问题。
+> 3. 动态测试运行系统并向它发送流量。
+> 4. 它测量用户真正感受到的东西：响应时间、吞吐量和错误。
+
+## 静态测试
+
+静态测试检查的是产物：源代码、SQL、构建输出、配置和预算。既不需要部署，也不产生流量，所以一次静态检查只需几秒钟，可以作为每个拉取请求的门禁。
+
+它能发现**已知会变慢的模式**：循环中的查询、扫描整张表的查询计划、关键路径上一个 600 KB 的脚本。它无法告诉你这些问题在真实流量下会造成多大影响，也发现不了任何规则都没有描述过的问题。
+
+## 动态测试
+
+动态测试运行系统并对其进行测量：用 Lighthouse 在实验室中测量页面加载，用 k6 做负载测试，在流量持续时采集 CPU 性能分析。它需要一个运行中的环境，耗时以分钟而不是秒计。
+
+作为回报，它能报告用户的真实感受，发现没人预料到的问题，并证明修复确实有效。
+
+| | 静态 | 动态 |
+| --- | --- | --- |
+| 检查对象 | 代码、查询、资源、配置 | 运行中的系统 |
+| 速度 | 几秒 | 几分钟到几小时 |
+| 运行时机 | 每个拉取请求 | 预发布环境、发布前、定期运行 |
+| 能发现 | 已知的慢模式 | 真实影响、未知问题、容量 |
+| 不能 | 测量影响 | 单靠自身定位到具体代码行 |
+| 本课程中 | 第 2 章 | 第 3 章 |
+
+两者结合使用效果最好。静态检查以低成本捕获常见错误；动态测试确认重要的问题，并找出其余的问题。第 4 章会把两者接入同一套工作流程。
+
+## 计划从问题开始
+
+在选择工具之前，先写下你需要知道什么。好的问题会指明一个页面或接口、一个负载和一个数字：
+
+- 店面能否在中端手机上于 2.5 s 内完成最大内容绘制（LCP）？
+- `/api/books` 能否在 50 个并发购物者下保持 p95 低于 300 ms？
+- 在 p95 超出预算之前，应用能服务多少用户？
+- 应用能否在一小时的常规流量下保持稳定？
+
+然后为每个问题挑选能回答它的最低成本测试，并记下你已经能在代码中看到的风险。这份清单就是一份测试计划。
+
+> **测试环境.** 动态测试的结果取决于机器。要在接近生产环境的机器上测试，或者只比较在同一台机器上的运行结果。笔记本电脑适合学习和做前后对比，但不能作为生产容量的证据。
+
+## 动手练习：为 Larkspur 起草一份性能测试计划
+
+**动手练习 · 15 分钟.** 目标： 写一份一页纸的计划，列出你要回答的关于 Larkspur 的问题、每个问题的预算，以及由静态测试还是动态测试来覆盖。
+
+1. 浏览一遍应用：`server.mjs`、`src/routes/` 中的三个文件、`public/index.html` 和 `budget.json`。先不要运行任何东西，这是一次静态阅读。
+2. 创建 `notes/perf-plan.md`，包含四个标题：**问题**、**预算**、**风险**和**测试**。
+3. 仿照上面的例子写至少四个问题，并为每个问题给出带单位的预算。
+4. 在**风险**下，列出看起来会慢的地方及其位置。提示：看看 `listBooks` 在它的 `for` 循环里做了什么。
+5. 在**测试**下，说明由哪个工具回答每个问题。可以从这张表开始：
+
+   | 问题或风险 | 静态检查 | 动态测试 |
+   | --- | --- | --- |
+   | 页面体积 | `npm run budget` | Lighthouse |
+   | 循环中的查询 | `npm run lint:queries` | 负载下的 `x-query-count` |
+   | 慢查找 | `npm run explain` | k6 负载测试 |
+   | 容量 | – | k6 压力测试 |
+
+![编辑器中打开的一个 Markdown 文件，分为四个部分。Questions 列出四项，例如“Does /api/books keep p95 under 300 ms with 50 users?”。Budgets 给出“p95 300 ms”和“scripts 50 KB gzipped”等数字。Risks 引用了 src/routes/books.mjs 第 11 行。Tests 把每一项对应到一条命令。](screenshot-pending)
+*Screenshot (notes/perf-plan.md): 一份计划一页纸就够了。随着课程推进，你会逐步填入结果。*
+
+**完成标准**
+- notes/perf-plan.md has the four sections
+- Every budget is a number with a unit, and every question maps to at least one test
+- Risks cite file paths and line numbers
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 1.2, "Static and dynamic testing".
+
+Exercise: Draft a performance test plan for Larkspur
+Goal: Write a one-page plan that lists the questions you'll answer about Larkspur, a budget for each, and whether a static or a dynamic test covers it.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read `README.md`, `server.mjs`, the files in `src/routes/`, `public/index.html` and `budget.json` to learn what the app does.
+2. Create `notes/perf-plan.md` with four sections: Questions, Budgets, Risks, Tests.
+3. Under Questions, list at least four concrete questions, each naming an endpoint or page and a number of users.
+4. Under Budgets, give each question a measurable limit (for example p95 in ms, KB of assets, queries per request).
+5. Under Risks, list anything in the code that looks likely to be slow, with file and line, without running the app.
+6. Under Tests, map every question and risk to a static check or a dynamic test from this repository (`npm run budget`, `npm run lint:queries`, `npm run explain`, `npm run load`, the k6 scripts in `load/`).
+
+Done when:
+- notes/perf-plan.md has the four sections
+- Every budget is a number with a unit, and every question maps to at least one test
+- Risks cite file paths and line numbers
+
+Report back:
+- The Questions and Budgets sections
+- The three risks you think are most serious, and why
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/1-overview/2-static-and-dynamic.mdx
+```
+
+## 要点
+
+- 静态测试在不运行系统的情况下检查代码、查询、资源和配置。它速度快，每次改动都能运行，但只能发现可能存在的问题。
+- 动态测试在真实流量下运行系统，测量用户的实际感受。它更慢，需要一个环境，但能证明影响有多大。
+- 用静态检查及早发现已知模式，用动态测试确认影响，并发现任何规则都描述不了的问题。
+- 先用问题来规划（“结账能否在 50 个用户下保持 p95 低于 300 ms？”），再为每个问题选择能回答它的最低成本测试。
+
+---
+
+上一页: [第 1.1 课: 性能测试测量什么](/demo/zh/performance-testing/overview/what-it-measures.md)
+下一页: [第 1 章 · 小结: 概述：小结](/demo/zh/performance-testing/overview/summary.md)
+
+
+# 第 1 章 · 小结: 概述：小结
+
+性能测试 · 第 1 章: 概述 · 5 分钟
+
+> 后续课程会用到的术语和计划。
+
+## 文字稿: 概述：小结 (0:38)
+
+**0:00 回顾.** 下面用四点回顾第 1 章的内容。
+
+**0:04 要点.** 每次性能测试都会报告延迟、吞吐量和错误率。 延迟是一个分布，所以我们报告百分位数，绝不用平均值。 静态测试阅读你构建的东西，动态测试运行它并进行测量。 好的计划从具体的问题开始，每个问题都有一个要达到的数字。
+
+**0:28 下一章.** 接下来是静态测试：成本最低的一类测试。 你会在完全不启动应用的情况下，找出 Larkspur 的三个问题。
+
+## 课文
+
+现在，你已经掌握了后续课程要用的术语，有了一个运行中的练习应用、一条基线和一份计划。
+
+## 要点
+
+### 1.1 性能测试测量什么
+
+- 延迟是一个请求花费的时间，吞吐量是每秒完成的请求数，错误率是失败请求所占的比例。
+- 延迟是一个分布。要报告百分位数：p50 代表典型请求，p95 和 p99 代表慢速长尾。
+- 平均值把快请求和慢请求混在一起，得到一个没有任何用户真正经历过的数字。不要基于平均值设定预算。
+- 记下你是如何测量的（用户数、时长、接口），这样数字才能被重复和比较。
+
+### 1.2 静态测试与动态测试
+
+- 静态测试在不运行系统的情况下检查代码、查询、资源和配置。它速度快，每次改动都能运行，但只能发现可能存在的问题。
+- 动态测试在真实流量下运行系统，测量用户的实际感受。它更慢，需要一个环境，但能证明影响有多大。
+- 用静态检查及早发现已知模式，用动态测试确认影响，并发现任何规则都描述不了的问题。
+- 先用问题来规划（“结账能否在 50 个用户下保持 p95 低于 300 ms？”），再为每个问题选择能回答它的最低成本测试。
+
+## 自测
+
+1. 仪表盘显示平均响应时间为 140 ms。为什么这还不足以说明这个接口很快？
+   平均值掩盖了长尾。p95 可能有好几百毫秒，意味着每二十个用户中就有一个要等得久得多。要看 p95 和 p99。
+2. 要在每个拉取请求上检查没有人往店面里加入一个 600 KB 的脚本，你会用哪一类测试？
+   静态检查：在构建时对照预算测量资源体积。只需几秒钟，不需要运行服务器。
+3. 你的静态检查全部通过。你能说应用可以在 50 个用户下保持 p95 低于 300 ms 吗？
+   不能。静态检查只能发现已知模式；只有在该负载下进行动态测试，才能显示用户会看到的 p95。
+4. 在测得的 p95 旁边必须记录什么，别人才能重复测试？
+   接口、虚拟用户数量和持续时间、机器，以及确切的命令。
+
+## 下一章
+
+第 2 章从成本最低的测试开始：那些根本不运行代码的测试。你会把计划中的预算变成一项会让构建失败的检查，然后通过阅读代码、查询计划和构建输出，找出 Larkspur 的三个问题。
+
+---
+
+上一页: [第 1.2 课: 静态测试与动态测试](/demo/zh/performance-testing/overview/static-and-dynamic.md)
+下一页: [第 2 章 · 开篇: 静态测试](/demo/zh/performance-testing/static.md)
+
+
+# 第 2 章 · 开篇: 静态测试
+
+性能测试 · 第 2 章: 静态测试 · 5 分钟
+
+> 在运行任何东西之前，通过阅读你构建的东西来发现性能问题。
+
+## 文字稿: 静态测试 (0:42)
+
+**0:00 简介.** 第二章讲的是你能做的最便宜的性能测试：那些根本不用启动代码的测试。
+
+**0:08 你将收获什么.** 学完本章，你能把预算变成一项会让构建失败的检查， 用 linter 和肉眼发现 N+1 查询模式， 读懂查询计划，并用索引修复全表扫描， 还能找出让页面变重的原因，把它压到预算以下。
+
+**0:27 你的工具.** 你会用到三个随练习应用提供的工具，都不需要服务器。 代价是：静态检查只能发现看起来慢的东西，却说不出在负载下到底有多慢。那是第三章的任务。
+
+## 课文
+
+静态测试是你能做的最便宜的性能测试。它们阅读代码、查询计划和构建产物，所以不需要服务器、不需要流量，也不需要测试环境。它们只需几秒，因此可以在每次改动时运行，远在任何人察觉变慢之前。
+
+代价是：静态检查只能发现看起来像已知慢模式的问题。它能告诉你某个查询会扫描 200,000 行，却说不出在 50 个用户下这要花多少秒。那是第 3 章的任务。本章中，你将在完全不启动应用的情况下找出 Larkspur 的三个问题，然后用一次简单的请求确认每个修复。
+
+## 你将收获什么
+
+- 把计划中的预算变成一项能让构建通过或失败的检查
+- 用 linter 和肉眼在代码中发现 N+1 查询模式，并消除它
+- 阅读 SQLite 查询计划，识别全表扫描，并用索引修复它
+- 找出让页面变重的原因，并把它压到预算以下
+- 知道哪些检查应该在每个拉取请求上运行
+
+## 你会用到的工具
+
+| 工具 | 它读取什么 | 课 |
+| --- | --- | --- |
+| `npm run budget` | 店面加载的文件，对照 `budget.json` 测量 | 2.1、2.4 |
+| `npm run lint:queries` | 源文件，查找循环中的数据库调用 | 2.2 |
+| `npm run explain` | SQLite 对某个查询的执行计划，无需真正运行 | 2.3 |
+
+这三个工具都随练习应用一起提供，无需安装任何东西。
+
+## 本章内容
+
+- 第 2.1 课: [性能预算](/demo/zh/performance-testing/static/budgets.md) (20 分钟). 在测量之前先约定上限，再让检查在每次改动时强制执行。
+- 第 2.2 课: [代码审查：N+1 查询](/demo/zh/performance-testing/static/n-plus-one.md) (25 分钟). 使用数据库的代码中最常见的性能缺陷：如何通过阅读发现它，以及如何消除它。
+- 第 2.3 课: [阅读查询计划](/demo/zh/performance-testing/static/query-plans.md) (25 分钟). 不执行查询，直接问数据库它会怎样执行；再用合适的索引修复全表扫描。
+- 第 2.4 课: [资源体积](/demo/zh/performance-testing/static/asset-weight.md) (20 分钟). 通过称量文件找出页面为什么重，并在不改变用户所见的前提下把它压进预算。
+- 第 2 章 · 小结: [静态测试：小结](/demo/zh/performance-testing/static/summary.md) (5 分钟). 不运行应用就发现了什么，以及静态检查无法告诉你的事。
+
+---
+
+上一页: [第 1 章 · 小结: 概述：小结](/demo/zh/performance-testing/overview/summary.md)
+下一页: [第 2.1 课: 性能预算](/demo/zh/performance-testing/static/budgets.md)
+
+
+# 第 2.1 课: 性能预算
+
+性能测试 · 第 2 章: 静态测试 · 20 分钟
+
+> 在测量之前先约定上限，再让检查在每次改动时强制执行。
+
+**学完本课你将能够:**
+- 解释什么是性能预算，以及应该由谁来约定
+- 选择既能静态检查、也能动态检查的预算指标
+- 运行资源预算检查并解读结果
+
+## 文字稿: 性能预算 (1:04)
+
+**0:00 简介.** “让它快一点”不是任何人能测试的需求。性能预算才是。
+
+**0:06 预算如何运作.** 预算是团队在测量之前约定的上限。对 Larkspur 来说：脚本 50 KB，图片 250 KB，总计 350 KB。 然后用当前构建对照每一项上限进行测量。 超过上限的项就失败。Larkspur 在脚本、图片和总体积上都超了。 预算失败是一个清晰的信号。退出码为 1，它就能直接拦下拉取请求，而不是引发一场争论。
+
+**0:32 三种预算.** 预算分三种。数量预算，比如 KB 数或每个请求的查询次数，可以在每次改动时静态检查。 时间预算，比如 p95 或最大内容绘制，需要动态测试。 先从用户的需要出发，再参考你现在的水平，随着改进逐步收紧预算。
+
+**0:52 运行检查.** 在练习中，你会运行预算检查，看清到底是哪些文件让页面超标。 几乎全部来自两个文件。第 2.4 课会修复它们。
+
+## 课文
+
+“让它快一点”不是任何人能测试的需求。**性能预算**才是：对一个可测量的量设定上限，在任何人测量之前约定好，并由检查来强制执行。
+
+> **概念动画: 预算把“够快”变成通过或失败**
+>
+> 1. 预算是团队在测量之前约定的上限：脚本 50 KB、图片 250 KB、总计 350 KB。
+> 2. 然后用当前构建对照每一项上限进行测量。
+> 3. 超过上限的项就失败。Larkspur 在脚本、图片和总体积上都超了。
+> 4. 预算失败是一个清晰的信号。它可以直接拦下拉取请求，而不是引发一场争论。
+
+## 三种预算
+
+| 种类 | 示例 | 如何检查 |
+| --- | --- | --- |
+| **数量** | JavaScript gzip 后 ≤ 50 KB，图片 ≤ 250 KB，每个请求 ≤ 5 次查询 | 静态检查，每次构建都运行 |
+| **时间** | 50 个用户下 p95 ≤ 300 ms，中端手机上 LCP ≤ 2.5 s | 动态检查，用 Lighthouse 或 k6 |
+| **规则** | Lighthouse 性能得分 ≥ 90，没有阻塞渲染的脚本 | 动态检查，用 Lighthouse |
+
+数量预算属于静态预算，也是早期最有用的：它们无可争辩，而且在有人提交退化的那一刻就能抓住它。时间预算告诉你用户是否满意；数量预算告诉你是哪次改动让他们不满意。
+
+## 这些数字从哪里来
+
+好的预算按以下顺序来自三个地方：
+
+1. **用户需要什么。** Google 的 Core Web Vitals 把 2.5 s 以内的 LCP 评为“良好”。针对网店的研究表明，额外延迟约一秒时，流失就会变得明显。
+2. **竞争对手做到了什么。** 如果对手的商品页 1.8 s 就能加载完，那就是你的标准。
+3. **你现在在哪里。** 第一天就超出十倍的预算会被直接关掉。从当前数字出发，再逐步收紧。
+
+Larkspur 的 `budget.json` 为店面设定了数量上限：
+
+```json
+{
+  "page": "public/index.html",
+  "budgets": { "script": 50, "stylesheet": 20, "image": 250, "total": 350 }
+}
+```
+
+脚本和样式表按 gzip 后的大小测量，与浏览器下载时一致；图片按存储大小测量。检查脚本读取 `index.html`，找出其中引用的每个脚本、样式表和图片，逐一称重，只要有任何预算超标就以退出码 1 退出。正是退出码 1 让 CI 任务失败。
+
+> **预算需要负责人.** 要和产品负责人一起约定预算，而不只是工程师。当新功能需要更多空间时，这是一个产品决策：要么有意识地提高预算，要么削减别的东西。
+
+## 动手练习：运行资源预算检查并记录失败项
+
+**动手练习 · 10 分钟.** 目标： 运行 Larkspur 的资源预算检查，找出导致超标的文件，并把 API 时间预算加入你的计划，供第 3 章使用。
+
+1. 在练习应用的目录下运行检查。不需要启动应用。
+
+   ```bash
+   npm run budget
+   ```
+
+   ```text
+   Asset weight for public/index.html
+
+   type        size KB   file
+   script         95.9   /vendor/datefmt-all-locales.js
+   script          0.3   /app.js
+   stylesheet      0.5   /styles.css
+   image        1043.1   /hero.jpg
+
+   budget      actual   limit   result
+   script        96.2      50   FAIL  (+46.2 KB)
+   stylesheet     0.5      20   pass
+   image       1043.1     250   FAIL  (+793.1 KB)
+   total       1139.8     350   FAIL  (+789.8 KB)
+
+   3 budget(s) exceeded.
+   ```
+
+![终端显示资源表和预算表。脚本 96.2 KB（上限 50）、图片 1043.1 KB（上限 250）和总计 1139.8 KB（上限 350）标记为 FAIL；样式表 0.5 KB 通过。](screenshot-pending)
+*Screenshot (npm run budget): 四项预算中有三项失败，几乎全部来自两个文件。*
+
+2. 检查退出码。失败运行后立即执行 `echo $?` 会打印 `1`，正是它让 CI 流水线停下来。
+3. 为每一项失败指出对应的文件。这里很简单：一个脚本和一张图片。
+4. 把智能体提示词中的 API 时间预算添加到 `notes/perf-plan.md`。你会在第 3.2 课把它们变成 k6 阈值。
+
+**完成标准**
+- You have the budget output and its exit code
+- Each failing budget is attributed to a specific file
+- notes/perf-plan.md lists both asset and API budgets
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.1, "Performance budgets".
+
+Exercise: Run the asset budget and record what fails
+Goal: Run Larkspur's asset budget, identify which files push it over, and add API timing budgets to your plan for chapter 3.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read `budget.json` and summarise its limits.
+2. Run `npm run budget` and capture the full output and the exit code.
+3. List each failing budget with how far over it is, and the file or files responsible.
+4. Append a 'Budgets' section to `notes/perf-plan.md` (create the file if it doesn't exist) with the asset budgets from budget.json and these API budgets: /api/books p95 300 ms, /api/orders p95 200 ms, /api/recommendations p95 400 ms, all at 50 users, error rate under 1%.
+5. Do not change any code or assets yet; lesson 2.4 fixes them.
+
+Done when:
+- You have the budget output and its exit code
+- Each failing budget is attributed to a specific file
+- notes/perf-plan.md lists both asset and API budgets
+
+Report back:
+- The budget table from the command output
+- The files responsible for each failure, largest first
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/1-budgets.mdx
+```
+
+## 要点
+
+- 预算是在测量之前约定的上限。它把“这够快吗？”变成通过或失败。
+- 数量预算（KB、请求数、查询数）可以在每次改动时静态检查。时间预算（p95、LCP）需要动态测试。
+- 先根据用户需求和竞争对手来定预算，再参考当前数字，确保它可以达成。随着改进逐步收紧。
+- 让构建失败的预算检查会被修复；变红的仪表盘只会被忽视。
+
+---
+
+上一页: [第 2 章 · 开篇: 静态测试](/demo/zh/performance-testing/static.md)
+下一页: [第 2.2 课: 代码审查：N+1 查询](/demo/zh/performance-testing/static/n-plus-one.md)
+
+
+# 第 2.2 课: 代码审查：N+1 查询
+
+性能测试 · 第 2 章: 静态测试 · 25 分钟
+
+> 使用数据库的代码中最常见的性能缺陷：如何通过阅读发现它，以及如何消除它。
+
+**学完本课你将能够:**
+- 在代码中识别 N+1 查询模式
+- 用静态检查标记循环中的数据库调用
+- 把 N+1 循环改写为一条带 JOIN 的查询，并验证查询次数
+
+## 文字稿: 代码审查：N+1 查询 (1:03)
+
+**0:00 简介.** 这是使用数据库的代码中最常见的性能缺陷，我们来看看怎样只靠阅读就发现它。
+
+**0:08 阅读代码.** 这是图书接口。它用一次查询取回一页 50 本书。 然后遍历这些书。在循环里，它向数据库查询每本书的作者， 还有每本书的评分。页面上的每本书都要多两次查询。
+
+**0:25 放到时间线上.** 放到时间线上是这样的。一次查询取列表， 然后是一百次小查询，一个接一个。 一页就要往返 101 次。每次都很快，加起来却占了大部分响应时间。 一条带 JOIN 的查询只需一次往返，就能取回完全相同的数据。
+
+**0:47 发现并修复.** 这种模式很容易静态发现：循环中的数据库调用。练习应用自带一个小 linter，专门找它。 在练习中，你会把循环改写成一次查询，看着查询次数从 101 降到 1，而响应完全相同。
+
+## 课文
+
+这是店面调用的图书接口。继续往下读之前先看一遍代码，问题就摆在那里。
+
+```js title="src/routes/books.mjs"
+export function listBooks(params) {
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const books = query(
+    "SELECT id, title, author_id, price_cents FROM books ORDER BY id LIMIT 50 OFFSET ?"
+  ).all((page - 1) * 50);
+
+  for (const book of books) {
+    const author = query("SELECT name FROM authors WHERE id = ?").get(book.author_id);
+    book.author = author.name;
+    const rating = query("SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?").get(book.id);
+    book.rating = rating.avg ? Math.round(rating.avg * 10) / 10 : null;
+    book.reviews = rating.n;
+  }
+  return { page, books };
+}
+```
+
+## N+1 模式
+
+一次查询取回列表。然后循环**为每一项**再执行两次查询。50 本书就是 1 + 50 × 2 = 101 次查询，只为了一页。
+
+> **概念动画: N+1 查询模式**
+>
+> 1. 图书接口向数据库请求一页 50 本书。一次查询。
+> 2. 然后它遍历这些书，为每本书查询作者和评分：每本书再多两次查询。
+> 3. 一页就要往返 101 次。每次都很小，加起来却占了大部分响应时间。
+> 4. 一条带 JOIN 的查询只需一次往返就能取回同样的数据。
+
+每次查询单独看都很便宜，这就是 N+1 能躲过代码审查和本地测试的原因：在只有 10 行数据的笔记本电脑上，没人会注意到。它随页面大小和数据量增长，而在真实网络中，每次查询都要多一次往返。ORM 让人很容易无意中写出它，因为 `book.author.name` 可能悄悄地执行一次查询。
+
+## 静态发现
+
+它的形态很有辨识度：**循环体内**的数据库调用。这不需要运行任何东西就能检查。Larkspur 自带一个小 linter，做的正是这件事：
+
+```bash
+npm run lint:queries
+```
+
+```text
+src/routes/books.mjs:11  query inside a loop (possible N+1)
+    const author = query("SELECT name FROM authors WHERE id = ?").get(book.author_id);
+src/routes/books.mjs:13  query inside a loop (possible N+1)
+    const rating = query("SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?").get(book.id);
+
+2 possible N+1 pattern(s).
+```
+
+这是一种启发式方法。它读取源代码文本并追踪循环体，所以可能漏掉藏在辅助函数后面的查询，也可能标记一个只会执行一次的循环。把每条发现当作代码审查中要提出的问题。真实项目会在更大规模上使用同样的思路：针对特定 ORM 的 lint 规则，或者在接口执行超过 N 次查询时失败的测试。
+
+## 修复
+
+一次性向数据库要全部数据。SQL 天生就擅长这个：JOIN 作者表，聚合评论，再按书分组。
+
+```js title="src/routes/books.mjs (after)"
+export function listBooks(params) {
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const books = query(`
+    SELECT b.id, b.title, b.author_id, b.price_cents, a.name AS author,
+           round(avg(r.stars), 1) AS rating, count(r.id) AS reviews
+    FROM (SELECT * FROM books ORDER BY id LIMIT 50 OFFSET ?) AS b
+    JOIN authors a ON a.id = b.author_id
+    LEFT JOIN reviews r ON r.book_id = b.id
+    GROUP BY b.id
+    ORDER BY b.id`).all((page - 1) * 50);
+  return { page, books };
+}
+```
+
+如果 JOIN 不现实（比如数据在另一个服务里），那就改用**批量查询**：收集所有 ID，用一次 `WHERE id IN (...)` 查询取回。无论哪种方式，查询次数都不再取决于页面大小。
+
+| | 每个请求的查询次数 | 单个请求的服务器耗时 |
+| --- | --- | --- |
+| 修复前 | 101 | 60 ms |
+| 改用 JOIN 后 | 1 | 26 ms |
+
+好多了，但 50 行数据要 26 ms 仍然很慢。这次 JOIN 读取 reviews 表的方式需要一个索引。那是第 2.3 课的内容。
+
+## 动手练习：找出并消除 /api/books 中的 N+1
+
+**动手练习 · 20 分钟.** 目标： 用查询 linter 找出图书接口中的 N+1，把它改写为一次查询，并证明查询次数从 101 降到 1，而响应不变。
+
+1. 运行 `npm run lint:queries`。你应该看到上面那两条发现。
+2. 启动应用并保存当前响应，以便证明修复没有改变任何可见内容：
+
+   ```bash
+   curl -s http://localhost:3000/api/books > /tmp/books-before.json
+   curl -s -i http://localhost:3000/api/books | grep -i -E "x-query-count|server-timing"
+   ```
+
+3. 把 `listBooks` 替换为单次查询的版本，重启应用，再把响应保存到 `/tmp/books-after.json`。
+4. 比较这两个文件。它们应该完全相同：
+
+   ```bash
+   node -e 'const a=require("/tmp/books-before.json"),b=require("/tmp/books-after.json");console.log(JSON.stringify(a)===JSON.stringify(b)?"identical":"DIFFERENT")'
+   ```
+
+![终端显示 /api/books 的 x-query-count: 1 和约 26 ms 的 server-timing，比较结果输出 'identical'，linter 输出 'No queries inside loops found.'。](screenshot-pending)
+*Screenshot (curl and lint:queries): 一次查询，响应不变，linter 无报错。*
+
+5. 再次运行 `npm run lint:queries`。它应该没有任何报告，并以 0 退出。
+
+**完成标准**
+- `npm run lint:queries` reports no queries inside loops and exits 0
+- `x-query-count` for /api/books is 1
+- The before and after JSON responses are identical
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.2, "Code review for N+1 queries".
+
+Exercise: Find and remove the N+1 in /api/books
+Goal: Use the query linter to find the N+1 in the books endpoint, rewrite it as one query, and show the query count drop from 101 to 1 with the same response.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run lint:queries` and capture the findings.
+2. Start the app (`npm start` in the background), save the current response with `curl -s http://localhost:3000/api/books > /tmp/books-before.json`, and note the `x-query-count` header.
+3. Rewrite `listBooks` in `src/routes/books.mjs` so it runs a single query: select the page of 50 books in a subquery, JOIN authors, LEFT JOIN reviews, GROUP BY book, and compute `rating` as avg(stars) rounded to one decimal (null when there are no reviews) and `reviews` as the review count. Keep the response shape: page, books[] with id, title, author_id, price_cents, author, rating, reviews.
+4. Restart the app, fetch the endpoint again into /tmp/books-after.json, and compare it with the before file using `node -e` (parse both and deep-compare).
+5. Run `npm run lint:queries` again.
+
+Done when:
+- `npm run lint:queries` reports no queries inside loops and exits 0
+- `x-query-count` for /api/books is 1
+- The before and after JSON responses are identical
+
+Report back:
+- The new listBooks function
+- x-query-count and server-timing before and after
+- The result of the JSON comparison
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/2-n-plus-one.mdx
+```
+
+## 要点
+
+- N+1 指先用一次查询取列表，再为每一项多查一次。代价随列表增长，在快速的本地数据库中很难察觉。
+- 从静态角度看，它表现为循环或 .map 回调中的数据库调用。一条简单的 lint 规则就能抓住大多数情况。
+- 修复方法是用一次查询取回全部数据（JOIN、GROUP BY），或用一次批量查询（WHERE id IN (...)）。
+- 统计每个请求的查询次数。随页面大小增长的查询次数就是 N+1 的特征。
+
+---
+
+上一页: [第 2.1 课: 性能预算](/demo/zh/performance-testing/static/budgets.md)
+下一页: [第 2.3 课: 阅读查询计划](/demo/zh/performance-testing/static/query-plans.md)
+
+
+# 第 2.3 课: 阅读查询计划
+
+性能测试 · 第 2 章: 静态测试 · 25 分钟
+
+> 不执行查询，直接问数据库它会怎样执行；再用合适的索引修复全表扫描。
+
+**学完本课你将能够:**
+- 用 EXPLAIN QUERY PLAN 从 SQLite 获取查询计划
+- 区分 SCAN 和 SEARCH，并判断什么时候扫描是个问题
+- 根据查询的 WHERE 和 ORDER BY 设计索引，以迁移的形式添加，并确认计划已改变
+
+## 文字稿: 阅读查询计划 (1:03)
+
+**0:00 简介.** 查询说明你要什么，数据库决定怎样取到它。这个决定就是查询计划，你不用执行查询就能读到它。
+
+**0:10 获取查询计划.** 这是查询某位顾客最近 20 笔订单的执行计划。 两个警告。SCAN orders 表示要读完全部 20 万行。临时 B 树则表示之后还要对匹配结果排序。
+
+**0:22 SCAN 与 SEARCH.** 没有索引时，SQLite 必须读取 orders 表的每一行，才能找到这位顾客的寥寥几笔订单。 这就是 SCAN 的含义，表每增长一天，它就更慢一分。 索引让邮箱保持有序，就像书后的索引。SQLite 只需向下走几层就能找到对应条目。 使用索引的 SEARCH：只读几页，而不是 20 万行。
+
+**0:46 添加索引.** 先为过滤用的列建索引，再加上排序用的列。以迁移的形式添加。 再运行一次 explain。扫描变成了查找，排序步骤也消失了。 在我们的机器上，订单接口从 11 毫秒降到了 0.1 毫秒。
+
+## 课文
+
+查询说明你要**什么**，数据库决定**怎样**取到它：先读哪张表、是否使用索引、是否需要排序。这个决定就是**查询计划**，每个正经的数据库都能在不执行查询的情况下把它展示给你。阅读查询计划就是 SQL 的静态测试。
+
+## SCAN 与 SEARCH
+
+订单接口要取某位顾客最近的 20 笔订单：
+
+```sql
+SELECT id, book_id, total_cents, created_at FROM orders
+WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20
+```
+
+问问 SQLite 它会怎样执行：
+
+```bash
+npm run explain -- "SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20"
+```
+
+```text
+QUERY PLAN
+└─ SCAN orders   ← full table scan (200,000 rows)
+└─ USE TEMP B-TREE FOR ORDER BY
+```
+
+两行，两个警告。`SCAN orders` 表示 SQLite 要读完全部 200,000 行，才能找到这位顾客的 13 笔订单。`USE TEMP B-TREE FOR ORDER BY` 表示之后还要在一个临时结构里对匹配结果排序。
+
+> **概念动画: SCAN 与 SEARCH**
+>
+> 1. 没有索引时，要找出一位顾客的订单，SQLite 必须读取 orders 表的每一行：共 200,000 行。
+> 2. 这就是查询计划里 SCAN orders 的含义。表越大，它就越慢。
+> 3. 索引让邮箱保持有序，就像书后的索引。SQLite 只需向下走几层就能找到对应条目。
+> 4. SEARCH orders USING INDEX：只读几页，而不是 200,000 行，而且几乎不随表增长而变慢。
+
+`SCAN` 并不总是坏事。在第 2.2 课的图书查询中，`SCAN books` 位于 `LIMIT 50` 子查询内，读到 50 行就会停下。而扫描一张 30 行的查找表，比用任何索引都快。要问的问题是：**它会读多少行，多久执行一次？** 在请求路径上对大表做全表扫描就是缺陷，表每增长一天，它就更糟一分。
+
+## 设计索引
+
+索引是某几列的有序副本，每条记录都带有指回原行的指针。按以下顺序选择索引列：
+
+1. **用 `=` 过滤的列**：这里是 `customer_email`。
+2. **用于排序的列**：这里是 `created_at`。因为索引已经先按邮箱、再按日期排好序，SQLite 可以直接从中读出最新的 20 条，省掉排序。
+
+```sql
+CREATE INDEX idx_orders_email ON orders(customer_email, created_at);
+```
+
+第 2.2 课中的评论查询也有同样的问题：`WHERE book_id = ?` 而 `book_id` 上没有索引，意味着要扫描 50,000 条评论。改用 JOIN 之后，它每页只执行一次而不是 50 次，但仍然是一次扫描。
+
+```sql
+CREATE INDEX idx_reviews_book ON reviews(book_id);
+```
+
+> **索引不是免费的.** 每个索引都会让插入和更新稍慢一点，并占用磁盘空间。为频繁执行的查询或大表上的查询添加索引，检查查询计划确实用上了它们，并删除没人用的索引。
+
+## 动手练习：把两次全表扫描变成索引查找
+
+**动手练习 · 20 分钟.** 目标： 找出 /api/orders 和图书页背后的全表扫描，在迁移中添加索引，并确认两个查询计划和耗时都得到改善。
+
+1. 运行智能体提示词中的两条 `explain` 命令并保存输出。两者都应该以 `full table scan` 结尾。
+2. 在应用运行时，先测量，再做任何改动：
+
+   ```bash
+   for i in 1 2 3 4 5; do curl -s -o /dev/null -D - "http://localhost:3000/api/orders?email=reader42@larkspur.test" | grep -i server-timing; done
+   ```
+
+3. 创建迁移。迁移是 `db/migrations/` 中的 SQL 文件，按文件名顺序应用，并会被记录下来，确保只执行一次：
+
+   ```sql title="db/migrations/001_indexes.sql"
+   CREATE INDEX idx_orders_email ON orders(customer_email, created_at);
+   CREATE INDEX idx_reviews_book ON reviews(book_id);
+   ```
+
+   ```bash
+   npm run migrate
+   # applied 001_indexes.sql (140 ms)
+   ```
+
+4. 再次对两个查询运行 explain。
+
+   ```text
+   QUERY PLAN
+   └─ SEARCH orders USING INDEX idx_orders_email (customer_email=?)
+   ```
+
+   排序步骤也消失了：索引本身就按日期顺序给出行。
+
+![上下两个查询计划。第一个是迁移前，显示 'SCAN orders ← full table scan (200,000 rows)' 和 'USE TEMP B-TREE FOR ORDER BY'。第二个是迁移后，显示 'SEARCH orders USING INDEX idx_orders_email (customer_email=?)'。](screenshot-pending)
+*Screenshot (npm run explain): 迁移前后：扫描 200,000 行变成了一次索引查找。*
+
+5. 重启应用并再次测量。在我们的机器上：
+
+   | 接口 | 修复前 | 修复后 |
+   | --- | --- | --- |
+   | `/api/orders` | 11 ms | 0.1 ms |
+   | `/api/books`（已用上 2.2 的 JOIN） | 26 ms | 0.5 ms |
+
+**完成标准**
+- Neither plan contains 'full table scan'
+- Both plans show SEARCH ... USING INDEX
+- `npm run migrate` reports the migration applied, and running it again reports nothing to migrate
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.3, "Reading query plans".
+
+Exercise: Turn two full table scans into index searches
+Goal: Find the full table scans behind /api/orders and the books page, add indexes in a migration, and confirm both plans and timings improve.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run explain -- "SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20"` and capture the plan.
+2. Run `npm run explain -- "SELECT avg(stars) FROM reviews WHERE book_id = ?"` and capture the plan.
+3. Create `db/migrations/001_indexes.sql` with `CREATE INDEX idx_orders_email ON orders(customer_email, created_at);` and `CREATE INDEX idx_reviews_book ON reviews(book_id);`.
+4. Run `npm run migrate`.
+5. Run both explain commands again and capture the new plans.
+6. With the app running, compare the `server-timing` header of /api/orders?email=reader42@larkspur.test and /api/books before and after (restart the app after migrating; take the median of five requests each).
+
+Done when:
+- Neither plan contains 'full table scan'
+- Both plans show SEARCH ... USING INDEX
+- `npm run migrate` reports the migration applied, and running it again reports nothing to migrate
+
+Report back:
+- Both plans before and after
+- server-timing medians before and after for both endpoints
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/3-query-plans.mdx
+```
+
+## 要点
+
+- EXPLAIN QUERY PLAN 显示数据库将如何执行查询，而不真正执行它。所以它是一种静态检查。
+- SCAN 读取表中的每一行；SEARCH 利用索引直接跳到匹配的行。在热点路径上对大表做 SCAN 就是缺陷。
+- 先为过滤用的列建索引，再加上排序用的列，这样数据库连排序也可以省掉。
+- 索引加快读取、拖慢写入。只添加查询真正需要的索引，而不是每列一个。
+
+---
+
+上一页: [第 2.2 课: 代码审查：N+1 查询](/demo/zh/performance-testing/static/n-plus-one.md)
+下一页: [第 2.4 课: 资源体积](/demo/zh/performance-testing/static/asset-weight.md)
+
+
+# 第 2.4 课: 资源体积
+
+性能测试 · 第 2 章: 静态测试 · 20 分钟
+
+> 通过称量文件找出页面为什么重，并在不改变用户所见的前提下把它压进预算。
+
+**学完本课你将能够:**
+- 找出页面加载的最重的文件，并判断它们是否必要
+- 在页面 HTML 中识别阻塞渲染的脚本
+- 把页面体积降到预算以下，并用预算检查证明
+
+## 文字稿: 资源体积 (1:01)
+
+**0:00 简介.** 预算检查说店面超标了。现在来弄清楚，到底是什么让它这么重。
+
+**0:07 体积都去哪了.** 这是店面加载的每个文件，按大小等比例绘制。总共 1,140 KB，而预算是 350 KB。 两个文件几乎占了全部：一张按相机原尺寸保存的首图，以及一个打包了 420 种语言区域的日期库，而商店只用一种。 换成 1200 像素导出的图片，以及只含英语的库文件。 从 1,140 KB 降到 59 KB。顾客看到的页面完全一样。
+
+**0:33 阻塞渲染的脚本.** HTML 里还有第二个问题。head 中的普通 script 标签会让页面停止渲染，直到脚本下载并执行完毕。 加上 defer，并换用只含英语的文件。浏览器会先渲染，之后再按顺序执行脚本。 然后把图片指向更小的导出文件，并加上宽和高。
+
+**0:54 再检查一次.** 再次运行预算检查。59 KB，所有预算都达标，而顾客看到的没有任何变化。
+
+## 课文
+
+第 2.1 课的预算检查发现，店面的体积是 1,140 KB，而预算只有 350 KB。预算失败告诉你**有**东西太大了；称量文件则告诉你**是什么**。
+
+> **概念动画: 页面体积都去哪了**
+>
+> 1. 店面加载的每个文件，按大小等比例绘制。总计 1,140 KB，而预算是 350 KB。
+> 2. 两个文件几乎占了全部：一张以 2400 像素、质量 97 保存的首图，以及一个打包了 420 种语言区域的日期库，而商店只用一种。
+> 3. 换成 1200 像素的导出图和只含英语的区域文件。
+> 4. 从 1,140 KB 降到 59 KB。顾客看到的页面完全一样。
+
+## 对每个重文件问两个问题
+
+**全部内容都需要吗？** `datefmt-all-locales.js` 能用 420 种语言区域格式化日期，而页面只调用它一次，用的是 `en-US`。同一个库还提供单一区域的构建 `datefmt-en.js`，只有 1.5 KB，而不是 600 KB。这是 Web 上最常见的体积问题：为了一个用途，打包了整个库，或者所有语言区域、图标、polyfill。
+
+**尺寸合适吗？** `hero.jpg` 是 2400 × 1200 像素、JPEG 质量 97，直接从相机或设计工具导出。页面最多只以 1200 像素宽显示它。按显示尺寸、质量 72 导出的 `hero-1200.jpg` 只有 58 KB，而不是 1 MB，在屏幕上看起来毫无差别。
+
+## 阻塞渲染的脚本
+
+体积并不是 HTML 中唯一的静态警告。看看 head 部分：
+
+```html
+<script src="/vendor/datefmt-all-locales.js"></script>
+<script src="/app.js"></script>
+```
+
+`<head>` 中的普通 `<script>` 标签会让浏览器在脚本下载并执行完之前什么都不渲染。在手机网络上加载一个 600 KB 的脚本，就意味着几秒钟的白屏。第 3 章会精确测量是几秒。
+
+加上 `defer`，浏览器就会并行下载脚本、先渲染页面，再按顺序执行它们。`app.js` 本来就会等待 `DOMContentLoaded`，所以不需要改动别的地方。
+
+```html
+<script src="/vendor/datefmt-en.js" defer></script>
+<script src="/app.js" defer></script>
+```
+
+> **为图片设置宽和高.** 为图片加上 `width` 和 `height` 属性。这样浏览器在图片到达之前就能预留空间，下方的文字不会跳动（这种跳动以 Cumulative Layout Shift 来衡量）。在主图上设置 `fetchpriority="high"`，告诉浏览器尽早获取它。
+
+## 动手练习：让店面回到预算之内
+
+**动手练习 · 15 分钟.** 目标： 修复 public/index.html 中最重的两个资源和阻塞渲染的脚本，直到 npm run budget 通过，且页面显示的内容不变。
+
+1. 编辑 `public/index.html`。不要动 `public/before.html`，它是一份冻结的副本，第 3 章要用来对比。
+
+   ```diff
+   - <script src="/vendor/datefmt-all-locales.js"></script>
+   - <script src="/app.js"></script>
+   + <script src="/vendor/datefmt-en.js" defer></script>
+   + <script src="/app.js" defer></script>
+   ...
+   - <img src="/hero.jpg" alt="Shelves of books in warm light">
+   + <img src="/hero-1200.jpg" width="1200" height="600" fetchpriority="high" alt="Shelves of books in warm light">
+   ```
+
+2. 再次运行预算检查。
+
+   ```text
+   budget      actual   limit   result
+   script         0.9      50   pass
+   stylesheet     0.5      20   pass
+   image         57.6     250   pass
+   total         59.0     350   pass
+
+   All budgets met.
+   ```
+
+![终端显示修复后的预算表：脚本 0.9 KB、样式表 0.5 KB、图片 57.6 KB、总计 59.0 KB，全部标记为 pass，下方是 'All budgets met.'。](screenshot-pending)
+*Screenshot (npm run budget): 从 1,140 KB 降到 59 KB。*
+
+3. 打开店面，确认顾客看到的内容没有变化：照片、“Updated”日期行和图书网格都应该还在。
+
+![修复后的 Larkspur 店面，看起来和之前一样：带标题的书架照片、显示今天日期的“Updated”行，以及新书网格。](screenshot-pending)
+*Screenshot (localhost:3000): 同样的页面，体积只有原来的二十分之一。*
+
+**完成标准**
+- `npm run budget` passes all budgets and exits 0
+- public/before.html is unchanged
+- The page still shows the updated date and the book grid
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.4, "Asset weight".
+
+Exercise: Bring the storefront under budget
+Goal: Fix the two heaviest assets and the render-blocking scripts in public/index.html until npm run budget passes, without changing what the page shows.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run budget` and note the failing budgets.
+2. In `public/index.html` only (leave `public/before.html` untouched), replace `/vendor/datefmt-all-locales.js` with `/vendor/datefmt-en.js`; the page only formats dates in en-US.
+3. Add `defer` to both script tags so they no longer block rendering. `app.js` already waits for DOMContentLoaded, and deferred scripts run in order.
+4. Replace `/hero.jpg` with `/hero-1200.jpg` and add `width="1200" height="600"` and `fetchpriority="high"` to the img tag.
+5. Run `npm run budget` again.
+6. Start the app and load http://localhost:3000/ in a browser or with Playwright if available, and confirm the 'Updated <date>' line and the book grid still render. If no browser is available, say so.
+
+Done when:
+- `npm run budget` passes all budgets and exits 0
+- public/before.html is unchanged
+- The page still shows the updated date and the book grid
+
+Report back:
+- The budget output before and after
+- The diff of public/index.html
+- How you confirmed the page still renders correctly
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/4-asset-weight.mdx
+```
+
+## 要点
+
+- 称量页面实际加载的东西。通常少数几个文件就占了大部分体积。
+- 对每个重文件问两个问题：全部内容都需要吗？现在就需要吗？库打包的内容往往远超你实际用到的。
+- <head> 中的普通 <script> 会阻塞渲染，直到它下载并执行完毕。使用 defer，或者把它移走。
+- 按显示尺寸提供图片，合理压缩，并为它们设置 width 和 height。
+
+---
+
+上一页: [第 2.3 课: 阅读查询计划](/demo/zh/performance-testing/static/query-plans.md)
+下一页: [第 2 章 · 小结: 静态测试：小结](/demo/zh/performance-testing/static/summary.md)
+
+
+# 第 2 章 · 小结: 静态测试：小结
+
+性能测试 · 第 2 章: 静态测试 · 5 分钟
+
+> 不运行应用就发现了什么，以及静态检查无法告诉你的事。
+
+## 文字稿: 静态测试：小结 (0:38)
+
+**0:00 回顾.** 没有产生任何流量，你就发现并修复了三个问题。
+
+**0:05 成果.** 每页 101 次查询变成了 1 次。 两次全表扫描变成了索引查找。 店面从超过 1 MB 降到了 59 KB。每项检查只花了几秒。
+
+**0:17 局限.** 但每一次修复都来自已知的模式。这些检查都没有告诉你，有 50 位顾客同时购物时应用表现如何， 手机要白屏多久，或者处理器在忙什么。 还有一个接口，recommendations，没有触发任何警告。它照样很慢。这就是第三章的内容。
+
+## 课文
+
+没有产生任何流量，你就发现并修复了三个问题：每页 101 次查询、两次全表扫描，以及一个比必要体积重二十倍的页面。每项检查只需几秒，而且每一项都能在引入问题的那个拉取请求中就把它拦住。
+
+## 要点
+
+### 2.1 性能预算
+
+- 预算是在测量之前约定的上限。它把“这够快吗？”变成通过或失败。
+- 数量预算（KB、请求数、查询数）可以在每次改动时静态检查。时间预算（p95、LCP）需要动态测试。
+- 先根据用户需求和竞争对手来定预算，再参考当前数字，确保它可以达成。随着改进逐步收紧。
+- 让构建失败的预算检查会被修复；变红的仪表盘只会被忽视。
+
+### 2.2 代码审查：N+1 查询
+
+- N+1 指先用一次查询取列表，再为每一项多查一次。代价随列表增长，在快速的本地数据库中很难察觉。
+- 从静态角度看，它表现为循环或 .map 回调中的数据库调用。一条简单的 lint 规则就能抓住大多数情况。
+- 修复方法是用一次查询取回全部数据（JOIN、GROUP BY），或用一次批量查询（WHERE id IN (...)）。
+- 统计每个请求的查询次数。随页面大小增长的查询次数就是 N+1 的特征。
+
+### 2.3 阅读查询计划
+
+- EXPLAIN QUERY PLAN 显示数据库将如何执行查询，而不真正执行它。所以它是一种静态检查。
+- SCAN 读取表中的每一行；SEARCH 利用索引直接跳到匹配的行。在热点路径上对大表做 SCAN 就是缺陷。
+- 先为过滤用的列建索引，再加上排序用的列，这样数据库连排序也可以省掉。
+- 索引加快读取、拖慢写入。只添加查询真正需要的索引，而不是每列一个。
+
+### 2.4 资源体积
+
+- 称量页面实际加载的东西。通常少数几个文件就占了大部分体积。
+- 对每个重文件问两个问题：全部内容都需要吗？现在就需要吗？库打包的内容往往远超你实际用到的。
+- <head> 中的普通 <script> 会阻塞渲染，直到它下载并执行完毕。使用 defer，或者把它移走。
+- 按显示尺寸提供图片，合理压缩，并为它们设置 width 和 height。
+
+## 静态测试没有告诉你的
+
+本章的每一次修复都是由某种模式引导的：带查询的循环、计划中的扫描、过重的文件。但它们都没有告诉你：50 个人同时购物时应用表现如何，页面在手机上要多久才出现，CPU 又在做什么。而且 `/api/recommendations` 没有触发任何一条静态警告。它照样很慢，第 3 章会证明这一点。
+
+## 自我检查
+
+1. 一个拉取请求在每个页面都加入了一个 40 KB 的图表库。本章的哪项检查会失败？为什么在那里拦住它是对的？
+   资源预算（脚本，50 KB）。它在拉取请求上几秒就能跑完，在改动上线之前，并且能指出是哪个文件造成的。
+2. 查询 linter 没有任何发现。这能证明代码中没有 N+1 查询吗？
+   不能。它是一种读取源代码中循环的启发式方法。藏在辅助函数后面的查询，或者 ORM 延迟加载关联数据，仍然可能造成 N+1。还要关注每个请求的查询次数。
+3. 某个查询计划显示 SCAN countries（240 行）。你应该加索引吗？
+   大概不必。扫描 240 行很便宜，而且这张表不会怎么增长。扫描只有在热点路径上的大表或持续增长的表上才要紧。
+4. 为什么做完这些静态检查，你仍然无法保证 50 个用户下 p95 低于 300 ms？
+   它们能发现已知的慢模式，但不测量负载下的耗时。只有动态测试才能显示用户实际会遇到的延迟。
+
+---
+
+上一页: [第 2.4 课: 资源体积](/demo/zh/performance-testing/static/asset-weight.md)
+下一页: [第 3 章 · 开篇: 动态测试](/demo/zh/performance-testing/dynamic.md)
+
+
+# 第 3 章 · 开篇: 动态测试
+
+性能测试 · 第 3 章: 动态测试 · 5 分钟
+
+> 运行系统、发送流量，测量用户真正感受到的东西。
+
+## 文字稿: 动态测试 (0:59)
+
+**0:00 引言.** 第二章通过阅读发现问题。第三章则通过运行来发现问题：像手机那样加载页面，再给应用发送一个繁忙夜晚的流量。
+
+**0:12 你将学到什么.** 你会用 Lighthouse 在实验室里测量页面加载，并读懂这些数字对手机用户意味着什么。 你会用 k6 编写负载测试，让阈值来判断应用是否满足预算。 你会超出预期负载去找出应用的容量，并检查它能否扛住突发流量。 你还会在负载下分析应用、阅读火焰图，并用数字证明修复有效。
+
+**0:39 开始之前.** 你需要 k6，一个免费的负载测试工具。如果装不了，每个练习也都可以用练习应用自带的负载工具完成。 另外，要在空闲的机器上运行测试。来自繁忙笔记本电脑或两台不同机器的数字，是没有可比性的。
+
+## 课文
+
+第 2 章通过阅读发现问题。本章则通过运行来发现问题：像手机那样加载页面，给应用发送一个繁忙夜晚的流量，再不断加量直到它扛不住，最后在它吃力时查看进程内部。
+
+动态测试比静态测试成本更高。它们需要应用在运行，要花几分钟，而且数字取决于机器。作为回报，它们能回答静态检查回答不了的问题：有多慢、能承受多少用户，以及为什么。
+
+## 你将收获什么
+
+- 用 Lighthouse 在实验室环境中测量页面加载，读懂 FCP、LCP 和得分
+- 编写带阶段、检查和阈值的 k6 负载测试，并读懂它的汇总结果
+- 运行压力、峰值和浸泡测试，找出应用的实际容量
+- 在负载下分析应用、阅读火焰图，并用数字证明 CPU 修复有效
+
+## 开始之前
+
+安装本章使用的负载测试工具 k6：
+
+| 系统 | 命令 |
+| --- | --- |
+| macOS | `brew install k6` |
+| Windows | `winget install k6 --source winget` |
+| Debian、Ubuntu | 参见 [grafana.com/docs/k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) |
+
+如果无法安装，每个练习也都可以用练习应用自带的工具 `npm run load` 完成。Lighthouse 和 CPU 分析器需要用到 Chrome。
+
+> **在空闲的机器上运行测试.** 动态测试之前先关掉占资源的应用；只有在比较修复前后时，才把负载生成器和应用放在同一台机器上运行。来自不同机器或繁忙笔记本电脑的数字没有可比性。
+
+## 本章内容
+
+- 第 3.1 课: [用 Lighthouse 做实验室测量](/demo/zh/performance-testing/dynamic/lighthouse.md) (25 分钟). 在模拟手机上加载页面，测量用户在什么时候看到什么。
+- 第 3.2 课: [用 k6 做负载测试](/demo/zh/performance-testing/dynamic/load-testing.md) (30 分钟). 模拟一个购物高峰的夜晚，让阈值判断应用是否满足预算。
+- 第 3.3 课: [压力、峰值与浸泡测试](/demo/zh/performance-testing/dynamic/stress-spike-soak.md) (30 分钟). 超出预期负载去找到上限，扛住突发流量，并发现持续数小时的缓慢退化。
+- 第 3.4 课: [找到瓶颈](/demo/zh/performance-testing/dynamic/bottlenecks.md) (30 分钟). 在负载下分析应用、阅读火焰图、修复热点路径，并用同一个测试证明效果。
+- 第 3 章 · 小结: [动态测试：小结](/demo/zh/performance-testing/dynamic/summary.md) (5 分钟). 运行应用之后才知道、仅靠阅读无法发现的事。
+
+---
+
+上一页: [第 2 章 · 小结: 静态测试：小结](/demo/zh/performance-testing/static/summary.md)
+下一页: [第 3.1 课: 用 Lighthouse 做实验室测量](/demo/zh/performance-testing/dynamic/lighthouse.md)
+
+
+# 第 3.1 课: 用 Lighthouse 做实验室测量
+
+性能测试 · 第 3 章: 动态测试 · 25 分钟
+
+> 在模拟手机上加载页面，测量用户在什么时候看到什么。
+
+**学完本课你将能够:**
+- 从命令行对本地页面运行 Lighthouse
+- 从用户的角度解释 FCP、LCP、Total Blocking Time 和 Cumulative Layout Shift
+- 用一次动态的前后对比测量来确认静态修复
+
+## 文字稿: 用 Lighthouse 做实验室测量 (1:11)
+
+**0:00 引言.** 预算检查预测页面会轻很多。Lighthouse 测量的是，这对拿着手机的人究竟意味着什么。
+
+**0:08 观察页面加载.** Lighthouse 在一台使用慢速网络的模拟中端手机上加载页面，并把过程录下来。 首次内容绘制在 4.3 秒：在那之前屏幕一片空白，因为一个 600 KB 的脚本阻塞了渲染。 最大内容绘制在 9.8 秒，这时那张 1 MB 的图片终于显示出来。得分是 64。 完成第二章的资源修复之后：首次绘制在 0.8 秒，主图在 1.5 秒。得分是 100。
+
+**0:35 四项指标.** 最重要的有四项指标。首次内容绘制，是任何内容出现的时刻。最大内容绘制，是主要内容出现的时刻。 总阻塞时间，是脚本让页面无法响应的时长。还有累积布局偏移，是页面加载时跳动的程度。
+
+**0:54 修复前后.** 在练习中，你会先测量原始页面的冻结副本，再测量修复后的店面。 记住，实验室数字是用来比较构建的。真实用户的体验属于现场数据，它随每部手机、每种网络而变化。
+
+## 课文
+
+预算检查说店面页面轻了 20 倍。但那只是预测。Lighthouse 测量的是这对拿着手机的人究竟意味着什么。
+
+## 观察页面加载
+
+Lighthouse 在 Chrome 中打开页面，模拟一台使用慢速 4G 网络的中端手机（CPU 慢 4 倍、约 1.6 Mbit/s、往返 150 ms），录下每一帧，并报告关键时刻发生的时间。
+
+> **概念动画: 观察页面加载**
+>
+> 1. Lighthouse 在一台模拟的中端手机上、通过慢速网络加载页面，并把过程录下来。
+> 2. 首次内容绘制（FCP）在 4.3 秒：第一段文字出现。在此之前屏幕一片空白，因为一个 600 KB 的脚本阻塞了渲染。
+> 3. 最大内容绘制（LCP）在 9.8 秒：1 MB 的首图终于显示出来。性能得分：64。
+> 4. 修复资源之后，FCP 为 0.8 秒，LCP 为 1.5 秒。得分：100。
+
+| 指标 | 它标记的时刻 | 良好 |
+| --- | --- | --- |
+| **首次内容绘制**（FCP） | 第一段文字或第一张图片出现 | ≤ 1.8 s |
+| **最大内容绘制**（LCP） | 最大的元素出现，通常是主图或主标题 | ≤ 2.5 s |
+| **总阻塞时间**（TBT） | 脚本让页面无法响应输入的时长 | ≤ 200 ms |
+| **累积布局偏移**（CLS） | 加载过程中布局跳动的程度 | ≤ 0.1 |
+
+LCP、CLS 和一项响应性指标（Interaction to Next Paint）构成了 Google 的 **Core Web Vitals**。0 到 100 的性能得分是各项实验室指标的加权组合。它适合当作标题数字，但预算应该写明具体指标，而不是得分。
+
+## 变化了什么，为什么
+
+| | 修复前 | 修复后 |
+| --- | --- | --- |
+| 性能得分 | 64 | 100 |
+| 首次内容绘制 | 4.3 s | 0.8 s |
+| 最大内容绘制 | 9.8 s | 1.5 s |
+| 总传输量 | 1,645 KiB | 68 KiB |
+
+每一项改进都能追溯到第 2 章的一个静态发现。FCP 提前，是因为那个 600 KB 的脚本不再阻塞渲染。LCP 提前，是因为首图只有原来的二十分之一大。传输量比预算检查得出的 1,140 KB 还大，是因为练习服务器不压缩响应，浏览器下载的是未压缩的脚本。
+
+## 实验室数据与现场数据
+
+Lighthouse 提供的是**实验室数据**：每次都是同一台模拟设备、同一种网络。正因如此，它很适合比较两个构建。但它并不是真实用户的体验。用户的手机、网络和缓存各不相同，而且他们会与页面交互。**现场数据**（真实用户监控，或公开网站的 Chrome CrUX 报告）才能告诉你这些。用实验室数据发现并验证修复；用现场数据决定修什么。
+
+## 动手练习：在实验室中测量资源修复的效果
+
+**动手练习 · 15 分钟.** 目标： 对冻结的修复前页面和修复后的店面运行 Lighthouse，比较得分、FCP、LCP 和传输大小。
+
+1. 在应用运行时，测量原始页面的冻结副本：
+
+   ```bash
+   npx lighthouse@12 http://localhost:3000/before.html --only-categories=performance --view
+   ```
+
+   `--view` 会在完成后打开 HTML 报告。
+
+![一份 Lighthouse 报告，橙色的性能得分为 64。指标：首次内容绘制 4.3 秒、最大内容绘制 9.8 秒，均为红色；总阻塞时间 20 毫秒、累积布局偏移 0，均为绿色。下方是一条胶片视图，直到约 4 秒都是空白帧。](screenshot-pending)
+*Screenshot (Lighthouse 报告 · before.html): 原始页面：在中端手机上空白超过四秒。*
+
+2. 测量修复后的店面：
+
+   ```bash
+   npx lighthouse@12 http://localhost:3000/ --only-categories=performance --view
+   ```
+
+![一份 Lighthouse 报告，绿色的性能得分为 100。首次内容绘制 0.8 秒、最大内容绘制 1.5 秒、总阻塞时间 0 毫秒、累积布局偏移 0，全部为绿色。](screenshot-pending)
+*Screenshot (Lighthouse 报告 · /): 完成第 2 章的资源修复之后。*
+
+3. 在修复前的报告中打开 **Opportunities**。“Eliminate render-blocking resources”和“Properly size images”正是第 2.4 课的两个静态发现，现在还附上了它们的时间成本。
+4. 把两次运行记录到 `notes/lighthouse.md`。每个页面运行两到三次：实验室结果在多次运行之间会略有波动，所以要比较中位数。
+
+**完成标准**
+- Both JSON reports exist in notes/
+- notes/lighthouse.md has a table with score, FCP, LCP, TBT, CLS and total bytes for both pages
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.1, "Lab measurement with Lighthouse".
+
+Exercise: Measure the asset fixes in the lab
+Goal: Run Lighthouse against the frozen before page and the fixed storefront, and compare score, FCP, LCP and transfer size.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Make sure the app is running on port 3000.
+2. Run `npx lighthouse@12 http://localhost:3000/before.html --only-categories=performance --output=json --output-path=./notes/lh-before.json --chrome-flags="--headless=new"`. If Chrome isn't found, set CHROME_PATH to a Chrome or Chromium binary and retry; if none exists, stop and report that.
+3. Run the same command for http://localhost:3000/ with output `./notes/lh-after.json`.
+4. From each JSON file, extract categories.performance.score and the numericValue of first-contentful-paint, largest-contentful-paint, total-blocking-time, cumulative-layout-shift and total-byte-weight.
+5. Write a before/after table to `notes/lighthouse.md`.
+
+Done when:
+- Both JSON reports exist in notes/
+- notes/lighthouse.md has a table with score, FCP, LCP, TBT, CLS and total bytes for both pages
+
+Report back:
+- The before/after table
+- Which static finding from chapter 2 explains each improvement
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/1-lab-measurement.mdx
+```
+
+## 要点
+
+- Lighthouse 在模拟的中端手机和慢速网络上加载页面，因此结果可重复，但偏悲观。
+- FCP 是任何内容出现的时刻；LCP 是主要内容出现的时刻。LCP 低于 2.5 秒算良好。
+- 阻塞渲染的脚本会推迟 FCP；过重的图片会推迟 LCP。静态检查已经预测到了这两点。
+- 实验室数据用于比较不同构建。来自真实用户的现场数据才告诉你人们实际的体验。
+
+---
+
+上一页: [第 3 章 · 开篇: 动态测试](/demo/zh/performance-testing/dynamic.md)
+下一页: [第 3.2 课: 用 k6 做负载测试](/demo/zh/performance-testing/dynamic/load-testing.md)
+
+
+# 第 3.2 课: 用 k6 做负载测试
+
+性能测试 · 第 3 章: 动态测试 · 30 分钟
+
+> 模拟一个购物高峰的夜晚，让阈值判断应用是否满足预算。
+
+**学完本课你将能够:**
+- 解释虚拟用户、迭代、思考时间和阶段
+- 编写带检查、标签和阈值的 k6 脚本
+- 读懂 k6 汇总结果，并解释失败的阈值
+
+## 文字稿: 用 k6 做负载测试 (1:21)
+
+**0:00 引言.** 你的计划规定，在 50 个顾客同时购物时，图书接口的 p95 应在 300 毫秒以内。只有负载测试能验证这一点。
+
+**0:09 脚本.** k6 脚本就是 JavaScript。阶段规定运行多少个虚拟用户、运行多久。 阈值规定怎样才算通过：图书接口的 p95 低于 300 毫秒，订单接口低于 200 毫秒。 sleep 加入了思考时间，让每个虚拟用户像一个正在看页面的人，而不是一挺机关枪。
+
+**0:30 负载测试如何工作.** k6 启动虚拟用户。每个用户循环运行你的脚本：浏览、思考、查看订单、思考、打开一本书。 阶段让用户数逐步增加：30 秒内从 0 增加到 50 个用户，保持一分钟，再逐步减少。 k6 为每个请求计时。在第二章的修复之前，随着用户不断涌入，图书接口的 p95 攀升到超过一秒。 阈值把它变成了失败。订单接口也失败了，尽管它单独运行时很快：Node 只在一个线程上运行，慢接口拖住了其他所有请求。
+
+**1:06 修复之后.** 完成静态修复之后，同一个测试通过了，而且绰绰有余。 这回答了计划中关于 50 个用户的问题。但它没有说明应用还能多承受多少用户。那是下一课的内容。
+
+## 课文
+
+你的计划中的预算规定：在 50 个顾客同时购物时，`/api/books` 的 p95 应在 300 ms 以内。只有一种测试能验证这一点：让相当于 50 个顾客的流量经过应用，然后测量。
+
+> **概念动画: k6 负载测试如何工作**
+>
+> 1. k6 启动虚拟用户。每个用户循环运行你的脚本：浏览、思考、查看订单、思考、打开一本书。
+> 2. 阶段控制同时运行的用户数：30 秒内从 0 增加到 50 个用户，保持一分钟，再逐步减少。
+> 3. k6 为每个请求计时，并按接口报告百分位数。随着用户增多，图书接口的 p95 不断攀升。
+> 4. 阈值把数字变成通过或失败。图书接口的 p95 是 1.17 秒，上限是 300 毫秒，所以这次运行失败。
+
+## 脚本
+
+k6 脚本就是 JavaScript。默认导出的函数是一个虚拟用户的一次**迭代**；`options` 规定运行多少用户、运行多久，以及怎样才算通过。
+
+```js title="load/load.k6.js"
+export const options = {
+  stages: [
+    { duration: "30s", target: 50 }, // 逐步加压
+    { duration: "1m", target: 50 },  // 保持：一个繁忙的夜晚
+    { duration: "15s", target: 0 },  // 逐步减压
+  ],
+  thresholds: {
+    http_req_failed: ["rate<0.01"],
+    "http_req_duration{endpoint:books}": ["p(95)<300"],
+    "http_req_duration{endpoint:orders}": ["p(95)<200"],
+    "http_req_duration{endpoint:recommendations}": ["p(95)<400"],
+  },
+};
+
+export default function () {
+  group("browse", () => {
+    const page = 1 + Math.floor(Math.random() * 20);
+    const res = http.get(`${BASE}/api/books?page=${page}`, { tags: { endpoint: "books" } });
+    check(res, { "books 200": (r) => r.status === 200 });
+  });
+  sleep(1); // 思考时间
+  // …然后是订单、sleep、带推荐的图书页面、sleep
+}
+```
+
+负载测试和压力发生器之间的区别，就在于三个细节：
+
+- **思考时间。** 请求之间的 `sleep(1)` 让每个虚拟用户像一个正在阅读页面的人。没有它，50 个虚拟用户发出的流量会远远多于 50 个真人。
+- **多样的数据。** 随机的页码、顾客和图书让请求分散到整个数据集中，就像真实流量一样。每次都请求同一行，测到的是缓存，而不是应用。
+- **标签。** `tags: { endpoint: "books" }` 让每个接口有自己的百分位数和自己的阈值。
+
+## 检查与阈值
+
+**检查**测试单个响应（“状态码是 200”）并记录结果；它从不中止测试。**阈值**用预算评判整次运行，一旦越线，k6 就会以非零退出码结束。正是这个退出码，让负载测试可以把关发布。
+
+## 汇总结果告诉你什么
+
+下面是对第 2 章修复**之前**的 Larkspur 运行负载测试的结果：
+
+```text
+  █ THRESHOLDS
+
+    http_req_duration{endpoint:books}
+    ✗ 'p(95)<300' p(95)=1.17s
+
+    http_req_duration{endpoint:orders}
+    ✗ 'p(95)<200' p(95)=941.52ms
+
+    http_req_duration{endpoint:recommendations}
+    ✗ 'p(95)<400' p(95)=968.7ms
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+```
+
+图书接口失败不足为奇。但订单和推荐接口也失败了，尽管它们单独运行时快得多。Node.js 在单线程上运行 JavaScript，而这里的 SQLite 调用是同步的：当一个请求在执行 101 次查询时，其他所有请求都只能排队等待。**一个慢接口拖慢所有接口。** 这是针对单个接口的微基准测试永远发现不了的。
+
+完成第 2 章的修复后，在同一台机器上运行同一个测试：
+
+```text
+    ✓ 'p(95)<300' p(95)=10.29ms      books
+    ✓ 'p(95)<200' p(95)=8.98ms       orders
+    ✓ 'p(95)<400' p(95)=34.33ms      recommendations
+    ✓ 'rate<0.01' rate=0.00%
+```
+
+每项预算都通过了。这回答了计划中关于 50 个用户的问题。但它没有说明应用最多能承受多少用户，也没有说明突发流量来时会怎样。这些是下一课的问题。
+
+## 动手练习：先运行冒烟测试，再运行负载测试
+
+**动手练习 · 20 分钟.** 目标： 对 Larkspur 运行 load/smoke.k6.js 和 load/load.k6.js，并记录哪些阈值通过。
+
+1. 先做一次**冒烟测试**：1 个用户，运行 30 秒。如果它失败了，说明脚本或应用有问题，这时跑大规模测试只会带来大量困惑。
+
+   ```bash
+   k6 run load/smoke.k6.js
+   ```
+
+2. 运行负载测试。它需要将近两分钟。
+
+   ```bash
+   k6 run load/load.k6.js
+   ```
+
+![k6 运行汇总的末尾。THRESHOLDS 部分列出四个阈值，都带有绿色对勾：books 的 p95 约 10 毫秒，orders 的 p95 约 9 毫秒，recommendations 的 p95 约 34 毫秒，失败请求 0.00%。下方是 TOTAL RESULTS，检查通过率 100%，以及按接口列出的 HTTP 请求耗时。](screenshot-pending)
+*Screenshot (k6 run load/load.k6.js): 完成第 2 章的修复后，50 个用户下四个阈值全部通过。*
+
+3. 如果你跳过了第 2 章的修复，你的运行结果会像上面“修复前”的输出一样失败。可以试试：`git stash`，重启应用，再运行一次，然后 `git stash pop`。
+4. 把结果记录到 `notes/load-test.md`。
+
+没有 k6？可以用内置工具按接口运行同样形态的流量，例如 `npm run load -- --url "http://localhost:3000/api/books?page=1" --vus 50 --duration 60`。它没有思考时间，所以延迟会比 k6 报告的更高。
+
+**完成标准**
+- The smoke test passed before the load test ran
+- notes/load-test.md lists every threshold with pass or fail and the measured value
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.2, "Load testing with k6".
+
+Exercise: Run a smoke test, then the load test
+Goal: Run load/smoke.k6.js and load/load.k6.js against Larkspur and record which thresholds pass.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Check that k6 is installed with `k6 version`. If it isn't, stop and report that; suggest `npm run load` as a fallback.
+2. With the app running, run `k6 run load/smoke.k6.js` and confirm all checks pass.
+3. Read load/load.k6.js and summarise its stages, think time and thresholds.
+4. Run `k6 run load/load.k6.js` (about 2 minutes). For a quicker run, use `k6 run --stage 15s:50 --stage 30s:50 --stage 5s:0 load/load.k6.js` and say that you did.
+5. Record each threshold's result and the p95 per endpoint in `notes/load-test.md`, with the command and date.
+
+Done when:
+- The smoke test passed before the load test ran
+- notes/load-test.md lists every threshold with pass or fail and the measured value
+
+Report back:
+- The THRESHOLDS block of the k6 summary
+- Whether the app meets the API budgets from your plan, and which chapter 2 fixes made the difference if it does
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/2-load-testing.mdx
+```
+
+## 要点
+
+- 虚拟用户循环运行你的脚本。阶段决定随时间推移同时运行多少个虚拟用户。
+- 思考时间（sleep）让每个用户的行为像真人，所以 50 个虚拟用户接近 50 个真实顾客。
+- 检查验证每个响应；阈值把整次运行的百分位数和错误率变成通过或失败。
+- 按接口给请求打标签，让每个接口有自己的阈值。在单线程服务器上，一个慢接口会拖延其他所有接口。
+- 总是先运行一次简短的冒烟测试，在加负载之前证明脚本和应用都能正常工作。
+
+---
+
+上一页: [第 3.1 课: 用 Lighthouse 做实验室测量](/demo/zh/performance-testing/dynamic/lighthouse.md)
+下一页: [第 3.3 课: 压力、峰值与浸泡测试](/demo/zh/performance-testing/dynamic/stress-spike-soak.md)
+
+
+# 第 3.3 课: 压力、峰值与浸泡测试
+
+性能测试 · 第 3 章: 动态测试 · 30 分钟
+
+> 超出预期负载去找到上限，扛住突发流量，并发现持续数小时的缓慢退化。
+
+**学完本课你将能够:**
+- 根据问题选择合适的负载形态：负载、压力、峰值或浸泡
+- 通过阶梯式压力测试找出接口的容量
+- 判断应用在峰值过后能否恢复
+
+## 文字稿: 压力、峰值与浸泡测试 (1:24)
+
+**0:00 引言.** 负载测试问的是：在预期流量下我们没问题吗？本课的测试会提出更难的问题。
+
+**0:08 四种负载形态.** 负载测试运行繁忙日子里预期的流量，问的是我们是否满足预算。 压力测试分阶段不断增加用户，找出应用在哪里崩溃、怎么崩溃。 峰值测试发送突然的流量激增，比如刚发出一封邮件通讯，问的是我们能否扛住并恢复。 浸泡测试则以普通流量运行好几个小时，寻找任何泄漏或漂移。
+
+**0:37 找出容量.** 这是推荐接口，分别用 1、2、4、8 和 16 个用户测量的结果。 从第一个用户起，吞吐量就稳定在每秒约 58 个请求。这就是上限。 所以多出来的用户只能排队，p95 每一阶段都在增长：从 25 毫秒涨到超过半秒。 拐点，也就是 p95 越过 400 毫秒预算的地方，就是实际容量：在 8 到 16 个用户之间。
+
+**1:03 峰值与浸泡.** 峰值测试在五秒内从 5 个用户跳到 100 个用户。 流量高峰期间，p95 达到五秒，还有一些请求超时。之后，延迟回到了正常水平。Larkspur 恢复了。 浸泡测试会运行好几个小时，观察趋势：内存、连接数，以及随时间慢慢上涨的延迟。
+
+## 课文
+
+负载测试回答的是“在预期流量下我们没问题吗？”。本课的测试提出更难的问题，而且每种测试使用不同的流量随时间变化的形态。
+
+> **概念动画: 四种负载形态**
+>
+> 1. 负载测试：繁忙日子里预期的流量。问题：我们满足预算吗？
+> 2. 压力测试：分阶段不断增加用户。问题：它在哪里崩溃，怎么崩溃？
+> 3. 峰值测试：突然的流量激增，比如刚发出一封邮件通讯。问题：我们能扛住并恢复吗？
+> 4. 浸泡测试：持续数小时的普通负载。问题：随着时间推移，有没有东西泄漏或漂移？
+
+| 测试 | 形态 | 问题 | 通常时长 |
+| --- | --- | --- | --- |
+| 负载 | 逐步升到预期流量并保持 | 我们满足预算吗？ | 5–30 分钟 |
+| 压力 | 分阶段增加用户，直到崩溃 | 上限在哪里，它怎么崩溃？ | 10–30 分钟 |
+| 峰值 | 从低流量骤增到极高，再回落 | 我们能扛住突发流量并恢复吗？ | 5–15 分钟 |
+| 浸泡 | 普通负载，长时间保持 | 有没有东西泄漏或漂移？ | 数小时 |
+
+## 找出容量
+
+完成第 2 章之后，负载测试通过了。那么 Larkspur 还能多承受多少？在最慢的推荐接口上分阶段增加用户，并记录每一阶段的吞吐量和延迟。
+
+> **概念动画: 找到容量**
+>
+> 1. 分阶段增加用户，记录每一阶段的吞吐量和 p95。这些是推荐接口的真实测量结果。
+> 2. 从第一个用户起，吞吐量就稳定在每秒约 58 个请求。这就是上限：更多用户也无法让它更快。
+> 3. 所以多出来的用户只能排队。p95 从 1 个用户时的 25 毫秒涨到 16 个用户时的 532 毫秒。
+> 4. 拐点，即 p95 越过 400 毫秒预算的地方，就是实际容量：在 8 到 16 个用户之间。规划时要远低于它。
+
+这时会发生两件事，其实是同一件事的两面。**吞吐量不再增长**：无论多少用户请求，这个接口每秒都只能处理约 58 个请求。而由于请求无法被更快地处理，**多出来的用户只能排队**：p95 随等待用户数成比例上升。
+
+p95 越过预算的那个点就是**实际容量**。它远早于应用崩溃或返回错误的点，也是做规划时应该使用的数字。这里是：8 到 16 个用户之间，约每秒 58 个请求。
+
+用 k6 做的压力测试会分阶段增加用户，直到远远超过这个点，以观察应用**如何**失败：
+
+```text
+    ✗ 'p(95)<300' p(95)=1.02s
+    ✓ 'rate<0.01' rate=0.59%
+    ✗ status is 200
+      ↳  99% — ✓ 4489 / ✗ 27
+```
+
+在 80 个用户时，有 27 个请求等待超过了 k6 的 10 秒超时。Larkspur 没有崩溃；它只是让人一直等，直到放弃。从某种意义上说很体面，从另一种意义上说很糟糕。
+
+## 峰值与恢复
+
+峰值测试在五秒内从 5 个用户跳到 100 个用户，保持一段时间，然后回落。值得关注的数字是**之后**发生的事：
+
+| 阶段 | p95 |
+| --- | --- |
+| 之前（5 个用户） | 26 ms |
+| 峰值期间（100 个用户） | 5.3 s，3.5% 的请求超时 |
+| 之后（再次回到 5 个用户） | 28 ms |
+
+流量高峰一过，Larkspur 就完全恢复了。许多系统做不到：队列一直满着，连接池一直耗尽，缓存已被清空，或者自动扩容在峰值过去之后才到来。只检查能否扛住的峰值测试会漏掉这些。
+
+## 浸泡测试
+
+有些问题只有随着时间推移才会出现：从不淘汰的缓存、从不归还的连接、把磁盘写满的日志文件。浸泡测试以普通负载运行数小时，并关注**趋势**：第三个小时的 p95 和第五分钟时一样吗？内存是否平稳？`load/soak.k6.js` 以 15 个用户运行 30 分钟；设置 `DURATION=5m` 可以先演练一遍。运行时观察服务器的内存（`top`、活动监视器或任务管理器）。
+
+## 动手练习：找出 /api/recommendations 的容量
+
+**动手练习 · 25 分钟.** 目标： 用阶梯式压力测试和峰值测试，找出 /api/recommendations 从哪里开始无法满足 400 ms 的预算，以及它能否从突发流量中恢复。
+
+1. 用内置工具逐级增加负载。每个阶段运行五秒。
+
+   ```bash
+   npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --stages 5:1,5:2,5:4,5:8,5:16,5:32
+   ```
+
+![一张表格，每个阶段一行：1、2、4、8、16 和 32 个虚拟用户。每秒请求数一列始终保持在约 55 到 61 之间，而 p95 从约 25 毫秒依次升到 46、105、286、532 和 957 毫秒。](screenshot-pending)
+*Screenshot (npm run load，阶梯式): 吞吐量持平；p95 每一阶段都在增长。预算在 8 到 16 个用户之间被突破。*
+
+2. 找出上限（req/s 不再增长的地方）和容量（p95 低于 400 ms 的最后一个阶段）。
+3. 如果有 k6，对同一个接口运行阶梯式压力测试和峰值测试：
+
+   ```bash
+   TARGET="/api/recommendations?book_id=7" STEP=10s k6 run load/stress.k6.js
+   TARGET="/api/recommendations?book_id=7" k6 run load/spike.k6.js
+   ```
+
+![k6 峰值测试汇总。phase:before 和 phase:after 的阈值通过，p95 约为 26 到 28 毫秒；phase:spike 失败，p95 约为 5.3 秒。失败请求率约为 3.5%。](screenshot-pending)
+*Screenshot (k6 run load/spike.k6.js): 它勉强扛过了峰值，并且完全恢复。*
+
+4. 写好 `notes/capacity.md`。第 3.4 课会找出上限为什么这么低。
+
+**完成标准**
+- notes/capacity.md states the ceiling in req/s and the capacity in users, both taken from captured output
+- The spike result says whether the endpoint recovered, with before and after p95
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.3, "Stress, spike and soak tests".
+
+Exercise: Find the capacity of /api/recommendations
+Goal: Use a stepped stress test and a spike test to find where /api/recommendations stops meeting its 400 ms budget, and whether it recovers from a surge.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. With the app running, run `npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --stages 5:1,5:2,5:4,5:8,5:16,5:32` and capture the table.
+2. Identify the throughput ceiling (where req/s stops growing) and the first stage whose p95 exceeds 400 ms.
+3. If k6 is installed, run `TARGET="/api/recommendations?book_id=7" STEP=10s k6 run load/stress.k6.js` and capture the thresholds and http_req_failed.
+4. If k6 is installed, run `TARGET="/api/recommendations?book_id=7" k6 run load/spike.k6.js` and capture the per-phase durations (phase:before, phase:spike, phase:after).
+5. Write `notes/capacity.md` with the ceiling, the capacity in users and req/s at the 400 ms budget, and whether p95 in the after phase returned to the before level.
+
+Done when:
+- notes/capacity.md states the ceiling in req/s and the capacity in users, both taken from captured output
+- The spike result says whether the endpoint recovered, with before and after p95
+
+Report back:
+- The stepped load table
+- Ceiling, capacity and recovery, each with the number it's based on
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/3-stress-spike-soak.mdx
+```
+
+## 要点
+
+- 负载测试检查预期流量；压力测试找出崩溃点；峰值测试检查能否扛住并恢复；浸泡测试发现缓慢漂移。
+- 当用户增加而吞吐量不再增长时，就到了上限。此后多出来的用户只会增加等待时间。
+- 容量是 p95 越过预算时的负载，而不是应用崩溃时的负载。
+- 在峰值测试中，既要判断能否扛住，也要判断能否恢复：流量高峰结束后，延迟和错误应回到正常水平。
+- 浸泡测试需要数小时，并要关注内存、连接数和延迟的趋势，而不只是最终的百分位数。
+
+---
+
+上一页: [第 3.2 课: 用 k6 做负载测试](/demo/zh/performance-testing/dynamic/load-testing.md)
+下一页: [第 3.4 课: 找到瓶颈](/demo/zh/performance-testing/dynamic/bottlenecks.md)
+
+
+# 第 3.4 课: 找到瓶颈
+
+性能测试 · 第 3 章: 动态测试 · 30 分钟
+
+> 在负载下分析应用、阅读火焰图、修复热点路径，并用同一个测试证明效果。
+
+**学完本课你将能够:**
+- 判断哪种资源是瓶颈：CPU、数据库、网络还是等待
+- 录制 Node.js 应用在负载下的 CPU profile，并以火焰图的形式打开
+- 修复 CPU 热点路径，并用同一个负载测试证明改进
+
+## 文字稿: 找到瓶颈 (1:07)
+
+**0:00 引言.** 压力测试表明，推荐接口卡在每秒约 58 个请求。现在我们来找出原因。
+
+**0:07 什么耗尽了？.** 先找出是哪种资源耗尽了。在压力测试下，Node 进程占满了一个核心的百分之百。 一个核心被占满，说明代码本身就是限制。该做 CPU 分析了。
+
+**0:20 阅读火焰图.** 应用承受负载时，CPU 分析器每秒对调用栈采样大约一千次。 火焰图把这些样本合并起来。宽度是时间占比；每往上一层，就是被下一层调用的函数。 recommend 占了三分之二的样本。在它内部，similarity 和 normalise 在每一次请求中都重新解析每本书的标签。 只解析一次标签并保存下来，热点帧就缩小了。
+
+**0:48 只做一次.** 修复方法：只加载一次图书目录，把每本书的标签一次性规范化到一个 Set 中，并在每次请求中只规范化一次目标图书的标签。 同一个测试，同一台机器：每秒 57 个请求变成了 699 个。响应完全相同。
+
+## 课文
+
+压力测试表明，推荐接口卡在每秒约 58 个请求。但它没有说明原因。要知道原因，就得在同样的负载下查看进程内部。
+
+## 哪种资源饱和了？
+
+每个请求都会消耗一些 CPU、等待数据库或磁盘，并等待网络。在负载下，其中某一项会最先耗尽。在做性能分析之前先检查一下：
+
+| 负载下的症状 | 可能的瓶颈 | 用什么查看 |
+| --- | --- | --- |
+| 应用进程占满约 100% 的一个核心 | 你代码中的 CPU | CPU profile |
+| CPU 低，延迟高 | 等待：数据库、锁、其他服务 | 查询日志、链路追踪 |
+| 数据库 CPU 高 | 查询 | 查询计划（第 2.3 课） |
+| 错误先于延迟上升 | 限制：连接数、文件句柄、内存 | 服务器日志、指标 |
+
+运行压力测试，并在 `top` 或活动监视器中观察 Node 进程：它占满了一个核心的 100%。Node 在单线程上运行你的 JavaScript，所以一个核心被占满，就意味着代码本身就是限制。该做 CPU 分析了。
+
+## 阅读火焰图
+
+> **概念动画: 阅读火焰图**
+>
+> 1. 应用承受负载时，CPU 分析器每秒对调用栈采样大约一千次。
+> 2. 火焰图把这些样本合并起来。宽度是时间占比；每往上一层，就是被下一层调用的函数。
+> 3. recommend 占了 67% 的样本。在它内部，similarity 和 normalise 在每次请求中都重新解析每本书的标签。
+> 4. 只解析一次标签并保存下来：热点帧缩小了，10 个用户时的吞吐量从每秒 57 个请求提升到 699 个。
+
+`npm run profile` 会用 Node 内置的采样分析器启动应用。负载运行期间，它每秒大约记录一千次调用栈。应用退出时，它会写出一个 `.cpuprofile` 文件，你可以在 Chrome DevTools 中打开它（Performance 面板，然后点 **Load profile**），也可以把它拖到 [speedscope.app](https://www.speedscope.app) 上。
+
+火焰图要从下往上读。每一条是一个函数；它上面的条是它调用的函数。**宽度就是时间。** 寻找属于你自己代码的宽条：
+
+| 函数 | 样本占比 | 它在做什么 |
+| --- | --- | --- |
+| `recommend` | 67% | 整个接口 |
+| `similarity` | 36% | 把目标图书与 5,000 本书逐一比较 |
+| `normalise` | 27% | 对标签字符串做拆分、去空白、转小写和排序 |
+| `all` | 11% | 每次请求都从 SQLite 加载全部 5,000 本书 |
+
+下面是 `similarity` 和 `normalise` 所在的代码：
+
+```js title="src/routes/recommendations.mjs"
+function similarity(a, b) {
+  const left = normalise(a);   // 同样的目标标签，被重新解析 5,000 次
+  const right = normalise(b);  // 每本书的标签，每次请求都重新解析
+  // …
+}
+```
+
+这里面严格来说没有什么错误。它只是一遍又一遍地做同样的工作：每次请求中目标图书的标签被规范化 5,000 次，而每本书的标签在每次请求中都要重新规范化，尽管图书很少变化。没有任何静态检查标记它，因为这里没有可以匹配的慢模式，只有大量的重复。
+
+## 修复：只做一次
+
+只加载一次图书目录，把每本书的标签一次性规范化到一个 `Set` 中，并在每次请求中只规范化一次目标图书的标签：
+
+```js title="src/routes/recommendations.mjs (after)"
+let cached;
+function catalogue() {
+  return (cached ??= query("SELECT id, title, tags FROM books").all()
+    .map((b) => ({ ...b, tagSet: new Set(normalise(b.tags)) })));
+}
+
+export function recommend(params) {
+  // …
+  const mine = normalise(target.tags);
+  const scored = catalogue()
+    .filter((b) => b.id !== id)
+    .map((b) => ({ id: b.id, title: b.title, score: similarity(mine, b.tagSet) }))
+  // …
+}
+```
+
+> **缓存是一个决定.** 这个缓存永不过期，对练习应用来说没问题，但对会上新书的真实书店来说是错的。在生产环境中，要定时刷新它，或在图书目录变化时刷新，并在代码里写明这一点。
+
+| 同一个测试，10 个用户 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 吞吐量 | 57 req/s | 699 req/s |
+| p95 | 347 ms | 26 ms |
+| 32 个用户时的 p95 | 957 ms | 77 ms |
+
+## 动手练习：分析 /api/recommendations 并修复它的热点路径
+
+**动手练习 · 25 分钟.** 目标： 在给 /api/recommendations 施加负载时录制 CPU profile，找出热点函数，去掉重复的工作，并用同一个测试展示吞吐量上限的提升。
+
+1. 如果应用正在运行，先停止它，然后用分析器启动它，并在第二个终端中施加负载：
+
+   ```bash
+   npm run profile
+   npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --vus 10 --duration 10
+   ```
+
+2. 在应用的终端中按 Ctrl+C。应用会正常退出，正是这次正常退出让分析器写出 `profiles/CPU.….cpuprofile`。（如果用 `kill -9` 杀掉进程，就不会写出 profile。）
+3. 在 Chrome DevTools 中打开 profile：**Performance** 面板，**Load profile**，然后切换到 bottom-up 视图或火焰图视图。
+
+![Chrome DevTools 的 Performance 面板，以火焰图显示已加载的 CPU profile。重复出现的调用栈以 recommend 为底，上面叠着 similarity 和 normalise，占据了大部分宽度，顶部是对 split、map 和 filter 的短调用。](screenshot-pending)
+*Screenshot (DevTools · Performance · CPU.cpuprofile): recommend → similarity → normalise，一遍又一遍。*
+
+4. 保存当前的响应，应用修复，正常重启后进行比较：
+
+   ```bash
+   curl -s "http://localhost:3000/api/recommendations?book_id=7" > /tmp/rec-before.json
+   ```
+
+5. 重新运行第 1 步中完全相同的负载命令，并与你在第 3.3 课得到的数字比较。
+
+![迷你负载工具针对 /api/recommendations、10 个虚拟用户的两行结果。修复前：约每秒 57 个请求，p95 约 347 毫秒。修复后：约每秒 699 个请求，p95 约 26 毫秒。](screenshot-pending)
+*Screenshot (npm run load): 同一个测试，同一台机器：吞吐量提升到十二倍。*
+
+**完成标准**
+- The profile summary names the functions that dominated, with percentages
+- Responses for book_id=7 and book_id=1234 are identical before and after the fix
+- The same load command shows higher req/s and lower p95 than before the fix
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.4, "Finding the bottleneck".
+
+Exercise: Profile /api/recommendations and fix its hot path
+Goal: Record a CPU profile while loading /api/recommendations, identify the hot functions, remove the repeated work, and show the throughput ceiling rise with the same test.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Stop any running instance of the app. Start it with the profiler: `npm run profile` (in the background).
+2. Run `npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --vus 10 --duration 10` and capture the result.
+3. Stop the app with SIGINT (Ctrl+C) so it writes `profiles/*.cpuprofile`.
+4. Summarise the profile with a short Node script: for each function name, total the sample time where it appears on the stack (inclusive), and print the top 10 as percentages.
+5. In `src/routes/recommendations.mjs`, load all books once and cache them with their tags already normalised into a Set; normalise the target's tags once per request; compute similarity against the cached Set. Keep the response identical.
+6. Start the app normally, compare the response for book_id=7 and book_id=1234 with the pre-fix responses, and rerun the same load command.
+
+Done when:
+- The profile summary names the functions that dominated, with percentages
+- Responses for book_id=7 and book_id=1234 are identical before and after the fix
+- The same load command shows higher req/s and lower p95 than before the fix
+
+Report back:
+- Top functions from the profile, before the fix
+- The diff of recommendations.mjs
+- Load results before and after
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/4-bottlenecks.mdx
+```
+
+## 要点
+
+- 负载测试告诉你有东西很慢；在同样负载下采集的 profile 告诉你时间花在了哪里。
+- 先找出饱和的资源：CPU 达到 100% 说明问题在代码；CPU 很低而延迟很高，说明在等待别的东西。
+- 在火焰图中，宽度就是时间。寻找靠近顶部、属于你自己代码的宽帧。
+- 每次请求都重复同样的计算，是典型的热点路径。只算一次，并缓存结果。
+- 在同一台机器上重新运行发现问题的那个测试，以此证明修复有效。
+
+---
+
+上一页: [第 3.3 课: 压力、峰值与浸泡测试](/demo/zh/performance-testing/dynamic/stress-spike-soak.md)
+下一页: [第 3 章 · 小结: 动态测试：小结](/demo/zh/performance-testing/dynamic/summary.md)
+
+
+# 第 3 章 · 小结: 动态测试：小结
+
+性能测试 · 第 3 章: 动态测试 · 5 分钟
+
+> 运行应用之后才知道、仅靠阅读无法发现的事。
+
+## 文字稿: 动态测试：小结 (0:50)
+
+**0:00 回顾.** 来看看运行应用让你学到了哪些仅靠阅读学不到的东西。
+
+**0:06 结果.** Lighthouse 证实了资源修复的效果：得分从 64 升到 100，主图现在 1.5 秒就出现，而不是 10 秒。 负载测试证实了查询修复的效果：50 个顾客时，每个阈值都通过了。 而压力测试和性能分析发现了一个任何静态规则都描述不了的问题。修复它让吞吐量提升到了十二倍。
+
+**0:30 相辅相成.** 静态测试发现了三个问题，并预测了它们的代价。 动态测试证实了这些预测，还发现了静态测试看不到的那个问题。 两者单独使用都无法发现所有问题。第四章会把它们变成日常流程。
+
+## 课文
+
+你像手机那样测量了页面，让应用经历了一个繁忙的夜晚，找到了它的上限和它在突发流量下的表现，还用 profile 修复了一个任何静态检查都发现不了的问题。
+
+## 要点
+
+### 3.1 用 Lighthouse 做实验室测量
+
+- Lighthouse 在模拟的中端手机和慢速网络上加载页面，因此结果可重复，但偏悲观。
+- FCP 是任何内容出现的时刻；LCP 是主要内容出现的时刻。LCP 低于 2.5 秒算良好。
+- 阻塞渲染的脚本会推迟 FCP；过重的图片会推迟 LCP。静态检查已经预测到了这两点。
+- 实验室数据用于比较不同构建。来自真实用户的现场数据才告诉你人们实际的体验。
+
+### 3.2 用 k6 做负载测试
+
+- 虚拟用户循环运行你的脚本。阶段决定随时间推移同时运行多少个虚拟用户。
+- 思考时间（sleep）让每个用户的行为像真人，所以 50 个虚拟用户接近 50 个真实顾客。
+- 检查验证每个响应；阈值把整次运行的百分位数和错误率变成通过或失败。
+- 按接口给请求打标签，让每个接口有自己的阈值。在单线程服务器上，一个慢接口会拖延其他所有接口。
+- 总是先运行一次简短的冒烟测试，在加负载之前证明脚本和应用都能正常工作。
+
+### 3.3 压力、峰值与浸泡测试
+
+- 负载测试检查预期流量；压力测试找出崩溃点；峰值测试检查能否扛住并恢复；浸泡测试发现缓慢漂移。
+- 当用户增加而吞吐量不再增长时，就到了上限。此后多出来的用户只会增加等待时间。
+- 容量是 p95 越过预算时的负载，而不是应用崩溃时的负载。
+- 在峰值测试中，既要判断能否扛住，也要判断能否恢复：流量高峰结束后，延迟和错误应回到正常水平。
+- 浸泡测试需要数小时，并要关注内存、连接数和延迟的趋势，而不只是最终的百分位数。
+
+### 3.4 找到瓶颈
+
+- 负载测试告诉你有东西很慢；在同样负载下采集的 profile 告诉你时间花在了哪里。
+- 先找出饱和的资源：CPU 达到 100% 说明问题在代码；CPU 很低而延迟很高，说明在等待别的东西。
+- 在火焰图中，宽度就是时间。寻找靠近顶部、属于你自己代码的宽帧。
+- 每次请求都重复同样的计算，是典型的热点路径。只算一次，并缓存结果。
+- 在同一台机器上重新运行发现问题的那个测试，以此证明修复有效。
+
+## 静态与动态，相辅相成
+
+看看每个修复从何而来。第 2 章的静态检查发现了三个问题，并预测了它们的代价。这里的动态测试**证实**了这些预测（Lighthouse、负载测试），并**发现了静态分析无法发现的问题**（CPU 热点路径）。两类测试单独使用，都无法发现所有问题。第 4 章会把它们变成日常流程。
+
+## 自我检查
+
+1. Lighthouse 报告你的页面 LCP 为 1.5 秒。一位顾客说页面花了五秒才出来。谁错了？
+   很可能谁都没错。Lighthouse 是来自一台模拟设备的实验室数据；顾客的手机、网络和缓存都不一样。要看真实的分布，就用现场数据。
+2. 在一次压力测试中，从 4 个用户到 32 个用户，req/s 一直保持在 58，而 p95 从 105 毫秒升到 957 毫秒。这说明了什么？
+   58 req/s 就是吞吐量上限。超过它之后，多出来的用户只能排队，所以延迟随等待用户数增长。
+3. 一次峰值测试通过了：错误率没有超过 5%。在宣称应用具备韧性之前，还应该看什么？
+   恢复情况：峰值过后阶段的延迟和错误率应回到峰值之前的水平。
+4. 修复之后，为什么要重新运行同一个负载测试，而不是换一个新的？
+   这样唯一变化的就是代码。换了测试、数据集或机器，比较就失去了意义。
+
+---
+
+上一页: [第 3.4 课: 找到瓶颈](/demo/zh/performance-testing/dynamic/bottlenecks.md)
+下一页: [第 4 章 · 开篇: 总结](/demo/zh/performance-testing/review.md)
+
+
+# 第 4 章 · 开篇: 总结
+
+性能测试 · 第 4 章: 总结 · 5 分钟
+
+> 把静态和动态测试结合成日常流程，报告结果，进行验收，把它应用到你自己的项目上，并回顾整门课程。
+
+## 文字稿: 总结 (1:08)
+
+**0:00 引言.** 前两章各自深入讲解了一类测试。这一章退后一步：把性能测试变成日常流程，把结果变成决定，再把它带到你自己的代码中。
+
+**0:12 你现在的位置.** 现在，Larkspur 每页只执行 1 次查询，而不是 101 次；多了两个新索引；店面体积只有原来的二十分之一；推荐接口的吞吐量提高到了 12 倍。 这一章确保下一次改动不会悄悄抵消这些成果。
+
+**0:29 你将收获什么.** 你会决定哪些检查在每个拉取请求上运行，哪些在发布前运行，哪些在生产环境中运行。 你会把静态门禁和一个简短的负载测试接入 CI 工作流。 你会写出一份别人能据此行动、也能重复的性能报告。 你会对照事先商定的标准运行一次正式的验收测试，并做出放行或不放行的决定。 你会在自己的项目上运行静态检查，并把修复交给智能体。 最后，你会在一处回顾整门课程。
+
+## 课文
+
+前两章各自深入讲解了一类测试。本章退后一步看全局。只运行一次的性能测试能发现今天的问题；成为日常流程的测试则能在明天的问题上线之前就发现它们。而一个没人读得懂、也没人能重复的结果，什么也改变不了。
+
+## 你将收获什么
+
+- 知道哪些检查在每个拉取请求上运行，哪些在发布前运行，哪些在生产环境中运行
+- 把静态门禁和一个简短的负载测试接入 CI 工作流
+- 写出一份别人能据此行动、也能重复的性能报告
+- 运行验收测试，并记录放行/不放行的决定
+- 在你自己的项目上运行静态检查，并把修复交给智能体
+- 回顾整门课程，并知道接下来该学什么
+
+## 你现在的位置
+
+1. **概述** (总): 性能测试测量什么、两类测试方法，以及练习用的应用。
+2. **静态测试** (分): 不运行系统，通过检查你构建的东西来发现性能问题。
+3. **动态测试** (分): 运行系统、发送流量，测量用户的实际感受。
+4. **总结** (总): 把两者结合成一套工作流程，报告结果，进行验收，应用到你自己的项目，并回顾整门课程。
+
+到现在为止，Larkspur 每页只执行 1 次查询而不是 101 次，多了两个索引，店面体积只有原来的二十分之一，推荐接口的吞吐量提高到了 12 倍。每一项改动背后都有测量数据支撑。本章确保下一次改动不会悄悄抵消这些成果。然后，它通过一次正式的验收测试把结果变成一个决定，并把静态检查带到你自己的代码库中。
+
+## 本章内容
+
+- 第 4.1 课: [性能测试工作流程](/demo/zh/performance-testing/review/workflow.md) (25 分钟). 决定什么在哪里运行：每个拉取请求的静态检查、发布前的动态测试，以及生产环境监控。
+- 第 4.2 课: [报告结果](/demo/zh/performance-testing/review/reporting.md) (20 分钟). 把性能结果写清楚，让人能据此做决定，也让别人能重复这个测试。
+- 第 4.3 课: [性能验收](/demo/zh/performance-testing/review/acceptance.md) (30 分钟). 把预算变成验收标准，用一条命令运行验收测试，并做出一个有人签字确认的放行/不放行决定。
+- 第 4.4 课: [在你自己的项目上做静态测试](/demo/zh/performance-testing/review/your-project.md) (45 分钟). 亲自在真实的代码库上运行课程中的静态检查，读懂数字，设定最初的预算，并把修复交给智能体。
+- 第 4 章 · 小结: [课程总结](/demo/zh/performance-testing/review/summary.md) (10 分钟). 课程涵盖的全部内容汇总在一处，以及接下来可以学什么。
+
+---
+
+上一页: [第 3 章 · 小结: 动态测试：小结](/demo/zh/performance-testing/dynamic/summary.md)
+下一页: [第 4.1 课: 性能测试工作流程](/demo/zh/performance-testing/review/workflow.md)
+
+
+# 第 4.1 课: 性能测试工作流程
+
+性能测试 · 第 4 章: 总结 · 25 分钟
+
+> 决定什么在哪里运行：每个拉取请求的静态检查、发布前的动态测试，以及生产环境监控。
+
+**学完本课你将能够:**
+- 把每种性能检查放到交付流程中合适的阶段
+- 用一条命令运行所有静态门禁，并看到其中一项捕获性能退化
+- 改造一个运行静态门禁、Lighthouse 和简短 k6 测试的 CI 工作流
+
+## 文字稿: 性能测试工作流程 (1:12)
+
+**0:00 引言.** 到目前为止，一切都是手工完成的，而且只做了一次。真实的代码库每天都在变化。那么，每项检查应该在哪里运行？
+
+**0:11 流水线.** 每个拉取请求先运行静态检查：资源预算、查询检查和查询计划。只需几秒钟。 然后改动被构建并部署到预发布环境，在那里运行 Lighthouse 和一个简短的 k6 负载测试。 一旦有阈值未达标，发布就会被拦下，失败信息里带着解释原因的数字。 修复之后，改动才会上线。生产环境监控关注同样的指标，并为下一轮预算提供依据。
+
+**0:43 什么在哪里运行.** 原则是快速反馈优先。在拉取请求上 4 秒内就失败的门禁，作者几乎不费成本就能修复。 长时间的压力测试和浸泡测试应该按计划，在稳定的环境中定期运行，而不是每次改动都跑。
+
+**1:01 门禁实战.** 在练习中，你会故意撤销自己的一项修复。 静态门禁几秒钟就能发现它，并指出造成问题的文件和体积。
+
+## 课文
+
+第 2 章和第 3 章中的一切都是手工完成的，而且只做了一次。真实的代码库每天都在变化。问题在于每项检查应该在哪里运行，才能让问题快速、低成本地暴露出来。
+
+> **概念动画: 交付流水线中的性能检查**
+>
+> 1. 每个拉取请求先运行静态检查：资源预算、查询检查和查询计划。只需几秒。
+> 2. 然后构建、部署到预发布环境，并运行动态检查：Lighthouse 和一次简短的 k6 负载测试。
+> 3. 阈值失败会阻止发布，失败信息里带着解释原因的数字。
+> 4. 修复后，改动上线。生产监控观察同样的指标，并为下一轮预算提供依据。
+
+## 什么在哪里运行
+
+| 阶段 | 运行内容 | 耗时 | 能捕获 |
+| --- | --- | --- | --- |
+| 每个拉取请求 | 静态门禁：预算、查询检查、查询计划 | 几秒 | 已知的慢模式，在评审之前 |
+| 发布前，在预发布环境 | Lighthouse、对照预算的简短 k6 负载测试 | 几分钟 | 用户可感知的性能退化 |
+| 定期运行（每晚、每周） | 压力、峰值和浸泡测试 | 最长几小时 | 容量和缓慢劣化 |
+| 生产环境 | 真实用户监控、服务器指标 | 持续 | 实验室无法复现的问题 |
+
+原则是**快速反馈优先**。在拉取请求上 4 秒内就失败的静态门禁，作者几乎不费成本就能修复。同样的问题如果由每晚的浸泡测试发现，要付出一天的代价；如果由客户发现，代价就大得多。
+
+## 一条命令运行静态门禁
+
+练习应用把它的静态门禁打包成了一个脚本：
+
+```bash
+npm run check:static
+```
+
+```text
+budget      actual   limit   result
+script         0.9      50   pass
+…
+All budgets met.
+No queries inside loops found.
+pass  SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY …
+pass  SELECT name FROM authors WHERE id = ?
+pass  SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?
+pass  SELECT id, tags FROM books WHERE id = ?
+
+All 4 query plans use indexes.
+```
+
+`check:plans` 是新增的：它会对 `hot-queries.sql` 中列出的每条查询执行 explain，如果有任何查询会扫描 1,000 行或以上的表，就判定失败。它把第 2.3 课变成了一道门禁。代价是要养成一个习惯：每当你在路由中添加一条查询，也要把它加到这个文件里。
+
+## CI 中的动态测试
+
+`ci/perf.yml` 是一个参考用的 GitHub Actions 工作流，包含两个作业。**Static** 运行三道门禁。**Dynamic** 启动应用，按照 `lighthouserc.json` 运行 Lighthouse CI（LCP 低于 2.5 s，页面体积低于 350 KB），并运行一个 70 秒版本的 k6 负载测试。
+
+```yaml title="ci/perf.yml（节选）"
+  dynamic:
+    needs: static
+    steps:
+      # …检出代码、安装 Node、填充数据、启动应用…
+      - name: Lighthouse
+        run: npx @lhci/cli@0.15.1 autorun
+      - uses: grafana/setup-k6-action@v1
+      - name: Load test (short)
+        run: k6 run --stage 20s:50 --stage 40s:50 --stage 10s:0 load/load.k6.js
+```
+
+> **共享的 CI 运行器噪声很大.** CI 机器是共享的，每次运行的情况都不一样。CI 中的负载测试要保持简短，对照预算时要留出一些余量，把单次失败当作重新运行并查看的理由，而不是确凿的证据。容量数字应该在专用的、接近生产的环境中测得。
+
+## 形成闭环
+
+生产环境监控关注的是与测试相同的指标：每个接口的 p95、错误率、来自真实用户的 LCP。当真实流量增长或形态发生变化时，这些数字会告诉你需要修订预算，而预算又驱动下一轮测试。
+
+## 动手练习：运行门禁，然后看它捕获一次性能退化
+
+**动手练习 · 20 分钟.** 目标： 用一条命令运行所有静态门禁，故意重新引入一次性能退化，看到门禁失败，然后改造参考 CI 工作流。
+
+1. 运行所有静态门禁：
+
+   ```bash
+   npm run check:static; echo "exit $?"
+   ```
+
+2. 故意撤销你的一项修复。在 `public/index.html` 中，把日期库重新指向包含所有语言区域的文件，然后再次运行门禁。
+
+![资源预算检查失败的终端输出：script 为 96.2 KB，限制为 50 KB，标记为 FAIL，超出 +46.2 KB，随后是“1 budget(s) exceeded.”和退出码 1。后续门禁没有运行。](screenshot-pending)
+*Screenshot (npm run check:static): 性能退化在几秒钟内就被捕获，并指出了造成它的文件和体积。*
+
+3. 撤销这次改动，确认门禁再次通过。
+4. 阅读 `ci/perf.yml`，写下要在你自己的仓库中使用它需要做哪些修改：工作目录、触发运行的分支，以及它的阈值是否适合你的 CI 运行器。
+
+**完成标准**
+- check:static passes before and after the experiment, and failed during it
+- notes/ci.md explains each job and its failure conditions
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.1, "A performance testing workflow".
+
+Exercise: Run the gates, then watch one catch a regression
+Goal: Run all static gates with one command, deliberately reintroduce a regression to see a gate fail, then adapt the reference CI workflow.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run check:static` and capture the output and exit code. If any gate fails, list which and why, and stop here.
+2. Reintroduce a regression on a scratch basis: in `public/index.html`, change `/vendor/datefmt-en.js` back to `/vendor/datefmt-all-locales.js`.
+3. Run `npm run check:static` again and capture which gate fails and its message.
+4. Revert the change with `git checkout -- public/index.html` (or by hand if the file isn't committed) and confirm `npm run check:static` passes again.
+5. Read `ci/perf.yml`. Write `notes/ci.md` describing what each job does, what makes it fail, and what you'd change for a team's own repository (paths, branches, thresholds). Do not create files under .github/ unless asked.
+
+Done when:
+- check:static passes before and after the experiment, and failed during it
+- notes/ci.md explains each job and its failure conditions
+
+Report back:
+- The failing gate's output during the regression
+- Your notes on adapting ci/perf.yml
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/4-summary/1-workflow.mdx
+```
+
+## 要点
+
+- 在每个拉取请求上运行低成本的静态门禁，在发布前运行动态测试，在生产环境中进行监控。
+- 门禁只有让构建失败才有用。确保每项检查在超出限制时以非零状态退出。
+- CI 中的负载测试要短，阈值要足够宽松以适应共享运行器；长时间的压力测试和浸泡测试按计划定期运行。
+- 把生产环境的数字反馈到预算中。正是这个闭环让性能不会逐渐劣化。
+
+---
+
+上一页: [第 4 章 · 开篇: 总结](/demo/zh/performance-testing/review.md)
+下一页: [第 4.2 课: 报告结果](/demo/zh/performance-testing/review/reporting.md)
+
+
+# 第 4.2 课: 报告结果
+
+性能测试 · 第 4 章: 总结 · 20 分钟
+
+> 把性能结果写清楚，让人能据此做决定，也让别人能重复这个测试。
+
+**学完本课你将能够:**
+- 围绕报告要回答的问题来组织性能报告
+- 连同测量条件一起呈现结果，使其可以重复
+- 写出指明原因、影响和下一步的发现
+
+## 文字稿: 报告结果 (1:10)
+
+**0:00 引言.** 只有当有人能据此行动时，一次性能测试才算完成。这需要一份报告：简短、结构可预期，每个数字都有任何人都能重新运行的测试作为支撑。
+
+**0:14 课程带来了哪些改变.** 这是 Larkspur 最初的测量结果，每一项都来自一次可以重复的运行。 静态修复之后：1 次查询代替 101 次，两个索引，更轻的资源。 动态修复之后：图书标签只解析一次，而不是每个请求都解析。 每个结果都注明了产生它的测试。正是这一点让报告可信。
+
+**0:38 报告的结构.** 先写摘要，回答测试要回答的问题。 然后是测试环境，让任何人都能重复；再是结果：修复前后，同样的测试，同一台机器。 接着每个问题写一条发现，说明测试的局限，以及下一步。
+
+**0:56 一条好的发现.** 一条发现就是一个小小的论证：原因，以及它的确切位置； 用户的感受，并附上测量数字； 修复方法，以及别人可以核实的证据。
+
+## 课文
+
+只有当有人能据此行动时，一次性能测试才算完成。这需要一份报告：简短、结构可预期，并且每个数字都有任何人都能重新运行的测试作为支撑。
+
+> **概念动画: 课程带来了什么变化**
+>
+> 1. 之前：Larkspur 的第一批测量结果，每一项都来自一次可以重复的运行。
+> 2. 静态修复之后：一条查询代替 101 条，两个索引，以及更轻的资源。
+> 3. 动态修复之后：图书标签只解析一次，而不是每次请求都解析。
+> 4. 每个结果都注明了产生它的测试。这正是性能报告可信的原因。
+
+## 一份有用报告的结构
+
+1. **摘要**。用两三句话回答测试要回答的问题。“经过四项修复，Larkspur 在 50 个用户下满足了全部预算。推荐接口最先饱和，在测试机器上约为 700 req/s。”
+2. **测试环境**。机器、数据集、工具版本和命令。足以让别人复现。
+3. **结果**。修复前后，同样的测试，同一台机器。使用百分位数和错误率，而不是平均值。
+4. **发现**。每个问题一条：原因是什么、用户感受到什么、该怎么做，以及证据。
+5. **局限**。你没有测试的内容：其他接口、生产硬件、真实网络条件、更长时间的浸泡测试。
+6. **下一步**。需要做的决定或后续测试，尽可能为每一项指定负责人。
+
+## 撰写发现
+
+一条发现就是一个小小的论证。比较一下：
+
+> 图书 API 很慢。
+
+> **/api/books 中的 N+1 查询**。`listBooks` 每本书执行 2 次查询，每页共 101 次（`src/routes/books.mjs:11`、`:13`）。在 50 个用户下，p95 为 1.17 s，而预算是 300 ms；而且由于服务器是单线程的，它拖慢了所有其他接口。把循环换成一条联接查询，并为 `reviews.book_id` 建立索引后，在同一个 k6 测试中 p95 降到了 10 ms。证据：`notes/load-test.md`。
+
+第二条指出了原因及其位置，说明了用户的感受，给出了修复方法，并指向了证据。即使当时不在场的人，也能核实其中的每一个论断。
+
+## 让人信得过的数字
+
+- 每一组前后对比都要用**同样的测试、同一台机器**。如果还有其他改动，要说明。
+- **百分位数和错误率一起看**。p95 很快但错误率为 5%，不算成功。
+- **给出范围，而不是虚假的精确**。重复运行的结果会相差几个百分点。“约 700 req/s”比“698.97”更诚实。
+- **实验室与现场**。说明哪些数字来自 Lighthouse 或笔记本电脑，哪些来自生产环境。
+
+> **来自智能体的报告.** 让智能体为你撰写报告时，要求它注明每个数字的来源，就像下面的提示词那样。然后对照文件抽查几个数字。智能体擅长行文和结构；真正需要警惕的，是一个言之凿凿却没有来源的数字。
+
+## 动手练习：撰写 Larkspur 的性能报告
+
+**动手练习 · 20 分钟.** 目标： 把课程中的笔记整理成一页纸的性能报告，包含结论、结果表、发现和局限。
+
+1. 收集你的笔记：`perf-baseline.md`、`perf-plan.md`、`lighthouse.md`、`load-test.md`、`capacity.md`。
+2. 按照上面的六个部分撰写 `notes/report.md`。可以从这张结果表开始，填入**你自己的**数字：
+
+   | 指标 | 测试 | 修复前 | 修复后 |
+   | --- | --- | --- | --- |
+   | /api/books p95 | 迷你负载工具，10 个用户 | 1,320 ms | 12 ms |
+   | /api/orders p95 | 迷你负载工具，10 个用户 | 205 ms | 5 ms |
+   | /api/recommendations p95 | 迷你负载工具，10 个用户 | 347 ms | 26 ms |
+   | 错误率 | k6 负载测试，50 个用户 | 0% | 0% |
+   | LCP | Lighthouse，移动端 | 9.8 s | 1.5 s |
+   | 页面体积 | Lighthouse | 1,645 KiB | 68 KiB |
+
+![编辑器中打开的一份 Markdown 报告。一段简短的 Summary，一个 Test setup 列表，一张对比修复前后的 Results 表，以及一个 Findings 部分，其第一条标题为“N+1 queries in /api/books”，包含原因、影响、修复和证据几行。](screenshot-pending)
+*Screenshot (notes/report.md): 一页纸。每个数字都有来源。*
+
+3. 以一个不在场的人的身份读一遍。他们能根据“测试环境”部分重新运行每一个测试吗？能为每一条发现找到证据吗？
+
+**完成标准**
+- notes/report.md has all six sections
+- Every number is traceable to a notes file or a quoted command output
+- Missing measurements are listed under Limits instead of being estimated
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.2, "Reporting results".
+
+Exercise: Write Larkspur's performance report
+Goal: Turn your notes from the course into a one-page performance report with an answer, a results table, findings and limits.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read everything in `notes/` (baseline, plan, lighthouse, load test, capacity). If a file is missing, list it as missing; do not invent its numbers.
+2. Create `notes/report.md` with these sections: Summary (2 to 3 sentences answering whether Larkspur meets its budgets), Test setup (machine, tools and versions, commands), Results (a before/after table with p95 per endpoint, throughput, error rate, LCP and page weight), Findings (one per problem found: cause, user impact, fix, evidence), Limits (what wasn't tested), Next steps.
+3. Every number in the report must come from a file in notes/ or from a command you run now; cite which.
+
+Done when:
+- notes/report.md has all six sections
+- Every number is traceable to a notes file or a quoted command output
+- Missing measurements are listed under Limits instead of being estimated
+
+Report back:
+- The Summary and Results sections
+- Any numbers you couldn't source
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/4-summary/2-reporting.mdx
+```
+
+## 要点
+
+- 先给出测试要回答的问题的答案，再给出证据。
+- 每个数字都需要条件：测试了什么、用了多大负载、在哪台机器上、用了哪条命令。
+- 报告百分位数和错误率，前后对比要来自同一台机器上的同一个测试。
+- 一条发现要说明原因、以用户视角描述的影响，以及建议的下一步。
+- 说明你没有测试什么。局限也是结果的一部分。
+
+---
+
+上一页: [第 4.1 课: 性能测试工作流程](/demo/zh/performance-testing/review/workflow.md)
+下一页: [第 4.3 课: 性能验收](/demo/zh/performance-testing/review/acceptance.md)
+
+
+# 第 4.3 课: 性能验收
+
+性能测试 · 第 4 章: 总结 · 30 分钟
+
+> 把预算变成验收标准，用一条命令运行验收测试，并做出一个有人签字确认的放行/不放行决定。
+
+**学完本课你将能够:**
+- 从提出问题到签字确认，完整遵循性能测试方法
+- 写出可测量、事先商定、能追溯到预算的验收标准
+- 检查准入标准，运行验收测试，并读懂它的结论
+- 做出放行/不放行的决定，处理豁免，并记录签字确认
+
+## 文字稿: 性能验收 (2:42)
+
+**0:00 引言.** 发现并修复问题还不是终点。一次发布需要一个决定：放行，还是不放行。这就是验收。
+
+**0:08 方法.** 这门课的每一节课都是同一个方法中的一步。首先，提出测试必须回答的问题。 在测量之前设定预算。它们会成为验收标准。 建立基线，然后测试：先做静态检查，再做实验室测试和负载测试。 一次只修复一个原因。这一步可以交给智能体。 亲自重新运行同样的测试来验证。然后验收、报告，再用门禁守护成果。
+
+**0:40 验收标准.** 验收标准就是带上条件的预算。不是说：API 应该很快。 而是：在 50 个用户下，图书接口的 p95 不超过 300 毫秒，错误率低于百分之一，用 npm run accept 测量。 它可以测量，写明了条件，在测试之前商定，并且能追溯到一项预算。
+
+**1:00 准入与退出.** 准入标准决定一次运行是否算数：正确的构建、已填充的数据、一台空闲的机器。少了一条，这次运行就是无效的，而不是失败的。 退出标准决定何时完成：每一条标准都通过，或者有已签字的豁免，并且记录已经保存。
+
+**1:21 修复前.** 这是在课程开始之前的 Larkspur 上运行的验收测试。 三道静态门禁全部失败。在 50 个用户下，图书接口的 p95 超过了 13 秒。 七条自动化标准中有六条失败。结论：拒绝，退出码为 1。
+
+**1:37 修复后.** 经过第 2 章和第 3 章的四项修复之后：同样的命令，同一台机器。 每一道门禁都通过了。图书接口降到了 64 毫秒，订单 17 毫秒，推荐 125 毫秒。 推荐接口通过了，但它离限制最近。即使通过了，这一点也要写进报告。
+
+**1:58 放行还是不放行.** 如果每一条标准都通过，就放行。在记录上签字。 如果有任何一条失败，就不放行。修复它，然后重新运行整个测试。 如果发布不能等，可以由一位具名的人签署豁免，并注明到期日期和后续跟进。 还有，绝不为了让一次运行通过而放宽限制。修改标准是一个单独的决定，留给下一次运行。
+
+**2:26 轮到你了.** 在练习中，你亲自运行验收测试。如果有任何失败，由智能体来修复，而且不能改动限制。 然后你重新运行它，记录 Lighthouse 的结果，并做出决定：放行，还是不放行。
+
+## 课文
+
+第 2 章和第 3 章发现了问题并修复了它们。一次发布还需要一样东西：一个决定。**验收**就是把测量结果与一开始商定的预算放在一起比较，然后由某个人说放行或不放行。
+
+## 完整的方法
+
+这门课的每一节课都是同一个方法中的一步。下面按顺序列出，并注明由谁来做：
+
+| 步骤 | 做什么 | 谁来做 | 课程 |
+| --- | --- | --- | --- |
+| 1. 提问 | 写下测试必须回答的问题，以及它们覆盖的用户旅程 | 你 | 1.2 |
+| 2. 设定预算 | 在测量之前商定限制；它们会成为验收标准 | 你和团队 | 2.1、3.2 |
+| 3. 基线 | 用验收时会用到的工具测量当前构建 | 你 | 1.1 |
+| 4. 测试，静态优先 | 先做几秒钟就能完成的静态检查，再做实验室测试和负载测试 | 你 | 2.x、3.x |
+| 5. 修复 | 一次一个原因，改动尽量小 | 智能体 | 2.2 至 3.4 |
+| 6. 验证 | 在同一台机器上重新运行同样的测试；你的运行结果就是证据 | 你 | 每个练习 |
+| 7. 验收并报告 | 与标准比较，做出决定，签字，写成报告 | 你 | 4.2、本课 |
+| 8. 守护 | CI 中的门禁、生产环境中的监控，让它保持验收通过的状态 | 智能体搭建，你来审查 | 4.1 |
+
+第 5 步和第 6 步是智能体既能帮你节省时间、又不会拿走你决定权的地方。它写出修复，并引用它的输出。你重新运行检查，你看到的数字才算数。
+
+## 验收标准
+
+预算是一个限制。**验收标准**在此基础上加上了检查这个限制的条件：
+
+> API 应该很快。
+
+> **D1.** 在 50 个并发用户下，`/api/books` 的 p95 ≤ 300 ms，错误率低于 1%，在测试机器上用 `npm run accept` 测量。
+
+一条好的标准应该是：
+
+- **可测量的**。它指明一个指标和一个数字，以及产生这个数字的工具。
+- **有条件的**。它说明在多大负载下、在什么设备或机器上、用什么数据。
+- **事先商定的**。它在测试运行之前就写下来，由将要承担结果的人一起商定。
+- **可追溯的**。它能指回一项预算，以及预算背后的用户需求。
+
+Larkspur 的标准保存在 `acceptance.json` 中，就在 `budget.json` 旁边：
+
+```json title="acceptance.json（节选）"
+"dynamic": [
+  { "id": "D1", "name": "/api/books p95 at 50 users", "path": "/api/books?page={1-20}", "p95": 300 },
+  { "id": "D2", "name": "/api/orders p95 at 50 users", "path": "/api/orders?email=reader{0-19999}@larkspur.test", "p95": 200 },
+  { "id": "D3", "name": "/api/recommendations p95 at 50 users", "path": "/api/recommendations?book_id={1-5000}", "p95": 400 }
+],
+"errorRate": { "id": "D4", "name": "Error rate across all requests", "max": 1 },
+```
+
+一共有十条标准：三道静态门禁（S1 至 S3），四条动态标准（D1 至 D4），以及两条需要在真实浏览器中用 Lighthouse 测量的标准（M1、M2），由你手工记录。
+
+## 准入标准和退出标准
+
+**准入标准**决定一次运行是否算数。如果有一条没有满足，这次运行就是无效的，而不是失败的，你要修正的是测试环境，而不是代码。
+
+- 被测的构建就是你打算发布的那个：记下它的提交。
+- 数据已填充到接近生产环境的规模（这里用 `npm run seed`）。
+- 应用正在运行、已经预热，机器上没有运行其他繁重的任务。
+- 工具及其版本与计划中的一致。
+
+`npm run accept` 会检查它能检查的那些：如果 Larkspur 没有响应，或者没有填充数据，它会在测量任何东西之前以退出码 2 停止。
+
+**退出标准**决定验收何时完成：每一条标准都通过，或者每一项失败都有已签字的豁免；手工标准已经记录；验收记录已经保存在团队能找到的地方。
+
+## 运行验收测试
+
+这是第一次运行，对象是课程开始之前的 Larkspur：
+
+```text
+id   result      measured  limit      criterion
+S1   FAIL          exit 1  exit 0     Asset budget: script 50, stylesheet 20, image 250, total 350 KB
+              3 budget(s) exceeded.
+S2   FAIL          exit 1  exit 0     No queries inside loops
+              2 possible N+1 pattern(s).
+S3   FAIL          exit 1  exit 0     No full scans of large tables on request paths
+              2 of 4 queries scan a large table.
+D1   FAIL        13246 ms  ≤ 300 ms   /api/books p95 at 50 users
+D2   FAIL          797 ms  ≤ 200 ms   /api/orders p95 at 50 users
+D3   FAIL         1109 ms  ≤ 400 ms   /api/recommendations p95 at 50 users
+D4   PASS          0.00 %  < 1 %      Error rate across all requests
+M1   RECORD             —  ≤ 2.5 s    LCP on a simulated mid-range phone (Lighthouse)
+M2   RECORD             —  ≥ 90       Lighthouse performance score
+
+REJECT: 6 of 7 automated criteria failed (S1, S2, S3, D1, D2, D3).
+```
+
+而在第 2 章和第 3 章的四项修复之后，同样的命令，同一台机器：
+
+```text
+S1   PASS          exit 0  exit 0     Asset budget: script 50, stylesheet 20, image 250, total 350 KB
+S2   PASS          exit 0  exit 0     No queries inside loops
+S3   PASS          exit 0  exit 0     No full scans of large tables on request paths
+D1   PASS           64 ms  ≤ 300 ms   /api/books p95 at 50 users
+D2   PASS           17 ms  ≤ 200 ms   /api/orders p95 at 50 users
+D3   PASS          125 ms  ≤ 400 ms   /api/recommendations p95 at 50 users
+D4   PASS          0.00 %  < 1 %      Error rate across all requests
+
+ACCEPT: all 7 automated criteria passed. Record M1, M2 from Lighthouse before sign-off.
+```
+
+要逐行阅读，而不只是看最后一行。D3 以 125 ms 通过，但它是所有标准中离限制最近的一条，而且第 3.3 课的容量测试表明，推荐接口是最先饱和的接口。即使它通过了，这一点也应该写进报告。
+
+![显示验收表格的终端：S1 至 S3 以 exit 0 通过（PASS），D1 为 64 ms、D2 为 17 ms、D3 为 125 ms，对照 300、200 和 400 ms 的限制全部通过，D4 错误率 0.00% 通过，M1 和 M2 标记为 RECORD，最后一行是“ACCEPT: all 7 automated criteria passed.”](screenshot-pending)
+*Screenshot (npm run accept): 每一行都是一条标准及其限制。结论在最后一行，退出码向 CI 传达同样的信息。*
+
+## 放行、不放行和豁免
+
+| 结果 | 决定 |
+| --- | --- |
+| 每一条标准都通过 | **放行**。在记录上签字。 |
+| 有一条标准失败 | **不放行**。修复它，然后重新运行整个验收测试，而不只是失败的那一行。 |
+| 有一条标准失败，但发布不能等 | **豁免**。由一位具名的人书面接受这个风险，并注明到期日期和一个后续跟进的工单。它仍然记为失败。 |
+| 有一条准入标准没有满足 | **没有结果**。修正测试环境，然后重新运行。 |
+
+有一条规则比其他所有规则都重要：**绝不为了让一次运行通过而修改限制**。如果团队认为某个限制定错了，那是一个单独的决定，要连同理由一起记录，并从下一次运行开始生效。下面的智能体提示词也对智能体说了同样的话。
+
+> **豁免是一笔债.** 没有到期日期的豁免会变成新的预算，而没有人决定过要这样。给每一项豁免指定负责人和日期，并在下一次验收运行时检查它。
+
+## 验收记录
+
+`npm run accept -- --out notes/acceptance-run.md` 会写下测量的部分：日期、提交、机器、Node.js 版本、负载设置、每一条标准以及结论。你来补充只有你能写的内容：
+
+```md title="notes/acceptance.md"
+# 性能验收：Larkspur 店面和 API
+
+运行记录：notes/acceptance-run.md（其中包含提交、机器和命令）
+
+| ID | 标准 | 限制 | 实测 | 结果 |
+| -- | ---- | ---- | ---- | ---- |
+| M1 | LCP，Lighthouse 移动端 | ≤ 2.5 s | … | … |
+| M2 | Lighthouse 性能得分 | ≥ 90 | … | … |
+
+豁免：无
+已记录的风险：推荐接口是最先饱和的接口（第 3.3 课）
+
+决定：放行 / 不放行
+签字：<姓名>，<角色>，<日期>
+```
+
+## 动手练习：运行 Larkspur 的验收测试，修复失败项，并签字确认
+
+**动手练习 · 30 分钟.** 目标： 亲自运行验收测试，让智能体修复任何失败的标准，用同样的测试验证修复，然后写出带有放行/不放行决定的验收记录。
+
+1. 检查准入标准：运行 `npm run seed`，然后在单独的终端中运行 `npm start`。关闭机器上任何繁重的程序。
+2. 亲自运行验收测试，并保存记录：
+
+   ```bash
+   npm run accept -- --out notes/acceptance-run.md
+   echo $?
+   ```
+
+3. 阅读每一行。哪些标准失败了，差多少？哪一条即使通过了，也离限制最近？
+4. 如果有任何失败，复制下面的智能体提示词。智能体一次修复一条标准，并且不允许改动限制。
+5. 智能体汇报后，**亲自再运行一次第 2 步**。把你的数字和它引用的数字比较一下，两者应该相差不超过几个百分点。
+6. 像第 3.1 课那样运行 Lighthouse，记录 M1 和 M2。
+7. 按照上面的模板写出 `notes/acceptance.md`，然后做出决定：放行还是不放行。签上你的名字。
+
+**完成标准**
+- `npm run accept` exits 0, or every remaining failure is explained with its cause
+- Each change is tied to the criterion it fixes
+- acceptance.json, budget.json and all thresholds are unchanged
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.3, "Performance acceptance".
+
+Exercise: Run Larkspur's acceptance test, fix what fails, and sign it off
+Goal: Run the acceptance test yourself, have an agent fix any failing criterion, verify the fix with the same test, and write the acceptance record with a go/no-go decision.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run accept -- --out notes/acceptance-run.md` and capture the full output and the exit code. Exit code 2 means an entry criterion wasn't met: report which one and stop.
+2. If the verdict is ACCEPT, report that and stop: there is nothing to fix.
+3. For each FAIL row, find the cause with the course's own tools: `npm run budget`, `npm run lint:queries`, `npm run explain`, `npm run check:plans`, `npm run load`, and `npm run profile` for CPU. Name the file and line responsible.
+4. Fix one criterion at a time with the smallest change that addresses the cause. After each fix, run that criterion's own check and quote its output.
+5. Do not edit `acceptance.json`, `budget.json`, `hot-queries.sql` or any threshold. If you believe a limit is wrong, say so in your report instead.
+6. When every fix is in, run `npm run accept -- --out notes/acceptance-run.md` again and capture the output and exit code.
+7. Do not record the Lighthouse criteria M1 and M2 and do not write the sign-off; the learner does both.
+
+Done when:
+- `npm run accept` exits 0, or every remaining failure is explained with its cause
+- Each change is tied to the criterion it fixes
+- acceptance.json, budget.json and all thresholds are unchanged
+
+Report back:
+- A table of each criterion: limit, measured before, measured after
+- The files you changed for each criterion, with a one-line reason
+- The full output of the final acceptance run and its exit code
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/4-summary/3-acceptance.mdx
+```
+
+## 要点
+
+- 方法是：提出问题，设定预算，建立基线，先静态后动态地测试，一次只修复一件事，用同样的测试验证，然后验收并报告。
+- 一条验收标准要指明一个指标、一个限制，以及测量它的条件。它在测试之前商定，并能追溯到一项预算。
+- 准入标准决定一次运行是否算数：正确的构建、已填充的数据、一台空闲的机器。不满足准入标准的运行是无效的，而不是失败的。
+- 任何一条标准失败都意味着不放行，除非有一位具名的人书面接受这个风险，并注明到期日期和后续跟进。
+- 绝不为了让一次运行通过而放宽限制。修改标准是一个单独的决定，要在下一次运行之前做出。
+- 智能体实现修复；你运行验收测试、读懂数字并签字。记录中包含命令、机器、提交和每一项结果。
+
+---
+
+上一页: [第 4.2 课: 报告结果](/demo/zh/performance-testing/review/reporting.md)
+下一页: [第 4.4 课: 在你自己的项目上做静态测试](/demo/zh/performance-testing/review/your-project.md)
+
+
+# 第 4.4 课: 在你自己的项目上做静态测试
+
+性能测试 · 第 4 章: 总结 · 45 分钟
+
+> 亲自在真实的代码库上运行课程中的静态检查，读懂数字，设定最初的预算，并把修复交给智能体。
+
+**学完本课你将能够:**
+- 为你自己的技术栈找到与课程中每项静态检查对应的做法
+- 在一个用户旅程上亲自运行它们，并记录基线
+- 把基线变成最初的预算和一道门禁
+- 把一条发现交给智能体，然后用同样的命令验证它的修复
+
+## 文字稿: 在你自己的项目上做静态测试 (2:19)
+
+**0:00 引言.** Larkspur 慢得很有教学意义。你自己的项目会以它自己的方式变慢，而要弄清楚是怎么慢的，唯一的办法就是在它上面运行这些检查。
+
+**0:12 为什么要亲自运行.** 智能体可以运行本课中的每一条命令。那为什么还要亲自运行？ 因为阅读真实的输出就是这项技能本身。看过自己代码的数字，你才知道什么是正常的。 因为一个数字是否可以接受取决于你的用户，这由你来判断。 还因为当智能体之后说已经修好了，你的运行结果就是证据。
+
+**0:41 四个问题.** 第 2 章的四个静态问题几乎适用于任何技术栈。我们交付的内容有多重？ 一个请求执行多少次查询？这个数字会随页面大小增长吗？ 每条热点查询是使用了索引，还是扫描了一张大表？ 还有，是什么阻塞了首次渲染？
+
+**1:03 基线.** 选一个用户旅程：用户最常进入的页面，以及它发出的调用。 称量生产构建，而不是开发构建。统计一个请求的查询数，再统计一个两倍长的页面的查询数。 Explain 最主要的查询，每次都用同一张表把结果全部记下来。这就是你的基线。
+
+**1:26 读懂数字.** 真实的输出比 Larkspur 的噪声更大。增长比大小更重要：页面翻倍时查询数也翻倍，那就是 N+1。 只有大表上的扫描才要紧。扫描一张四十行的查找表很正常。 最初的预算要设在略高于当前数字的位置，让门禁现在能通过，并能捕获下一次性能退化。
+
+**1:50 交给智能体.** 两段智能体提示词完成剩下的工作。第一段把四项检查对应到你的技术栈上，写成由你亲自运行的命令。 第二段在一个新分支上修复一条发现，并添加一道门禁，问题再出现时就会失败。 然后你亲自重新运行检查，故意弄坏修复来看门禁失败，并像审查其他任何改动一样审查这个分支。
+
+## 课文
+
+Larkspur 是有意做得很慢的，慢得很有教学意义。你自己的项目也会以它自己的方式变慢，而要弄清楚是怎么慢的，唯一的办法就是在它上面运行这些检查。本课就是一座桥梁：同样的四个静态问题，用在真实的代码库上，由你运行检查，由智能体负责修复。
+
+## 为什么要亲自运行
+
+智能体可以运行本课中的每一条命令，那为什么还要手工来做？有三个理由：
+
+- **阅读真实的输出就是这项技能本身**。知道 90 KB 的脚本已经很多，或者一个页面执行 12 次查询值得怀疑，这种判断来自亲眼见过你自己代码的数字。
+- **决定权在你**。一个数字是否可以接受取决于你的用户，而智能体并不了解他们。
+- **你的运行结果就是证据**。当智能体之后说“修好了”，你重新运行同样的命令，亲眼看到结果。
+
+静态检查让这件事的成本很低：它们都不需要负载、预发布环境或特殊硬件。大多数只需几秒钟。
+
+## 四个问题，适用于任何技术栈
+
+第 2 章中的每项静态检查都回答了一个几乎适用于任何 Web 应用的问题。下面是在常见技术栈上提出这些问题的方法：
+
+| 问题 | Larkspur | 你的项目 |
+| --- | --- | --- |
+| **我们交付的内容有多重？** | `npm run budget` | 构建生产版本，然后称量输出（命令见下文）。作为门禁：JavaScript 用 [size-limit](https://github.com/ai/size-limit)，或者用 Lighthouse CI 的资源体积断言。 |
+| **每个请求执行多少次查询？** | `npm run lint:queries`、`x-query-count` 响应头 | 在开发环境中打开查询日志，统计每个请求对应的行数。Django：在测试中使用 `assertNumQueries`。Rails：`bullet` gem。Laravel：`Model::preventLazyLoading()`。Hibernate：`hibernate.generate_statistics=true`。Prisma：`log: ['query']`。 |
+| **每条热点查询都使用了索引吗？** | `npm run explain`、`npm run check:plans` | PostgreSQL：`EXPLAIN (ANALYZE, BUFFERS)`；查找大表上的 `Seq Scan`。MySQL 8：`EXPLAIN FORMAT=TREE`；查找 `Table scan`。SQLite：`EXPLAIN QUERY PLAN`；查找 `SCAN`。 |
+| **什么阻塞了首次渲染？** | `public/index.html` 中的 `<script>` 标签 | 查找 `<head>` 中没有 `defer`、`async` 或 `type="module"` 的 `<script src>`，以及体积较大的样式表。Lighthouse 会把它们列在“Eliminate render-blocking resources”（消除阻塞渲染的资源）下。 |
+
+要找出值得 explain 的查询，就从实际运行最多的开始：PostgreSQL 中按 `total_exec_time` 排序的 `pg_stat_statements`、MySQL 的慢查询日志，或者干脆用走一遍用户旅程得到的查询日志。
+
+> **EXPLAIN ANALYZE 会执行查询.** `EXPLAIN ANALYZE` 会真正执行语句来计时。对开发数据库上的 `SELECT` 来说这没有问题。对任何会写入数据的语句，请使用普通的 `EXPLAIN`，或者把它放进一个最后回滚的事务中。
+
+## 分步操作
+
+**1. 选一个用户旅程**。用户最常进入的页面，以及它发出的两三个 API 调用。对整个应用做全面普查很诱人，但很少能做完。
+
+**2. 称量生产构建**。开发构建没有压缩，体积大得多，它们的数字会误导你。对于 JavaScript 前端：
+
+```bash
+npm run build
+find dist -type f \( -name '*.js' -o -name '*.css' \) | while read -r f; do
+  printf '%8.1f KB  %s\n' "$(gzip -c "$f" | wc -c | awk '{print $1/1024}')" "$f"
+done | sort -rn | head -15
+```
+
+把 `dist` 换成你的构建输出目录（`build`、`.next/static`、`public/assets`…）。然后查找超过 200 KB 的图片：`find dist public -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.webp' \) -size +200k`。
+
+**3. 统计每个请求的查询数**。在开发环境中打开查询日志，请求某个接口一次，统计它执行了多少次查询。然后请求一个条目数加倍的页面。如果查询数也翻倍了，你就遇到了 N+1。
+
+**4. Explain 最主要的查询**。从第 3 步中取出最慢或最频繁的三条查询，用你的数据库的 `EXPLAIN` 运行它们。记下每一次对超过几千行的表的全表扫描。
+
+**5. 把它写下来**。每次都用同样的格式，这样下一次运行就能和这一次比较：
+
+```md title="perf/baseline.md"
+# 静态基线：<用户旅程>，<日期>，提交 <sha>
+
+| 检查 | 命令 | 结果 | 预算 |
+| ---- | ---- | ---- | ---- |
+| 交付的 JS（gz） | 见 STATIC-CHECKS.md §1 | 412 KB | 400 KB |
+| 最大的图片 | find … -size +200k | hero.png 1.1 MB | 250 KB |
+| 查询数，GET /api/products | 查询日志 | 52（随页面大小增长） | ≤ 5 |
+| 查询计划，按客户查订单 | EXPLAIN | orders 上的 Seq Scan（1.2M 行） | 索引查找 |
+| 阻塞渲染的脚本 | <head> 扫描 | 2 | 0 |
+
+发现，从最严重的开始：
+1. …
+```
+
+上面的数字只是示范格式，并不是目标。
+
+## 读懂真实的数字
+
+在 Larkspur 上，每个问题都是刻意埋下的，一目了然。真实的输出噪声更大。下面是一些经验法则：
+
+- **增长比大小更重要**。一个页面执行 8 次查询也许没问题。但页面多显示 50 个条目时，8 次变成了 58 次，那就有问题了。
+- **只有大表上的扫描才要紧**。在一张 40 行的查找表上做 `Seq Scan` 很正常，而且往往比走索引更快。
+- **以用户的网络来衡量，而不是你的**。你在办公室 Wi-Fi 上用笔记本电脑，看不出 400 KB 的脚本在中端手机上的代价。第 3.1 课展示了它在 Larkspur 上的代价。
+- **一个原因对应一条发现**。三个慢接口如果共用一条没有索引的查询，那就是一条发现，而不是三条。
+
+## 从基线到预算
+
+最初的预算来自基线，就像第 2.1 课那样：略高于当前的数字，让门禁今天能通过，并在下一次性能退化时失败。在旁边写下目标值，也就是修复落地后你希望达到的数字。然后挑选**一道**门禁先自动化，通常是包体积或查询数测试，因为两者都快速、确定，而且失败时容易解释。
+
+## 把修复交给智能体
+
+课程其余部分的分工在这里依然适用，只有一个区别：这是一个别人也依赖的代码库。所以下面的提示词要求智能体在分支上工作，添加依赖前先询问，并且绝不为了让检查通过而放宽预算。
+
+**动手练习 · 15 分钟.** 目标： 让智能体把课程中的四项静态检查对应到你的仓库所用的技术栈上，写成你将亲自运行的命令。
+
+1. 在终端中打开你的项目，并在那里启动一个编程智能体。
+2. 复制下面的提示词。它要求智能体写出 `perf/STATIC-CHECKS.md`，其中包含适合你的技术栈的命令，并且不运行任何繁重的任务，也不修改代码。
+3. 阅读它写的内容。每条命令对你的项目来说都说得通吗？对任何你不理解的命令，让它解释一下。
+
+**完成标准**
+- perf/STATIC-CHECKS.md has a command and reading guide for all four questions
+- Every command fits this repository's stack, paths and tools
+- No application code or configuration changed
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.4, "Static testing on your own project".
+
+Exercise: Find the static checks for your stack
+Goal: Have an agent map the course's four static checks onto your repository's stack, as commands you will run yourself.
+
+Project: the learner's own repository, which is your current working directory. Before anything else, read its README and build files to learn the stack.
+
+Steps:
+1. Identify the stack from the repository: languages, framework, build tool and its output folder, ORM or database library, and database engine. Quote the files you read.
+2. For each of these four questions, give one concrete command or procedure for this repository, preferring tools the project already has: (1) the weight of the production build's scripts, stylesheets and images, gzipped where the server compresses; (2) the number of database queries per request on one endpoint; (3) the query plan of the endpoint's main queries, and how to tell a full scan from an index search on this database; (4) which scripts or stylesheets block the first render.
+3. Write `perf/STATIC-CHECKS.md` with one section per question: the command, what it measures, how to read its output, and any setting that must be switched on first (for example query logging in development).
+4. If a check needs a new dev dependency, name it and why, and don't install it.
+5. Do not run load tests, and do not change application code or configuration. The learner runs the checks.
+
+Done when:
+- perf/STATIC-CHECKS.md has a command and reading guide for all four questions
+- Every command fits this repository's stack, paths and tools
+- No application code or configuration changed
+
+Report back:
+- A summary of the stack, with the files that show it
+- The four commands, in a table
+- Any new dev dependencies the learner would need to approve
+
+Ground rules:
+- Work on a new branch. Don't commit to the main branch, push, or deploy unless the learner asks.
+- Ask before adding a dependency or changing configuration that production uses.
+- Never loosen a budget, threshold or acceptance criterion to make a check pass. If you think one is wrong, say so and stop.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: https://johnsonnoronathan.github.io/demo/performance-testing/review/your-project.md
+```
+
+接下来是只有你能做的部分：在你选定的用户旅程上，亲自运行 `perf/STATIC-CHECKS.md` 中的每一条命令，并像第 5 步那样填写 `perf/baseline.md`。设定预算。给发现排出优先级。
+
+**动手练习 · 30 分钟.** 目标： 让智能体修复基线中的一条发现，并添加一道能再次捕获它的门禁；然后用你自己的运行来验证。
+
+1. 选出你想最先修复的发现，并在粘贴下面的提示词时指明它。
+2. 智能体汇报后，检出它的分支，**亲自重新运行这条发现对应的检查**。你的数字和它引用的数字一致吗？
+3. 像第 4.1 课那样故意把它弄坏：在本地撤销修复，确认新的门禁会失败。然后再恢复。
+4. 用新的数字更新 `perf/baseline.md`。在合并之前，像审查其他任何改动一样审查这个分支。
+
+**完成标准**
+- The finding's check shows the improvement, before and after quoted from the same command
+- The project's existing tests pass
+- A gate exists that fails when the problem comes back
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.4, "Static testing on your own project".
+
+Exercise: Fix one finding and add a gate
+Goal: Have an agent fix one finding from your baseline and add a gate that would catch it again; then verify it with your own run.
+
+Project: the learner's own repository, which is your current working directory. Before anything else, read its README and build files to learn the stack.
+
+Steps:
+1. Read `perf/baseline.md` and `perf/STATIC-CHECKS.md`. Work on the finding the learner names; if none is named, take the one furthest over its budget, and say which you chose.
+2. Create a new branch. Before changing anything, run the finding's check from STATIC-CHECKS.md and quote the output.
+3. Find the cause and name the file and line. Make the smallest change that removes it. Keep behaviour the same; run the project's existing tests and quote the result.
+4. Run the same check again and quote the output, so before and after come from the same command.
+5. Add a gate that fails if this regresses, using the project's existing test or CI setup: for example a test that asserts the number of queries for the endpoint, or a bundle-size limit in CI. Make sure it exits non-zero on a breach.
+6. Do not change any budget in perf/baseline.md. Do not push, merge or deploy.
+
+Done when:
+- The finding's check shows the improvement, before and after quoted from the same command
+- The project's existing tests pass
+- A gate exists that fails when the problem comes back
+
+Report back:
+- The cause, with file and line
+- Before and after output of the check
+- The gate you added and how to run it
+- The branch name and the list of changed files
+
+Ground rules:
+- Work on a new branch. Don't commit to the main branch, push, or deploy unless the learner asks.
+- Ask before adding a dependency or changing configuration that production uses.
+- Never loosen a budget, threshold or acceptance criterion to make a check pass. If you think one is wrong, say so and stop.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: https://johnsonnoronathan.github.io/demo/performance-testing/review/your-project.md
+```
+
+## 要点
+
+- 四个静态问题适用于任何技术栈：我们交付的内容有多重，每个请求执行多少次查询，每条热点查询是否使用了索引，以及什么阻塞了渲染。
+- 第一次要亲自运行这些检查。阅读真实的输出，才能了解你的代码库中什么是正常的；而决定什么可以接受的人是你。
+- 先测量一个用户旅程，而不是整个应用。一个能重复的基线胜过一次无法重复的全面普查。
+- 每个请求的查询数随页面大小增长，以及请求路径上对大表的全表扫描，在任何技术栈上都是发现。
+- 把最初的预算设在略高于当前数字的位置，让门禁现在能通过，并能捕获下一次性能退化；随着修复落地再逐步收紧。
+- 智能体提出命令，编写修复和门禁；你运行检查、读懂数字并批准。
+
+---
+
+上一页: [第 4.3 课: 性能验收](/demo/zh/performance-testing/review/acceptance.md)
+下一页: [第 4 章 · 小结: 课程总结](/demo/zh/performance-testing/review/summary.md)
+
+
+# 第 4 章 · 小结: 课程总结
+
+性能测试 · 第 4 章: 总结 · 10 分钟
+
+> 课程涵盖的全部内容汇总在一处，以及接下来可以学什么。
+
+## 文字稿: 课程总结 (0:54)
+
+**0:00 回顾.** 你从一个缓慢的书店和一句含糊的抱怨开始。来看看你现在能做什么。
+
+**0:07 四个章节.** 你会测量：用百分位数表示延迟，还有吞吐量和错误，并围绕具体问题写出计划。 你会通过阅读发现性能问题：预算、N+1 查询、查询计划和资源体积，几秒钟就能完成，而且不需要服务器。 你会运行并测量：Lighthouse，负载、压力、峰值和浸泡测试，以及能指出慢代码的性能分析。 你还能把它变成日常流程：CI 中的门禁，以及一份解释每项改动的报告。
+
+**0:40 你的下一步.** 挑一个你正在开发的应用，像第 1.2 课那样，为它写一份一页纸的计划。 然后在这周加上一道静态门禁和一个动态测试。去找出慢在哪里吧。
+
+## 课文
+
+你从一个缓慢的书店和一句含糊的抱怨开始。现在你拥有了经过测量的预算、三道静态门禁、一个带阈值的负载测试、一个已知的容量，以及一份解释每项改动的报告。
+
+## 整门课程
+
+### 1.1 性能测试测量什么
+
+- 延迟是一个请求花费的时间，吞吐量是每秒完成的请求数，错误率是失败请求所占的比例。
+- 延迟是一个分布。要报告百分位数：p50 代表典型请求，p95 和 p99 代表慢速长尾。
+- 平均值把快请求和慢请求混在一起，得到一个没有任何用户真正经历过的数字。不要基于平均值设定预算。
+- 记下你是如何测量的（用户数、时长、接口），这样数字才能被重复和比较。
+
+### 1.2 静态测试与动态测试
+
+- 静态测试在不运行系统的情况下检查代码、查询、资源和配置。它速度快，每次改动都能运行，但只能发现可能存在的问题。
+- 动态测试在真实流量下运行系统，测量用户的实际感受。它更慢，需要一个环境，但能证明影响有多大。
+- 用静态检查及早发现已知模式，用动态测试确认影响，并发现任何规则都描述不了的问题。
+- 先用问题来规划（“结账能否在 50 个用户下保持 p95 低于 300 ms？”），再为每个问题选择能回答它的最低成本测试。
+
+### 2.1 性能预算
+
+- 预算是在测量之前约定的上限。它把“这够快吗？”变成通过或失败。
+- 数量预算（KB、请求数、查询数）可以在每次改动时静态检查。时间预算（p95、LCP）需要动态测试。
+- 先根据用户需求和竞争对手来定预算，再参考当前数字，确保它可以达成。随着改进逐步收紧。
+- 让构建失败的预算检查会被修复；变红的仪表盘只会被忽视。
+
+### 2.2 代码审查：N+1 查询
+
+- N+1 指先用一次查询取列表，再为每一项多查一次。代价随列表增长，在快速的本地数据库中很难察觉。
+- 从静态角度看，它表现为循环或 .map 回调中的数据库调用。一条简单的 lint 规则就能抓住大多数情况。
+- 修复方法是用一次查询取回全部数据（JOIN、GROUP BY），或用一次批量查询（WHERE id IN (...)）。
+- 统计每个请求的查询次数。随页面大小增长的查询次数就是 N+1 的特征。
+
+### 2.3 阅读查询计划
+
+- EXPLAIN QUERY PLAN 显示数据库将如何执行查询，而不真正执行它。所以它是一种静态检查。
+- SCAN 读取表中的每一行；SEARCH 利用索引直接跳到匹配的行。在热点路径上对大表做 SCAN 就是缺陷。
+- 先为过滤用的列建索引，再加上排序用的列，这样数据库连排序也可以省掉。
+- 索引加快读取、拖慢写入。只添加查询真正需要的索引，而不是每列一个。
+
+### 2.4 资源体积
+
+- 称量页面实际加载的东西。通常少数几个文件就占了大部分体积。
+- 对每个重文件问两个问题：全部内容都需要吗？现在就需要吗？库打包的内容往往远超你实际用到的。
+- <head> 中的普通 <script> 会阻塞渲染，直到它下载并执行完毕。使用 defer，或者把它移走。
+- 按显示尺寸提供图片，合理压缩，并为它们设置 width 和 height。
+
+### 3.1 用 Lighthouse 做实验室测量
+
+- Lighthouse 在模拟的中端手机和慢速网络上加载页面，因此结果可重复，但偏悲观。
+- FCP 是任何内容出现的时刻；LCP 是主要内容出现的时刻。LCP 低于 2.5 秒算良好。
+- 阻塞渲染的脚本会推迟 FCP；过重的图片会推迟 LCP。静态检查已经预测到了这两点。
+- 实验室数据用于比较不同构建。来自真实用户的现场数据才告诉你人们实际的体验。
+
+### 3.2 用 k6 做负载测试
+
+- 虚拟用户循环运行你的脚本。阶段决定随时间推移同时运行多少个虚拟用户。
+- 思考时间（sleep）让每个用户的行为像真人，所以 50 个虚拟用户接近 50 个真实顾客。
+- 检查验证每个响应；阈值把整次运行的百分位数和错误率变成通过或失败。
+- 按接口给请求打标签，让每个接口有自己的阈值。在单线程服务器上，一个慢接口会拖延其他所有接口。
+- 总是先运行一次简短的冒烟测试，在加负载之前证明脚本和应用都能正常工作。
+
+### 3.3 压力、峰值与浸泡测试
+
+- 负载测试检查预期流量；压力测试找出崩溃点；峰值测试检查能否扛住并恢复；浸泡测试发现缓慢漂移。
+- 当用户增加而吞吐量不再增长时，就到了上限。此后多出来的用户只会增加等待时间。
+- 容量是 p95 越过预算时的负载，而不是应用崩溃时的负载。
+- 在峰值测试中，既要判断能否扛住，也要判断能否恢复：流量高峰结束后，延迟和错误应回到正常水平。
+- 浸泡测试需要数小时，并要关注内存、连接数和延迟的趋势，而不只是最终的百分位数。
+
+### 3.4 找到瓶颈
+
+- 负载测试告诉你有东西很慢；在同样负载下采集的 profile 告诉你时间花在了哪里。
+- 先找出饱和的资源：CPU 达到 100% 说明问题在代码；CPU 很低而延迟很高，说明在等待别的东西。
+- 在火焰图中，宽度就是时间。寻找靠近顶部、属于你自己代码的宽帧。
+- 每次请求都重复同样的计算，是典型的热点路径。只算一次，并缓存结果。
+- 在同一台机器上重新运行发现问题的那个测试，以此证明修复有效。
+
+### 4.1 性能测试工作流程
+
+- 在每个拉取请求上运行低成本的静态门禁，在发布前运行动态测试，在生产环境中进行监控。
+- 门禁只有让构建失败才有用。确保每项检查在超出限制时以非零状态退出。
+- CI 中的负载测试要短，阈值要足够宽松以适应共享运行器；长时间的压力测试和浸泡测试按计划定期运行。
+- 把生产环境的数字反馈到预算中。正是这个闭环让性能不会逐渐劣化。
+
+### 4.2 报告结果
+
+- 先给出测试要回答的问题的答案，再给出证据。
+- 每个数字都需要条件：测试了什么、用了多大负载、在哪台机器上、用了哪条命令。
+- 报告百分位数和错误率，前后对比要来自同一台机器上的同一个测试。
+- 一条发现要说明原因、以用户视角描述的影响，以及建议的下一步。
+- 说明你没有测试什么。局限也是结果的一部分。
+
+### 4.3 性能验收
+
+- 方法是：提出问题，设定预算，建立基线，先静态后动态地测试，一次只修复一件事，用同样的测试验证，然后验收并报告。
+- 一条验收标准要指明一个指标、一个限制，以及测量它的条件。它在测试之前商定，并能追溯到一项预算。
+- 准入标准决定一次运行是否算数：正确的构建、已填充的数据、一台空闲的机器。不满足准入标准的运行是无效的，而不是失败的。
+- 任何一条标准失败都意味着不放行，除非有一位具名的人书面接受这个风险，并注明到期日期和后续跟进。
+- 绝不为了让一次运行通过而放宽限制。修改标准是一个单独的决定，要在下一次运行之前做出。
+- 智能体实现修复；你运行验收测试、读懂数字并签字。记录中包含命令、机器、提交和每一项结果。
+
+### 4.4 在你自己的项目上做静态测试
+
+- 四个静态问题适用于任何技术栈：我们交付的内容有多重，每个请求执行多少次查询，每条热点查询是否使用了索引，以及什么阻塞了渲染。
+- 第一次要亲自运行这些检查。阅读真实的输出，才能了解你的代码库中什么是正常的；而决定什么可以接受的人是你。
+- 先测量一个用户旅程，而不是整个应用。一个能重复的基线胜过一次无法重复的全面普查。
+- 每个请求的查询数随页面大小增长，以及请求路径上对大表的全表扫描，在任何技术栈上都是发现。
+- 把最初的预算设在略高于当前数字的位置，让门禁现在能通过，并能捕获下一次性能退化；随着修复落地再逐步收紧。
+- 智能体提出命令，编写修复和门禁；你运行检查、读懂数字并批准。
+
+## 自测
+
+1. 一位同事想把每晚 4 小时的浸泡测试设为每个拉取请求的必需检查。你会建议怎么做？
+   拉取请求上只保留快速的静态门禁（最多再加一个简短的负载测试）。浸泡测试按计划在稳定的环境中定期运行，并对其结果设置告警。
+2. 你的负载测试周一在 CI 中通过，周二在没有任何代码改动的情况下失败了。你首先要做什么？
+   重新运行并比较。共享运行器噪声很大；检查失败能否复现、同一台机器上是否运行了其他作业，以及与阈值之间的余量是否太小。
+3. 说出 Larkspur 中一个由静态测试先发现的问题，以及一个只有动态测试才发现的问题。
+   静态：N+1 循环、全表扫描或过重的资源。动态：推荐接口中的 CPU 热点路径，它不符合任何静态规则。
+4. 怎样的性能发现才是可据以行动的？
+   它指出原因及其位置、以用户视角描述并附有测量数字的影响、修复方法，以及别人可以核实的证据。
+5. 发布前一天，验收运行中的 D3 超出上限 20 毫秒。产品负责人要求你把上限提高到 450 毫秒，好让它通过。你怎么做？
+   不要为了通过而修改上限。如实报告这次失败。如果发布不能推迟，可以由产品负责人签署一份带有到期日和后续跟进的豁免；修改验收标准本身是另一项决定，从下一次运行开始生效。
+6. 智能体报告说，它修复了你项目里的一个 N+1 问题，现在这个接口只运行 3 条查询。你怎么验收？
+   在同一个用户旅程上亲自重新运行同一个检查，把你的数字和它引用的数字对比。然后在本地故意撤销修复，确认新加的门禁会失败，最后像审查其他改动一样审查这个分支再合并。
+
+## 接下来学什么
+
+- **你自己的应用**。为你正在开发的某个系统写一份第 1.2 课那样的一页纸计划。这周挑一道静态门禁和一个动态测试加进去。
+- **真实用户监控**。实验室数字用来发现问题，现场数字决定优先级。在添加任何东西之前，先看看你的平台已经记录了什么。
+- **分布式追踪**。当请求跨越多个服务时，追踪能显示时间花在了哪个服务上，就像火焰图在单个进程内部所做的那样。
+- **深入数据库**。你所用数据库自带的 `EXPLAIN`（PostgreSQL 的 `EXPLAIN ANALYZE`、MySQL 的 `EXPLAIN FORMAT=TREE`）及其慢查询日志，远比 SQLite 的更深入。
+
+> **重置练习应用.** 要从头再学一遍课程：运行 `git checkout -- academy/practice/larkspur`，如果你创建过 `db/migrations/001_indexes.sql` 就删除它，然后运行 `npm run seed`。
+
+---
+
+上一页: [第 4.4 课: 在你自己的项目上做静态测试](/demo/zh/performance-testing/review/your-project.md)

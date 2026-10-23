@@ -1,0 +1,3056 @@
+# Kapitel 1 · Einstieg: Überblick
+
+Performance-Tests · Kapitel 1: Überblick · 5 Min.
+
+> Was dieser Kurs behandelt, wie er aufgebaut ist und wie Sie den Kursraum und seine Agenten-Prompts nutzen.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Overview (1:53)
+
+**0:00 Welcome.** Welcome to Performance Testing on Testbench. In this course you'll learn to find what makes software slow, before your users do. "The site feels slow" is a complaint. A number with a cause attached is a finding. This course teaches you to get from one to the other.
+
+**0:20 Four chapters.** The course has four chapters. First, an overview: what performance testing measures, and how. Then static testing: finding problems by reading code, query plans and build output, without running anything. Then dynamic testing: running the app under realistic traffic and measuring what users feel. And finally a summary that puts both into a workflow, and into a report people can act on.
+
+**0:48 The practice app.** You'll practise on Larkspur Books, a small online bookshop with five thousand books and two hundred thousand orders. It's slow on purpose. One page of books runs a hundred and one database queries, and on a phone the main image takes almost ten seconds to appear. By the end of the course you'll have found and fixed every one of those problems, with a number to prove each fix.
+
+**1:17 How each page works.** Every page works the same way. Watch a short video, like this one. Then read the lesson below it, at your own pace. Then do your part of the hands-on exercise: run the checks yourself, and read the numbers. Hand the implementation to a coding agent. Copy the exercise's prompt, and the agent makes the fix and quotes its output. Then verify: rerun the same check yourself. The number you see is the one that counts, and the decision is yours.
+
+## Die Lektion
+
+"The site feels slow" is a complaint. "p95 for `/api/books` is 1.3 seconds against a 300 ms budget, because the endpoint runs 101 queries per request" is a finding someone can fix. This course teaches you to get from the first to the second, reliably.
+
+## Was Sie mitnehmen
+
+- Know what questions performance testing answers, and which numbers it reports
+- Tell static testing from dynamic testing, and know when each one pays off
+- Have the practice app running, with a first measurement written down
+- Know how to hand a hands-on exercise to a coding agent, and what to check when it reports back
+
+## How the course is built
+
+The course moves from the big picture to specific techniques and back again. Chapter 1 frames the problem. Chapters 2 and 3 each go deep on one family of tests. Chapter 4 puts them together into a workflow and a report.
+
+1. **Überblick** (Überblick): Was Performance-Tests messen, die zwei Testfamilien und die Übungs-App.
+2. **Statische Tests** (Vertiefung): Performance-Probleme finden, indem man das Gebaute untersucht, ohne es auszuführen.
+3. **Dynamische Tests** (Vertiefung): Das System laufen lassen, Last darauf schicken und messen, was Nutzer spüren.
+4. **Zusammenfassung** (Überblick): Beides zu einem Ablauf verbinden, Ergebnisse berichten, die Abnahme durchführen, es auf das eigene Projekt anwenden und den ganzen Kurs wiederholen.
+
+Every chapter follows the same shape:
+
+1. **An opening** like this one: what you'll get, and a map of the chapter.
+2. **Lessons.** Each mixes concepts and practice. Concepts come with a short **animation** you can play, pause and step through. Hands-on exercises run against the practice app and show **screenshots** of what you should see.
+3. **A summary** that collects the chapter's key points and gives you a few questions to check yourself.
+
+## The practice app
+
+Everything you test is **Larkspur Books**, a small bookshop in `academy/practice/larkspur`: a storefront page and three JSON endpoints over a SQLite database of 5,000 books, 50,000 reviews and 200,000 orders. It needs Node.js 22.13 or later and nothing else.
+
+Larkspur is slow on purpose. Each problem in it is one this course teaches you to find, and every number quoted in the lessons comes from a real run against it. Your numbers will differ with your machine; the shape of the results won't.
+
+## Working with an agent
+
+This course teaches you to test performance, and an agent helps you do it. The split is the same in every exercise:
+
+| You | The agent |
+| --- | --- |
+| Learn the concept: watch, read | |
+| Run the checks and tests, read the numbers | |
+| | Implement: fixes, scripts, gates, CI configuration |
+| | Report back, quoting real command output |
+| Verify: rerun the same check and compare | |
+| Decide: accept, reject, or set a new budget | |
+
+Each exercise has two parts. **Your part** comes first: the steps you run yourself, with the output you should expect. Then the **agent part**: a prompt you copy into Claude Code or another coding agent, so it makes the changes. The prompt is self-contained: where to work, the steps, how to tell it's done, and what to report. It tells the agent to quote real output instead of estimating, and never to loosen a budget to make a check pass.
+
+When the agent says it's done, rerun the check yourself. The number you see is the one that counts. By the end of the course you'll use the same loop on your own project (lesson 4.4) and finish with a formal acceptance decision (lesson 4.3).
+
+> **Agents can read the whole course.** Every page has a Markdown version (see "For agents" in the page margin), and `/llms.txt` lists them all. Point an agent there when it needs context beyond a single exercise.
+
+## In this chapter
+
+- Lektion 1.1: [Was Performance-Tests messen](/demo/de/performance-testing/overview/what-it-measures.md) (20 Min.). Latenz, Durchsatz und Fehler: die drei Zahlen, die jeder Performance-Test liefert, und warum man Latenz in Perzentilen angibt.
+- Lektion 1.2: [Statische und dynamische Tests](/demo/de/performance-testing/overview/static-and-dynamic.md) (20 Min.). Die zwei Familien von Performance-Tests, was jede finden kann und was nicht, und wie man vor dem Testen die richtigen Fragen plant.
+- Kapitel 1 · Zusammenfassung: [Überblick: Zusammenfassung](/demo/de/performance-testing/overview/summary.md) (5 Min.). Das Vokabular und der Plan für den Rest des Kurses.
+
+---
+
+Weiter: [Lektion 1.1: Was Performance-Tests messen](/demo/de/performance-testing/overview/what-it-measures.md)
+
+
+# Lektion 1.1: Was Performance-Tests messen
+
+Performance-Tests · Kapitel 1: Überblick · 20 Min.
+
+> Latenz, Durchsatz und Fehler: die drei Zahlen, die jeder Performance-Test liefert, und warum man Latenz in Perzentilen angibt.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Name the three numbers a performance test reports and what each says about users
+- Read p50, p95 and p99, and explain why an average hides problems
+- Run the practice app and take a first, repeatable measurement
+
+## Transkript: What performance testing measures (1:31)
+
+**0:00 Introduction.** Whatever tool you use, a performance test reports three numbers. Let's meet them.
+
+**0:06 Three numbers.** Latency: how long one request takes, in milliseconds. Throughput: how many requests complete every second. And the error rate: the share of requests that fail or time out. They move together. As a system nears its limit, throughput stops rising, latency climbs, and soon after, errors appear.
+
+**0:28 Percentiles.** Send the same request four hundred times and you get four hundred different durations. Stacked by duration, they form a hump, with a long tail of slow requests to the right. The median, or p50, is the typical request. Half are faster, half are slower. p95 and p99 describe the tail. One user in twenty waits at least as long as the p95. The average sits in between and describes no real request. That's why budgets and thresholds use percentiles.
+
+**1:03 A first measurement.** In the exercise you'll start the practice app and ask it for one page of books. The response says it ran a hundred and one database queries. Then you'll put it under light load: ten virtual users for twenty seconds. On our machine that gave sixteen requests per second, with a p95 over a second. Write it down, with the command you ran. That's your baseline.
+
+## Die Lektion
+
+A performance test answers questions like "how long do customers wait?" and "how much traffic can we take before that gets worse?". Whatever the tool, the answers come back as three numbers.
+
+| Number | Question it answers | Unit |
+| --- | --- | --- |
+| **Latency** (response time) | How long does one request take? | milliseconds |
+| **Throughput** | How many requests complete per second? | requests per second (req/s) |
+| **Error rate** | What share of requests fail or time out? | percent |
+
+They move together. When a system nears its limit, throughput stops rising, latency climbs, and soon after, errors appear. Chapter 3 shows that happening to Larkspur.
+
+## Latency is a distribution
+
+Send the same request a few hundred times and you get a few hundred different durations. Most are close together; a few are much slower, held up by a garbage-collection pause, a cold cache or a busy database. Play the animation to see the shape this makes.
+
+> **Konzept-Animation: Latency is a distribution**
+>
+> 1. Every request takes a different amount of time. Here are 400 requests to the same endpoint.
+> 2. Stacked by duration, they form a hump with a long tail to the right.
+> 3. The median, p50, is the typical request: 95 ms. Half are faster, half are slower.
+> 4. p95 and p99 describe the tail: 371 ms and 556 ms. One user in twenty waits at least 371 ms.
+> 5. The average, 133 ms, describes no real request and hides the tail. Budgets and thresholds use percentiles.
+
+Because of that long tail, latency is reported as **percentiles**. The p95 is the duration that 95% of requests beat; 5% are slower. Think of it as the experience of one user in twenty, which on a busy site is a lot of people.
+
+| Statistic | What it tells you | Use it for |
+| --- | --- | --- |
+| p50 (median) | The typical request | Spotting broad regressions |
+| p95 | The slow tail most users will eventually hit | Budgets and test thresholds |
+| p99 | The worst regular experience | Systems where the tail matters (checkout, login) |
+| max | One outlier | Investigating, never for budgets |
+| average | Nothing a real user experienced | Avoid |
+
+The average pulls toward the slow tail but still sits far below it, so it hides the requests people complain about. Every budget and threshold in this course uses percentiles.
+
+## Throughput and errors
+
+Throughput is the rate of completed requests. On its own it says little: 16 req/s is plenty for a small shop and a disaster for a ticket sale. It becomes useful next to latency, as in "16 req/s at p95 under 300 ms".
+
+The error rate keeps the other two honest. A server that fails fast can post great latency numbers. Always check errors before you celebrate a speed-up.
+
+## Measurements you can repeat
+
+A number without its conditions is not a measurement. Record at least:
+
+- the endpoint or page,
+- how many virtual users, for how long,
+- the machine and whether anything else was running,
+- the exact command.
+
+Then you, a teammate or an agent can run it again after a change and compare like with like.
+
+## Hands-on: Set up Larkspur and take a first measurement
+
+**Praxis · 15 Min..** Ziel. Get the practice app running and record a baseline for /api/books: query count, p50, p95 and throughput at 10 users.
+
+1. Build the database. It takes a few seconds and prints what it created.
+
+   ```bash
+   cd academy/practice/larkspur
+   npm run seed
+   ```
+
+2. Start the app in its own terminal and leave it running.
+
+   ```bash
+   npm start
+   # Larkspur Books on http://localhost:3000
+   ```
+
+![The Larkspur Books storefront: a header, a large photo of bookshelves with the heading 'Find your next favourite book', and a grid of new arrivals showing title, author, price and star rating.](screenshot-pending)
+*Screenshot (localhost:3000): The storefront you'll test. It loads slowly; chapter 3 explains why.*
+
+3. Ask for one page of books and look at the headers. Larkspur reports how many database queries the request ran and how long the server spent on it.
+
+   ```bash
+   curl -s -i http://localhost:3000/api/books | head -4
+   ```
+
+   ```text
+   HTTP/1.1 200 OK
+   content-type: application/json
+   x-query-count: 101
+   server-timing: app;dur=60.4
+   ```
+
+   101 queries for one page of 50 books is worth remembering. Lesson 2.2 explains it.
+
+4. Put it under light load: 10 virtual users for 20 seconds, using the load tool that ships with the app.
+
+   ```bash
+   npm run load -- --url http://localhost:3000/api/books --vus 10 --duration 20
+   ```
+
+![Terminal output of the mini load tool: one row for 10 virtual users over 20 seconds showing about 16 requests per second, p50 around 570 ms, p95 around 1,300 ms, 0 errors and 101 queries per request.](screenshot-pending)
+*Screenshot (npm run load): Your numbers will differ. On our machine: 16 req/s, p50 573 ms, p95 1,320 ms, 101 queries per request.*
+
+5. Write the result to `notes/perf-baseline.md` with the command you ran. You'll compare against it after every fix.
+
+**Fertig, wenn**
+- notes/perf-baseline.md exists and every number in it appears in the command output you captured
+- The baseline names the endpoint, the number of virtual users and the duration
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 1.1, "What performance testing measures".
+
+Exercise: Set up Larkspur and take a first measurement
+Goal: Get the practice app running and record a baseline for /api/books: query count, p50, p95 and throughput at 10 users.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run seed` and confirm it reports 500 authors, 5,000 books, 50,000 reviews and 200,000 orders.
+2. Start the app with `npm start` in the background and wait until http://localhost:3000/health returns `ok`.
+3. Run `curl -s -i http://localhost:3000/api/books` and note the `x-query-count` and `server-timing` headers.
+4. Run `npm run load -- --url http://localhost:3000/api/books --vus 10 --duration 20` and capture the result row.
+5. Create `notes/perf-baseline.md` inside the practice app with the date, the command used, and the measured requests/s, p50, p95, p99 and queries per request.
+6. Stop the app when you're done.
+
+Done when:
+- notes/perf-baseline.md exists and every number in it appears in the command output you captured
+- The baseline names the endpoint, the number of virtual users and the duration
+
+Report back:
+- The baseline table you wrote
+- One sentence on what the query count suggests about the endpoint
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/1-overview/1-what-it-measures.mdx
+```
+
+## Das Wichtigste
+
+- Latency is how long one request takes, throughput is how many complete per second, and the error rate is the share that fail.
+- Latency is a distribution. Report percentiles: p50 for the typical request, p95 and p99 for the slow tail.
+- An average blends fast and slow requests into a number no user experienced. Don't set budgets on averages.
+- Write down how you measured (users, duration, endpoint), so the number can be repeated and compared.
+
+---
+
+Zurück: [Kapitel 1 · Einstieg: Überblick](/demo/de/performance-testing/overview.md)
+Weiter: [Lektion 1.2: Statische und dynamische Tests](/demo/de/performance-testing/overview/static-and-dynamic.md)
+
+
+# Lektion 1.2: Statische und dynamische Tests
+
+Performance-Tests · Kapitel 1: Überblick · 20 Min.
+
+> Die zwei Familien von Performance-Tests, was jede finden kann und was nicht, und wie man vor dem Testen die richtigen Fragen plant.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Explain the difference between static and dynamic performance testing
+- Pick the cheaper test that can still answer a given question
+- Write a short test plan: questions, budgets, risks and the tests that cover them
+
+## Transkript: Static and dynamic testing (1:13)
+
+**0:00 Introduction.** There are two ways to look for performance problems. You can read what you built, or you can run it and measure.
+
+**0:09 Two families.** Static testing reads artifacts: code, query plans, build output and budgets. Nothing runs, so a static check takes seconds and can gate every pull request. It finds patterns that are known to be slow. Dynamic testing runs the system, and sends it traffic. It measures what users actually feel, finds problems nobody predicted, and proves that a fix worked.
+
+**0:36 Side by side.** Side by side: static testing is cheap and early. Dynamic testing is slower, but it's the only way to see real impact. They work best together. Static checks catch common mistakes cheaply. Dynamic tests confirm the important ones, and find the rest.
+
+**0:54 Start with questions.** Before you pick a tool, write down what you need to know. Good questions name a page or an endpoint, a load, and a number. Then pick the cheapest test that can answer each one. In the exercise, you'll write that plan for Larkspur.
+
+## Die Lektion
+
+There are two ways to look for performance problems. You can **read** what you built, or you can **run** it and measure. This course calls them static and dynamic testing, and spends a chapter on each.
+
+> **Konzept-Animation: Two ways to test performance**
+>
+> 1. Static testing reads what you built: code, queries, assets and budgets.
+> 2. Nothing runs, so it takes seconds and fits in every pull request. It finds likely problems.
+> 3. Dynamic testing runs the system and sends it traffic.
+> 4. It measures what users actually feel: response time, throughput and errors.
+
+## Static testing
+
+Static testing inspects artifacts: source code, SQL, build output, configuration, budgets. Nothing is deployed and no traffic is generated, so a static check runs in seconds and can gate every pull request.
+
+It finds **patterns that are known to be slow**: a query inside a loop, a query plan that scans a whole table, a 600 KB script on the critical path. What it can't tell you is how much any of that hurts under real traffic, or find a problem that no rule describes.
+
+## Dynamic testing
+
+Dynamic testing runs the system and measures it: a lab page load with Lighthouse, a load test with k6, a CPU profile taken while traffic flows. It needs a running environment and minutes rather than seconds.
+
+In exchange it reports what users would actually feel, finds problems nobody predicted, and proves that a fix worked.
+
+| | Static | Dynamic |
+| --- | --- | --- |
+| Looks at | Code, queries, assets, config | The running system |
+| Speed | Seconds | Minutes to hours |
+| Runs on | Every pull request | Staging, before a release, on a schedule |
+| Finds | Known slow patterns | Real impact, unknown problems, capacity |
+| Can't | Measure impact | Point to the line of code by itself |
+| In this course | Chapter 2 | Chapter 3 |
+
+The two work best together. Static checks catch the common mistakes cheaply; dynamic tests confirm the important ones and find the rest. Chapter 4 wires both into one workflow.
+
+## Start a plan with questions
+
+Before choosing a tool, write down what you need to know. Good questions name a page or endpoint, a load and a number:
+
+- Can the storefront reach Largest Contentful Paint in under 2.5 s on a mid-range phone?
+- Does `/api/books` keep p95 under 300 ms with 50 concurrent shoppers?
+- How many users can the app serve before p95 passes the budget?
+- Does the app stay stable over an hour of ordinary traffic?
+
+Then pick the cheapest test that can answer each question, and note the risks you can already see in the code. That list is a test plan.
+
+> **Test environments.** Dynamic results depend on the machine. Test on something close to production, or compare only runs from the same machine. A laptop is fine for learning and for before/after comparisons; it is not evidence of production capacity.
+
+## Hands-on: Draft a performance test plan for Larkspur
+
+**Praxis · 15 Min..** Ziel. Write a one-page plan that lists the questions you'll answer about Larkspur, a budget for each, and whether a static or a dynamic test covers it.
+
+1. Skim the app: `server.mjs`, the three files in `src/routes/`, `public/index.html` and `budget.json`. Don't run anything yet; this is a static read.
+2. Create `notes/perf-plan.md` with four headings: **Questions**, **Budgets**, **Risks** and **Tests**.
+3. Write at least four questions like the ones above, and give each a budget with a unit.
+4. Under **Risks**, list what looks slow and where. Hint: look at what `listBooks` does inside its `for` loop.
+5. Under **Tests**, say which tool answers each question. Use this table as a start:
+
+   | Question or risk | Static check | Dynamic test |
+   | --- | --- | --- |
+   | Page weight | `npm run budget` | Lighthouse |
+   | Queries inside loops | `npm run lint:queries` | `x-query-count` under load |
+   | Slow lookups | `npm run explain` | k6 load test |
+   | Capacity | – | k6 stress test |
+
+![A Markdown file open in an editor with four sections. Questions lists four items such as 'Does /api/books keep p95 under 300 ms with 50 users?'. Budgets gives numbers like 'p95 300 ms' and 'scripts 50 KB gzipped'. Risks cites src/routes/books.mjs line 11. Tests maps each item to a command.](screenshot-pending)
+*Screenshot (notes/perf-plan.md): A plan fits on one page. You'll fill in results as the course goes on.*
+
+**Fertig, wenn**
+- notes/perf-plan.md has the four sections
+- Every budget is a number with a unit, and every question maps to at least one test
+- Risks cite file paths and line numbers
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 1.2, "Static and dynamic testing".
+
+Exercise: Draft a performance test plan for Larkspur
+Goal: Write a one-page plan that lists the questions you'll answer about Larkspur, a budget for each, and whether a static or a dynamic test covers it.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read `README.md`, `server.mjs`, the files in `src/routes/`, `public/index.html` and `budget.json` to learn what the app does.
+2. Create `notes/perf-plan.md` with four sections: Questions, Budgets, Risks, Tests.
+3. Under Questions, list at least four concrete questions, each naming an endpoint or page and a number of users.
+4. Under Budgets, give each question a measurable limit (for example p95 in ms, KB of assets, queries per request).
+5. Under Risks, list anything in the code that looks likely to be slow, with file and line, without running the app.
+6. Under Tests, map every question and risk to a static check or a dynamic test from this repository (`npm run budget`, `npm run lint:queries`, `npm run explain`, `npm run load`, the k6 scripts in `load/`).
+
+Done when:
+- notes/perf-plan.md has the four sections
+- Every budget is a number with a unit, and every question maps to at least one test
+- Risks cite file paths and line numbers
+
+Report back:
+- The Questions and Budgets sections
+- The three risks you think are most serious, and why
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/1-overview/2-static-and-dynamic.mdx
+```
+
+## Das Wichtigste
+
+- Static testing inspects code, queries, assets and configuration without running the system. It is fast and runs on every change, but it can only find likely problems.
+- Dynamic testing runs the system under realistic traffic and measures what users feel. It is slower and needs an environment, but it proves the impact.
+- Use static checks to catch known patterns early, and dynamic tests to confirm impact and find what no rule describes.
+- Plan with questions first ("can checkout take 50 users at p95 under 300 ms?"), then choose the cheapest test that answers each one.
+
+---
+
+Zurück: [Lektion 1.1: Was Performance-Tests messen](/demo/de/performance-testing/overview/what-it-measures.md)
+Weiter: [Kapitel 1 · Zusammenfassung: Überblick: Zusammenfassung](/demo/de/performance-testing/overview/summary.md)
+
+
+# Kapitel 1 · Zusammenfassung: Überblick: Zusammenfassung
+
+Performance-Tests · Kapitel 1: Überblick · 5 Min.
+
+> Das Vokabular und der Plan für den Rest des Kurses.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Overview: summary (0:36)
+
+**0:00 Recap.** Here's what chapter one covered, in four points.
+
+**0:04 Key points.** Every performance test reports latency, throughput and an error rate. Latency is a distribution, so we report percentiles, never the average. Static testing reads what you built. Dynamic testing runs it and measures. And a good plan starts with concrete questions, each with a number to hit.
+
+**0:26 Next.** Next comes static testing: the cheapest tests there are. You'll find three of Larkspur's problems without starting the app at all.
+
+## Die Lektion
+
+You now have the vocabulary for the rest of the course, a running practice app, a baseline and a plan.
+
+## Key points
+
+### 1.1 Was Performance-Tests messen
+
+- Latency is how long one request takes, throughput is how many complete per second, and the error rate is the share that fail.
+- Latency is a distribution. Report percentiles: p50 for the typical request, p95 and p99 for the slow tail.
+- An average blends fast and slow requests into a number no user experienced. Don't set budgets on averages.
+- Write down how you measured (users, duration, endpoint), so the number can be repeated and compared.
+
+### 1.2 Statische und dynamische Tests
+
+- Static testing inspects code, queries, assets and configuration without running the system. It is fast and runs on every change, but it can only find likely problems.
+- Dynamic testing runs the system under realistic traffic and measures what users feel. It is slower and needs an environment, but it proves the impact.
+- Use static checks to catch known patterns early, and dynamic tests to confirm impact and find what no rule describes.
+- Plan with questions first ("can checkout take 50 users at p95 under 300 ms?"), then choose the cheapest test that answers each one.
+
+## Check yourself
+
+1. A dashboard shows an average response time of 140 ms. Why isn't that enough to say the endpoint is fast?
+   The average hides the tail. p95 could be several hundred milliseconds, meaning one user in twenty waits much longer. Ask for p95 and p99.
+2. Which family of test would you use to check, on every pull request, that no one adds a 600 KB script to the storefront?
+   A static check: measure the assets against a budget at build time. It takes seconds and needs no running server.
+3. Your static checks all pass. Can you say the app handles 50 users at p95 under 300 ms?
+   No. Static checks find known patterns; only a dynamic test under that load can show the p95 users would see.
+4. What must you record next to a measured p95 so someone else can repeat it?
+   The endpoint, the number of virtual users and the duration, the machine, and the exact command.
+
+## Next
+
+Chapter 2 starts with the cheapest tests there are: the ones that never run your code. You'll turn the budgets in your plan into a check that fails the build, then find three of Larkspur's problems by reading code, query plans and build output.
+
+---
+
+Zurück: [Lektion 1.2: Statische und dynamische Tests](/demo/de/performance-testing/overview/static-and-dynamic.md)
+Weiter: [Kapitel 2 · Einstieg: Statische Tests](/demo/de/performance-testing/static.md)
+
+
+# Kapitel 2 · Einstieg: Statische Tests
+
+Performance-Tests · Kapitel 2: Statische Tests · 5 Min.
+
+> Performance-Probleme finden, indem man das Gebaute liest, bevor irgendetwas läuft.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Static testing (0:49)
+
+**0:00 Introduction.** Chapter two is about the cheapest performance tests you will ever run: the ones that never start your code.
+
+**0:08 What you'll get.** By the end of this chapter, you'll turn budgets into a check that fails the build, spot the N+1 query pattern, with a linter and by eye, read a query plan, and fix a full table scan with an index, and find what makes a page heavy, then cut it below budget.
+
+**0:32 Your tools.** You'll use three tools that ship with the practice app. None of them needs a server. The trade-off: a static check finds what looks slow. It can't tell you how slow it is under load. That's chapter three's job.
+
+## Die Lektion
+
+Static tests are the cheapest performance tests you will ever run. They read code, query plans and build output, so they need no server, no traffic and no test environment. They take seconds, which means they can run on every change, long before anyone notices a slowdown.
+
+The trade-off: a static check only finds problems that look like something already known to be slow. It tells you a query will scan 200,000 rows, not how many seconds that costs at 50 users. That's chapter 3's job. In this chapter you'll find three of Larkspur's problems without starting the app at all, then confirm each fix with one quick request.
+
+## Was Sie mitnehmen
+
+- Turn your plan's budgets into a check that passes or fails the build
+- Spot the N+1 query pattern in code, with a linter and by eye, and remove it
+- Read a SQLite query plan, recognise a full table scan, and fix it with an index
+- Find what makes a page heavy, and cut it below budget
+- Know which of these checks belong on every pull request
+
+## What you'll use
+
+| Tool | What it reads | Lesson |
+| --- | --- | --- |
+| `npm run budget` | The files the storefront loads, measured against `budget.json` | 2.1, 2.4 |
+| `npm run lint:queries` | Source files, looking for database calls inside loops | 2.2 |
+| `npm run explain` | SQLite's plan for a query, without running it | 2.3 |
+
+All three ship with the practice app and need nothing installed.
+
+## In this chapter
+
+- Lektion 2.1: [Performance-Budgets](/demo/de/performance-testing/static/budgets.md) (20 Min.). Grenzen vereinbaren, bevor gemessen wird, und sie bei jeder Änderung automatisch prüfen lassen.
+- Lektion 2.2: [Code-Review für N+1-Abfragen](/demo/de/performance-testing/static/n-plus-one.md) (25 Min.). Der häufigste Performance-Fehler in Code mit Datenbank: wie man ihn beim Lesen findet und wie man ihn beseitigt.
+- Lektion 2.3: [Abfragepläne lesen](/demo/de/performance-testing/static/query-plans.md) (25 Min.). Die Datenbank fragen, wie sie eine Abfrage ausführen würde, ohne sie auszuführen, und Full Table Scans mit dem passenden Index beheben.
+- Lektion 2.4: [Gewicht der Assets](/demo/de/performance-testing/static/asset-weight.md) (20 Min.). Herausfinden, was eine Seite schwer macht, indem man ihre Dateien wiegt, und sie ins Budget bringen, ohne dass Nutzer etwas merken.
+- Kapitel 2 · Zusammenfassung: [Statische Tests: Zusammenfassung](/demo/de/performance-testing/static/summary.md) (5 Min.). Was Sie gefunden haben, ohne die App zu starten, und was statische Prüfungen nicht sagen können.
+
+---
+
+Zurück: [Kapitel 1 · Zusammenfassung: Überblick: Zusammenfassung](/demo/de/performance-testing/overview/summary.md)
+Weiter: [Lektion 2.1: Performance-Budgets](/demo/de/performance-testing/static/budgets.md)
+
+
+# Lektion 2.1: Performance-Budgets
+
+Performance-Tests · Kapitel 2: Statische Tests · 20 Min.
+
+> Grenzen vereinbaren, bevor gemessen wird, und sie bei jeder Änderung automatisch prüfen lassen.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Explain what a performance budget is and who should agree on it
+- Choose budget metrics that can be checked statically and dynamically
+- Run an asset budget check and read its result
+
+## Transkript: Performance budgets (1:14)
+
+**0:00 Introduction.** "Make it fast" isn't a requirement anyone can test. A performance budget is.
+
+**0:06 How a budget works.** A budget is a limit the team agrees on before measuring. For Larkspur: fifty kilobytes of script, two hundred and fifty of images, three hundred and fifty in total. Then you measure the current build against each limit. Anything over its line fails. Larkspur is over on scripts, on images, and in total. A failed budget is a clear signal. With an exit code of one, it can block a pull request instead of starting a debate.
+
+**0:39 Three kinds.** Budgets come in three kinds. Quantity budgets, like kilobytes or queries per request, can be checked statically, on every change. Timing budgets, like p95 or Largest Contentful Paint, need a dynamic test. Start from what users need, then from where you are today, and tighten the budget as you improve.
+
+**1:01 Run the check.** In the exercise you'll run the budget check and see exactly which files push the page over. Two files account for almost all of it. Lesson 2.4 fixes them.
+
+## Die Lektion
+
+"Make it fast" isn't a requirement anyone can test. A **performance budget** is: a limit on a measurable quantity, agreed before anyone measures, that a check can enforce.
+
+> **Konzept-Animation: A budget turns “fast enough” into pass or fail**
+>
+> 1. A budget is a limit the team agrees on before measuring: 50 KB of script, 250 KB of images, 350 KB in total.
+> 2. Then measure the current build against each limit.
+> 3. Anything over its line fails. Larkspur is over on scripts, images and total weight.
+> 4. A failed budget is a clear signal. It can block a pull request instead of starting a debate.
+
+## Three kinds of budget
+
+| Kind | Examples | Checked |
+| --- | --- | --- |
+| **Quantity** | JavaScript ≤ 50 KB gzipped, images ≤ 250 KB, ≤ 5 queries per request | Statically, on every build |
+| **Timing** | p95 ≤ 300 ms at 50 users, LCP ≤ 2.5 s on a mid-range phone | Dynamically, with Lighthouse or k6 |
+| **Rule-based** | Lighthouse performance score ≥ 90, no render-blocking scripts | Dynamically, with Lighthouse |
+
+Quantity budgets are the static ones, and the most useful early on: they can't be argued with, and they catch regressions the moment someone commits them. A timing budget tells you whether users are happy; a quantity budget tells you which change made them unhappy.
+
+## Where the numbers come from
+
+Good budgets come from three places, in this order:
+
+1. **What users need.** Google's Core Web Vitals call an LCP under 2.5 s "good". Studies of web shops put noticeable drop-off at around one second of extra delay.
+2. **What competitors do.** If a rival's product page loads in 1.8 s, that's your bar.
+3. **Where you are today.** A budget that fails on day one by a factor of ten will be switched off. Start at today's numbers, then ratchet down.
+
+Larkspur's `budget.json` sets quantity limits for the storefront:
+
+```json
+{
+  "page": "public/index.html",
+  "budgets": { "script": 50, "stylesheet": 20, "image": 250, "total": 350 }
+}
+```
+
+Scripts and stylesheets are measured gzipped, the way browsers download them; images as stored. The check script reads `index.html`, finds every script, stylesheet and image it references, weighs each file, and exits with code 1 if any budget is exceeded. Exit code 1 is what makes a CI job fail.
+
+> **Budgets need an owner.** Agree budgets with whoever owns the product, not only the engineers. When a new feature needs more room, that's a product decision: raise the budget on purpose, or cut something else.
+
+## Hands-on: Run the asset budget and record what fails
+
+**Praxis · 10 Min..** Ziel. Run Larkspur's asset budget, identify which files push it over, and add API timing budgets to your plan for chapter 3.
+
+1. Run the check from the practice app folder. It doesn't need the app running.
+
+   ```bash
+   npm run budget
+   ```
+
+   ```text
+   Asset weight for public/index.html
+
+   type        size KB   file
+   script         95.9   /vendor/datefmt-all-locales.js
+   script          0.3   /app.js
+   stylesheet      0.5   /styles.css
+   image        1043.1   /hero.jpg
+
+   budget      actual   limit   result
+   script        96.2      50   FAIL  (+46.2 KB)
+   stylesheet     0.5      20   pass
+   image       1043.1     250   FAIL  (+793.1 KB)
+   total       1139.8     350   FAIL  (+789.8 KB)
+
+   3 budget(s) exceeded.
+   ```
+
+![Terminal showing the asset table and the budget table. Scripts 96.2 KB against 50, images 1043.1 KB against 250 and total 1139.8 KB against 350 are marked FAIL; stylesheets 0.5 KB pass.](screenshot-pending)
+*Screenshot (npm run budget): Three of four budgets fail. Two files account for almost all of it.*
+
+2. Check the exit code. `echo $?` prints `1` right after a failed run, which is what stops a CI pipeline.
+3. For each failure, name the file responsible. Here it's easy: one script and one image.
+4. Add the API timing budgets from the agent prompt to `notes/perf-plan.md`. You'll turn them into k6 thresholds in lesson 3.2.
+
+**Fertig, wenn**
+- You have the budget output and its exit code
+- Each failing budget is attributed to a specific file
+- notes/perf-plan.md lists both asset and API budgets
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.1, "Performance budgets".
+
+Exercise: Run the asset budget and record what fails
+Goal: Run Larkspur's asset budget, identify which files push it over, and add API timing budgets to your plan for chapter 3.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read `budget.json` and summarise its limits.
+2. Run `npm run budget` and capture the full output and the exit code.
+3. List each failing budget with how far over it is, and the file or files responsible.
+4. Append a 'Budgets' section to `notes/perf-plan.md` (create the file if it doesn't exist) with the asset budgets from budget.json and these API budgets: /api/books p95 300 ms, /api/orders p95 200 ms, /api/recommendations p95 400 ms, all at 50 users, error rate under 1%.
+5. Do not change any code or assets yet; lesson 2.4 fixes them.
+
+Done when:
+- You have the budget output and its exit code
+- Each failing budget is attributed to a specific file
+- notes/perf-plan.md lists both asset and API budgets
+
+Report back:
+- The budget table from the command output
+- The files responsible for each failure, largest first
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/1-budgets.mdx
+```
+
+## Das Wichtigste
+
+- A budget is a limit agreed before measuring. It turns "is this fast enough?" into pass or fail.
+- Quantity budgets (KB, requests, queries) can be checked statically on every change. Timing budgets (p95, LCP) need a dynamic test.
+- Base budgets on user needs and competitors, then on today's numbers so they're achievable. Tighten them as you improve.
+- A budget check that fails the build gets fixed. A dashboard that turns red gets ignored.
+
+---
+
+Zurück: [Kapitel 2 · Einstieg: Statische Tests](/demo/de/performance-testing/static.md)
+Weiter: [Lektion 2.2: Code-Review für N+1-Abfragen](/demo/de/performance-testing/static/n-plus-one.md)
+
+
+# Lektion 2.2: Code-Review für N+1-Abfragen
+
+Performance-Tests · Kapitel 2: Statische Tests · 25 Min.
+
+> Der häufigste Performance-Fehler in Code mit Datenbank: wie man ihn beim Lesen findet und wie man ihn beseitigt.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Recognise the N+1 query pattern in code
+- Use a static check to flag database calls inside loops
+- Rewrite an N+1 loop as a single query with joins, and verify the query count
+
+## Transkript: Code review for N+1 queries (1:14)
+
+**0:00 Introduction.** Here's the most common performance bug in database-backed code, and how to find it just by reading.
+
+**0:07 Read the code.** This is the books endpoint. It fetches one page of fifty books in a single query. Then it loops over the books. Inside the loop, it asks the database for each book's author, and for each book's rating. That's two more queries for every book on the page.
+
+**0:29 On a timeline.** On a timeline it looks like this. One query for the list, then a hundred small queries, one after another. A hundred and one round trips for one page. Each one is quick, but together they're most of the response time. One query with joins fetches exactly the same data in a single trip.
+
+**0:53 Find it, fix it.** The pattern is easy to spot statically: a database call inside a loop. The practice app ships with a small linter that finds it. In the exercise you'll rewrite the loop as one query, and watch the query count drop from a hundred and one to one, with an identical response.
+
+## Die Lektion
+
+Here is the books endpoint that the storefront calls. Read it before reading on; the problem is visible.
+
+```js title="src/routes/books.mjs"
+export function listBooks(params) {
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const books = query(
+    "SELECT id, title, author_id, price_cents FROM books ORDER BY id LIMIT 50 OFFSET ?"
+  ).all((page - 1) * 50);
+
+  for (const book of books) {
+    const author = query("SELECT name FROM authors WHERE id = ?").get(book.author_id);
+    book.author = author.name;
+    const rating = query("SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?").get(book.id);
+    book.rating = rating.avg ? Math.round(rating.avg * 10) / 10 : null;
+    book.reviews = rating.n;
+  }
+  return { page, books };
+}
+```
+
+## The N+1 pattern
+
+One query fetches the list. Then the loop runs two more queries **for every item**. With 50 books that's 1 + 50 × 2 = 101 queries for one page.
+
+> **Konzept-Animation: The N+1 query pattern**
+>
+> 1. The books endpoint asks the database for one page of 50 books. One query.
+> 2. Then it loops over the books and asks for each one's author and rating: two more queries per book.
+> 3. That's 101 round trips for one page. Each is small; together they're most of the response time.
+> 4. One query with JOINs fetches the same data in a single trip.
+
+Each query is cheap on its own, which is why N+1 survives code review and local testing: on a laptop with 10 rows, nobody notices. It grows with the page size and the data, and on a real network every query adds a round trip. ORMs make it easy to write by accident, because `book.author.name` can quietly run a query.
+
+## Finding it statically
+
+The shape is distinctive: a database call **inside a loop body**. That's easy to check without running anything. Larkspur includes a small linter that does exactly this:
+
+```bash
+npm run lint:queries
+```
+
+```text
+src/routes/books.mjs:11  query inside a loop (possible N+1)
+    const author = query("SELECT name FROM authors WHERE id = ?").get(book.author_id);
+src/routes/books.mjs:13  query inside a loop (possible N+1)
+    const rating = query("SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?").get(book.id);
+
+2 possible N+1 pattern(s).
+```
+
+It's a heuristic. It reads source text and tracks loop bodies, so it can miss a query hidden behind a helper function and can flag a loop that only ever runs once. Treat each finding as a question for code review. Real projects use the same idea at a larger scale: ORM-specific lint rules, or a test that fails if an endpoint runs more than N queries.
+
+## Fixing it
+
+Ask the database for everything in one go. SQL is built for this: join the authors, aggregate the reviews, and group by book.
+
+```js title="src/routes/books.mjs (after)"
+export function listBooks(params) {
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const books = query(`
+    SELECT b.id, b.title, b.author_id, b.price_cents, a.name AS author,
+           round(avg(r.stars), 1) AS rating, count(r.id) AS reviews
+    FROM (SELECT * FROM books ORDER BY id LIMIT 50 OFFSET ?) AS b
+    JOIN authors a ON a.id = b.author_id
+    LEFT JOIN reviews r ON r.book_id = b.id
+    GROUP BY b.id
+    ORDER BY b.id`).all((page - 1) * 50);
+  return { page, books };
+}
+```
+
+When a join isn't practical (the data lives in another service, say), **batch** instead: collect the IDs and fetch them in one `WHERE id IN (...)` query. Either way the query count stops depending on the page size.
+
+| | Queries per request | Server time, one request |
+| --- | --- | --- |
+| Before | 101 | 60 ms |
+| After the join | 1 | 26 ms |
+
+Better, but 26 ms for 50 rows is still slow. The join reads the reviews table in a way that needs an index. That's lesson 2.3.
+
+## Hands-on: Find and remove the N+1 in /api/books
+
+**Praxis · 20 Min..** Ziel. Use the query linter to find the N+1 in the books endpoint, rewrite it as one query, and show the query count drop from 101 to 1 with the same response.
+
+1. Run `npm run lint:queries`. You should get the two findings above.
+2. Start the app and save the current response, so you can prove the fix changes nothing visible:
+
+   ```bash
+   curl -s http://localhost:3000/api/books > /tmp/books-before.json
+   curl -s -i http://localhost:3000/api/books | grep -i -E "x-query-count|server-timing"
+   ```
+
+3. Replace `listBooks` with the single-query version, restart the app, and fetch again into `/tmp/books-after.json`.
+4. Compare the two files. They should be identical:
+
+   ```bash
+   node -e 'const a=require("/tmp/books-before.json"),b=require("/tmp/books-after.json");console.log(JSON.stringify(a)===JSON.stringify(b)?"identical":"DIFFERENT")'
+   ```
+
+![Terminal showing x-query-count: 1 and server-timing around 26 ms for /api/books, the word 'identical' from the comparison, and 'No queries inside loops found.' from the linter.](screenshot-pending)
+*Screenshot (curl and lint:queries): One query, same response, linter clean.*
+
+5. Run `npm run lint:queries` again. It should report nothing and exit 0.
+
+**Fertig, wenn**
+- `npm run lint:queries` reports no queries inside loops and exits 0
+- `x-query-count` for /api/books is 1
+- The before and after JSON responses are identical
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.2, "Code review for N+1 queries".
+
+Exercise: Find and remove the N+1 in /api/books
+Goal: Use the query linter to find the N+1 in the books endpoint, rewrite it as one query, and show the query count drop from 101 to 1 with the same response.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run lint:queries` and capture the findings.
+2. Start the app (`npm start` in the background), save the current response with `curl -s http://localhost:3000/api/books > /tmp/books-before.json`, and note the `x-query-count` header.
+3. Rewrite `listBooks` in `src/routes/books.mjs` so it runs a single query: select the page of 50 books in a subquery, JOIN authors, LEFT JOIN reviews, GROUP BY book, and compute `rating` as avg(stars) rounded to one decimal (null when there are no reviews) and `reviews` as the review count. Keep the response shape: page, books[] with id, title, author_id, price_cents, author, rating, reviews.
+4. Restart the app, fetch the endpoint again into /tmp/books-after.json, and compare it with the before file using `node -e` (parse both and deep-compare).
+5. Run `npm run lint:queries` again.
+
+Done when:
+- `npm run lint:queries` reports no queries inside loops and exits 0
+- `x-query-count` for /api/books is 1
+- The before and after JSON responses are identical
+
+Report back:
+- The new listBooks function
+- x-query-count and server-timing before and after
+- The result of the JSON comparison
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/2-n-plus-one.mdx
+```
+
+## Das Wichtigste
+
+- N+1 means one query for a list, then one more per item. The cost grows with the list and hides in fast local databases.
+- Statically, it looks like a database call inside a loop or a .map callback. A simple lint rule catches most cases.
+- Fix it by fetching everything in one query (JOIN, GROUP BY) or in one batched query (WHERE id IN (...)).
+- Count queries per request. A count that grows with the page size is the signature of N+1.
+
+---
+
+Zurück: [Lektion 2.1: Performance-Budgets](/demo/de/performance-testing/static/budgets.md)
+Weiter: [Lektion 2.3: Abfragepläne lesen](/demo/de/performance-testing/static/query-plans.md)
+
+
+# Lektion 2.3: Abfragepläne lesen
+
+Performance-Tests · Kapitel 2: Statische Tests · 25 Min.
+
+> Die Datenbank fragen, wie sie eine Abfrage ausführen würde, ohne sie auszuführen, und Full Table Scans mit dem passenden Index beheben.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Get a query plan from SQLite with EXPLAIN QUERY PLAN
+- Tell a SCAN from a SEARCH, and know when a scan is a problem
+- Design an index for a query's WHERE and ORDER BY, add it as a migration, and confirm the plan changed
+
+## Transkript: Reading query plans (1:17)
+
+**0:00 Introduction.** A query says what you want. The database decides how to get it. That decision is the query plan, and you can read it without running the query.
+
+**0:12 Ask for the plan.** Here's the plan for one customer's twenty latest orders. Two warnings. SCAN orders means reading all two hundred thousand rows. And a temporary B-tree means sorting the matches afterwards.
+
+**0:25 SCAN versus SEARCH.** Without an index, SQLite has to read every row of the orders table to find one customer's handful. That's what SCAN means, and it gets slower every day the table grows. An index keeps the emails sorted, like the index at the back of a book. SQLite walks down a few levels to the right entry. SEARCH using an index: a handful of page reads instead of two hundred thousand rows.
+
+**0:56 Add the index.** Index the column you filter on first, then the column you sort by. Add it as a migration. Explain again. The scan has become a search, and the sort step is gone. On our machine, the orders endpoint went from eleven milliseconds to a tenth of a millisecond.
+
+## Die Lektion
+
+A query says **what** you want. The database decides **how** to get it: which table to read first, whether to use an index, whether to sort. That decision is the **query plan**, and every serious database will show it to you without running the query. Reading plans is static testing for SQL.
+
+## SCAN versus SEARCH
+
+The orders endpoint asks for one customer's 20 latest orders:
+
+```sql
+SELECT id, book_id, total_cents, created_at FROM orders
+WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20
+```
+
+Ask SQLite how it would run that:
+
+```bash
+npm run explain -- "SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20"
+```
+
+```text
+QUERY PLAN
+└─ SCAN orders   ← full table scan (200,000 rows)
+└─ USE TEMP B-TREE FOR ORDER BY
+```
+
+Two warnings in two lines. `SCAN orders` means SQLite will read every one of the 200,000 rows to find one customer's 13. `USE TEMP B-TREE FOR ORDER BY` means it will then sort the matches in a temporary structure.
+
+> **Konzept-Animation: SCAN versus SEARCH**
+>
+> 1. To find one customer's orders without an index, SQLite has to read every row of the orders table: 200,000 of them.
+> 2. That's what SCAN orders means in a query plan. It gets slower as the table grows.
+> 3. An index keeps the emails sorted, like the index at the back of a book. SQLite walks down a few levels to the right entry.
+> 4. SEARCH orders USING INDEX: a handful of page reads instead of 200,000 rows, and it barely grows with the table.
+
+`SCAN` isn't always bad. In the books query from lesson 2.2, `SCAN books` sits inside a `LIMIT 50` subquery, so it stops after 50 rows. And scanning a 30-row lookup table is faster than any index. The question to ask is: **how many rows will this read, and how often does it run?** A full scan of a large table on a request path is a bug that gets worse every day the table grows.
+
+## Designing the index
+
+An index is a sorted copy of some columns, with a pointer back to each row. Pick its columns in this order:
+
+1. **Columns you filter on with `=`**: here, `customer_email`.
+2. **Columns you sort by**: here, `created_at`. Because the index is already sorted by email and then date, SQLite can read the newest 20 straight off it and skip the sort.
+
+```sql
+CREATE INDEX idx_orders_email ON orders(customer_email, created_at);
+```
+
+The reviews lookup from lesson 2.2 has the same problem: `WHERE book_id = ?` with no index on `book_id` means scanning 50,000 reviews. After the join fix it happens once per page instead of 50 times, but it's still a scan.
+
+```sql
+CREATE INDEX idx_reviews_book ON reviews(book_id);
+```
+
+> **Indexes aren't free.** Every index makes inserts and updates a little slower and takes disk space. Add indexes for queries that run often or on large tables, check the plan uses them, and drop the ones nothing uses.
+
+## Hands-on: Turn two full table scans into index searches
+
+**Praxis · 20 Min..** Ziel. Find the full table scans behind /api/orders and the books page, add indexes in a migration, and confirm both plans and timings improve.
+
+1. Run both `explain` commands from the agent prompt and keep the output. Both should end in `full table scan`.
+2. With the app running, measure before you change anything:
+
+   ```bash
+   for i in 1 2 3 4 5; do curl -s -o /dev/null -D - "http://localhost:3000/api/orders?email=reader42@larkspur.test" | grep -i server-timing; done
+   ```
+
+3. Create the migration. Migrations are SQL files in `db/migrations/`, applied in name order and recorded so they only run once:
+
+   ```sql title="db/migrations/001_indexes.sql"
+   CREATE INDEX idx_orders_email ON orders(customer_email, created_at);
+   CREATE INDEX idx_reviews_book ON reviews(book_id);
+   ```
+
+   ```bash
+   npm run migrate
+   # applied 001_indexes.sql (140 ms)
+   ```
+
+4. Explain both queries again.
+
+   ```text
+   QUERY PLAN
+   └─ SEARCH orders USING INDEX idx_orders_email (customer_email=?)
+   ```
+
+   The sort step is gone too: the index already delivers rows in date order.
+
+![Two query plans one above the other. The first, before the migration, reads 'SCAN orders ← full table scan (200,000 rows)' and 'USE TEMP B-TREE FOR ORDER BY'. The second, after, reads 'SEARCH orders USING INDEX idx_orders_email (customer_email=?)'.](screenshot-pending)
+*Screenshot (npm run explain): Before and after the migration: a scan of 200,000 rows becomes an index search.*
+
+5. Restart the app and measure again. On our machine:
+
+   | Endpoint | Before | After |
+   | --- | --- | --- |
+   | `/api/orders` | 11 ms | 0.1 ms |
+   | `/api/books` (with the join from 2.2) | 26 ms | 0.5 ms |
+
+**Fertig, wenn**
+- Neither plan contains 'full table scan'
+- Both plans show SEARCH ... USING INDEX
+- `npm run migrate` reports the migration applied, and running it again reports nothing to migrate
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.3, "Reading query plans".
+
+Exercise: Turn two full table scans into index searches
+Goal: Find the full table scans behind /api/orders and the books page, add indexes in a migration, and confirm both plans and timings improve.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run explain -- "SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY created_at DESC LIMIT 20"` and capture the plan.
+2. Run `npm run explain -- "SELECT avg(stars) FROM reviews WHERE book_id = ?"` and capture the plan.
+3. Create `db/migrations/001_indexes.sql` with `CREATE INDEX idx_orders_email ON orders(customer_email, created_at);` and `CREATE INDEX idx_reviews_book ON reviews(book_id);`.
+4. Run `npm run migrate`.
+5. Run both explain commands again and capture the new plans.
+6. With the app running, compare the `server-timing` header of /api/orders?email=reader42@larkspur.test and /api/books before and after (restart the app after migrating; take the median of five requests each).
+
+Done when:
+- Neither plan contains 'full table scan'
+- Both plans show SEARCH ... USING INDEX
+- `npm run migrate` reports the migration applied, and running it again reports nothing to migrate
+
+Report back:
+- Both plans before and after
+- server-timing medians before and after for both endpoints
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/3-query-plans.mdx
+```
+
+## Das Wichtigste
+
+- EXPLAIN QUERY PLAN shows how the database will run a query, without running it. That makes it a static check.
+- SCAN reads every row of a table; SEARCH uses an index to jump to the matching rows. A SCAN of a large table on a hot path is a bug.
+- Index the columns you filter on first, then the columns you sort by, so the database can skip the sort too.
+- Indexes speed up reads and slow down writes. Add the ones your queries need, not one per column.
+
+---
+
+Zurück: [Lektion 2.2: Code-Review für N+1-Abfragen](/demo/de/performance-testing/static/n-plus-one.md)
+Weiter: [Lektion 2.4: Gewicht der Assets](/demo/de/performance-testing/static/asset-weight.md)
+
+
+# Lektion 2.4: Gewicht der Assets
+
+Performance-Tests · Kapitel 2: Statische Tests · 20 Min.
+
+> Herausfinden, was eine Seite schwer macht, indem man ihre Dateien wiegt, und sie ins Budget bringen, ohne dass Nutzer etwas merken.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Find the heaviest files a page loads and judge whether they're needed
+- Recognise render-blocking scripts in a page's HTML
+- Cut page weight below budget and prove it with the budget check
+
+## Transkript: Asset weight (1:15)
+
+**0:00 Introduction.** The budget check said the storefront is over. Now let's find out exactly what makes it heavy.
+
+**0:07 Where the weight goes.** Here's every file the storefront loads, drawn to scale. One thousand one hundred and forty kilobytes, against a budget of three hundred and fifty. Two files are nearly all of it: a hero photo saved at camera size, and a date library that bundles four hundred and twenty locales, when the shop uses one. Swap in the twelve-hundred-pixel export of the photo, and the English-only build of the library. From one thousand one hundred and forty kilobytes to fifty-nine. The customer sees the same page.
+
+**0:44 Render-blocking scripts.** There's a second problem in the HTML. A plain script tag in the head stops the page from rendering until the script has downloaded and run. Add defer, and use the English-only file. The browser renders first, and runs the scripts afterwards, in order. Then point the image at the smaller export, with its width and height.
+
+**1:08 Check again.** Run the budget again. Fifty-nine kilobytes, every budget met, and nothing changed for the customer.
+
+## Die Lektion
+
+Lesson 2.1's budget check found the storefront at 1,140 KB against a 350 KB budget. A budget failure tells you **that** something is too big. Weighing the files tells you **what**.
+
+> **Konzept-Animation: Where the page weight goes**
+>
+> 1. Every file the storefront loads, drawn to scale by size. 1,140 KB against a 350 KB budget.
+> 2. Two files are nearly all of it: a hero photo saved at 2400 pixels and quality 97, and a date library bundling 420 locales when the shop uses one.
+> 3. Swap in the 1200-pixel export and the English-only locale file.
+> 4. From 1,140 KB to 59 KB. The customer sees the same page.
+
+## Ask two questions of every heavy file
+
+**Is all of it needed?** `datefmt-all-locales.js` formats dates in 420 locales. The page calls it once, in `en-US`. The same library ships a single-locale build, `datefmt-en.js`, at 1.5 KB instead of 600 KB. This is the most common weight problem on the web: a whole library, or every locale, icon or polyfill, shipped for one use.
+
+**Is it the right size?** `hero.jpg` is 2400 × 1200 pixels at JPEG quality 97, saved straight from a camera or design tool. The page displays it at most 1200 pixels wide. An export at the display size and quality 72, `hero-1200.jpg`, is 58 KB instead of 1 MB, and looks the same on screen.
+
+## Render-blocking scripts
+
+Weight isn't the only static warning in the HTML. Look at the head:
+
+```html
+<script src="/vendor/datefmt-all-locales.js"></script>
+<script src="/app.js"></script>
+```
+
+A plain `<script>` tag in `<head>` stops the browser from rendering anything until the script has downloaded and run. With a 600 KB script on a phone connection, that's seconds of blank screen. Chapter 3 measures exactly how many.
+
+Add `defer` and the browser downloads the scripts in parallel, renders the page, then runs them in order. `app.js` already waits for `DOMContentLoaded`, so nothing else has to change.
+
+```html
+<script src="/vendor/datefmt-en.js" defer></script>
+<script src="/app.js" defer></script>
+```
+
+> **Width and height on images.** Give images `width` and `height` attributes. The browser can then reserve the space before the image arrives, so the text below it doesn't jump (that jump is measured as Cumulative Layout Shift). `fetchpriority="high"` on the main image tells the browser to fetch it early.
+
+## Hands-on: Bring the storefront under budget
+
+**Praxis · 15 Min..** Ziel. Fix the two heaviest assets and the render-blocking scripts in public/index.html until npm run budget passes, without changing what the page shows.
+
+1. Edit `public/index.html`. Leave `public/before.html` alone; it's a frozen copy for comparisons in chapter 3.
+
+   ```diff
+   - <script src="/vendor/datefmt-all-locales.js"></script>
+   - <script src="/app.js"></script>
+   + <script src="/vendor/datefmt-en.js" defer></script>
+   + <script src="/app.js" defer></script>
+   ...
+   - <img src="/hero.jpg" alt="Shelves of books in warm light">
+   + <img src="/hero-1200.jpg" width="1200" height="600" fetchpriority="high" alt="Shelves of books in warm light">
+   ```
+
+2. Run the budget check again.
+
+   ```text
+   budget      actual   limit   result
+   script         0.9      50   pass
+   stylesheet     0.5      20   pass
+   image         57.6     250   pass
+   total         59.0     350   pass
+
+   All budgets met.
+   ```
+
+![Terminal showing the budget table after the fix: script 0.9 KB, stylesheet 0.5 KB, image 57.6 KB and total 59.0 KB, all marked pass, followed by 'All budgets met.'](screenshot-pending)
+*Screenshot (npm run budget): From 1,140 KB to 59 KB.*
+
+3. Open the storefront and check nothing changed for the customer: the photo, the "Updated" date line and the book grid should all be there.
+
+![The Larkspur storefront after the fix. It looks the same as before: the bookshelf photo with the heading, an 'Updated' line with today's date, and the grid of new arrivals.](screenshot-pending)
+*Screenshot (localhost:3000): Same page, a twentieth of the weight.*
+
+**Fertig, wenn**
+- `npm run budget` passes all budgets and exits 0
+- public/before.html is unchanged
+- The page still shows the updated date and the book grid
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.4, "Asset weight".
+
+Exercise: Bring the storefront under budget
+Goal: Fix the two heaviest assets and the render-blocking scripts in public/index.html until npm run budget passes, without changing what the page shows.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run budget` and note the failing budgets.
+2. In `public/index.html` only (leave `public/before.html` untouched), replace `/vendor/datefmt-all-locales.js` with `/vendor/datefmt-en.js`; the page only formats dates in en-US.
+3. Add `defer` to both script tags so they no longer block rendering. `app.js` already waits for DOMContentLoaded, and deferred scripts run in order.
+4. Replace `/hero.jpg` with `/hero-1200.jpg` and add `width="1200" height="600"` and `fetchpriority="high"` to the img tag.
+5. Run `npm run budget` again.
+6. Start the app and load http://localhost:3000/ in a browser or with Playwright if available, and confirm the 'Updated <date>' line and the book grid still render. If no browser is available, say so.
+
+Done when:
+- `npm run budget` passes all budgets and exits 0
+- public/before.html is unchanged
+- The page still shows the updated date and the book grid
+
+Report back:
+- The budget output before and after
+- The diff of public/index.html
+- How you confirmed the page still renders correctly
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/4-asset-weight.mdx
+```
+
+## Das Wichtigste
+
+- Weigh what the page actually loads. A few files are usually most of the weight.
+- Ask of each heavy file: is all of it needed, and is it needed now? Libraries often bundle far more than you use.
+- A plain <script> in <head> blocks rendering until it downloads and runs. Use defer, or move it.
+- Serve images at the size they're displayed, compressed sensibly, and give them width and height.
+
+---
+
+Zurück: [Lektion 2.3: Abfragepläne lesen](/demo/de/performance-testing/static/query-plans.md)
+Weiter: [Kapitel 2 · Zusammenfassung: Statische Tests: Zusammenfassung](/demo/de/performance-testing/static/summary.md)
+
+
+# Kapitel 2 · Zusammenfassung: Statische Tests: Zusammenfassung
+
+Performance-Tests · Kapitel 2: Statische Tests · 5 Min.
+
+> Was Sie gefunden haben, ohne die App zu starten, und was statische Prüfungen nicht sagen können.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Static testing: summary (0:41)
+
+**0:00 Recap.** Without generating any traffic, you found and fixed three problems.
+
+**0:05 Results.** A hundred and one queries per page became one. Two full table scans became index searches. And the storefront went from over a megabyte to fifty-nine kilobytes. Each check took seconds.
+
+**0:19 The limits.** But every fix came from a known pattern. None of these checks told you how the app behaves with fifty shoppers, how long a phone shows a blank screen, or what the processor is doing. And one endpoint, recommendations, didn't trigger a single warning. It's slow anyway. That's chapter three.
+
+## Die Lektion
+
+Without generating any traffic, you found and fixed three problems: 101 queries per page, two full table scans, and a page twenty times heavier than it needed to be. Each check takes seconds, and each would have caught its problem in the pull request that introduced it.
+
+## Key points
+
+### 2.1 Performance-Budgets
+
+- A budget is a limit agreed before measuring. It turns "is this fast enough?" into pass or fail.
+- Quantity budgets (KB, requests, queries) can be checked statically on every change. Timing budgets (p95, LCP) need a dynamic test.
+- Base budgets on user needs and competitors, then on today's numbers so they're achievable. Tighten them as you improve.
+- A budget check that fails the build gets fixed. A dashboard that turns red gets ignored.
+
+### 2.2 Code-Review für N+1-Abfragen
+
+- N+1 means one query for a list, then one more per item. The cost grows with the list and hides in fast local databases.
+- Statically, it looks like a database call inside a loop or a .map callback. A simple lint rule catches most cases.
+- Fix it by fetching everything in one query (JOIN, GROUP BY) or in one batched query (WHERE id IN (...)).
+- Count queries per request. A count that grows with the page size is the signature of N+1.
+
+### 2.3 Abfragepläne lesen
+
+- EXPLAIN QUERY PLAN shows how the database will run a query, without running it. That makes it a static check.
+- SCAN reads every row of a table; SEARCH uses an index to jump to the matching rows. A SCAN of a large table on a hot path is a bug.
+- Index the columns you filter on first, then the columns you sort by, so the database can skip the sort too.
+- Indexes speed up reads and slow down writes. Add the ones your queries need, not one per column.
+
+### 2.4 Gewicht der Assets
+
+- Weigh what the page actually loads. A few files are usually most of the weight.
+- Ask of each heavy file: is all of it needed, and is it needed now? Libraries often bundle far more than you use.
+- A plain <script> in <head> blocks rendering until it downloads and runs. Use defer, or move it.
+- Serve images at the size they're displayed, compressed sensibly, and give them width and height.
+
+## What static testing didn't tell you
+
+Every fix in this chapter was guided by a pattern: a loop with a query, a scan in a plan, a heavy file. None of them told you how the app behaves when 50 people shop at once, how long the page takes to appear on a phone, or what happens to the CPU. And `/api/recommendations` didn't trigger a single static warning. It's slow anyway, as chapter 3 will show.
+
+## Check yourself
+
+1. A pull request adds a 40 KB charting library to every page. Which check from this chapter fails, and why is that the right place to catch it?
+   The asset budget (script, 50 KB). It runs in seconds on the pull request, before the change ships, and names the file responsible.
+2. The query linter reports no findings. Does that prove the code has no N+1 queries?
+   No. It's a heuristic that reads loops in source text. A query behind a helper function, or an ORM loading relations lazily, can still cause N+1. Watch the query count per request too.
+3. A plan shows SCAN countries (240 rows). Should you add an index?
+   Probably not. Scanning 240 rows is cheap and the table won't grow much. Scans matter on large or growing tables on hot paths.
+4. Why do these static checks still leave you unable to promise p95 under 300 ms at 50 users?
+   They find known slow patterns but don't measure time under load. Only a dynamic test can show the latency users would see.
+
+---
+
+Zurück: [Lektion 2.4: Gewicht der Assets](/demo/de/performance-testing/static/asset-weight.md)
+Weiter: [Kapitel 3 · Einstieg: Dynamische Tests](/demo/de/performance-testing/dynamic.md)
+
+
+# Kapitel 3 · Einstieg: Dynamische Tests
+
+Performance-Tests · Kapitel 3: Dynamische Tests · 5 Min.
+
+> Das System laufen lassen, Last darauf schicken und messen, was Nutzer wirklich spüren.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Dynamic testing (1:01)
+
+**0:00 Introduction.** Chapter two found problems by reading. Chapter three finds them by running: loading the page the way a phone would, and sending the app the traffic of a busy evening.
+
+**0:12 What you'll get.** You'll measure page load in the lab with Lighthouse, and read what the numbers mean for a phone. You'll write a load test with k6, and let thresholds decide whether the app meets its budgets. You'll push past the expected load to find the app's capacity, and check it survives a surge. And you'll profile the app under load, read a flame graph, and prove a fix with numbers.
+
+**0:43 Before you start.** You'll need k6, a free load testing tool. If you can't install it, every exercise also works with the practice app's built-in load tool. And run tests from a quiet machine. Numbers from a busy laptop, or from two different machines, aren't comparable.
+
+## Die Lektion
+
+Chapter 2 found problems by reading. This chapter finds them by running: loading the page the way a phone would, sending the app the traffic of a busy evening, then more traffic until it bends, and finally looking inside the process while it struggles.
+
+Dynamic tests cost more than static ones. They need the app running, they take minutes, and their numbers depend on the machine. In return they answer the questions static checks can't: how slow, for how many users, and why.
+
+## Was Sie mitnehmen
+
+- Measure page load in the lab with Lighthouse and read FCP, LCP and the score
+- Write a k6 load test with stages, checks and thresholds, and read its summary
+- Run stress, spike and soak tests, and find the app's practical capacity
+- Profile the app under load, read a flame graph, and prove a CPU fix with numbers
+
+## Before you start
+
+Install k6, the load testing tool this chapter uses:
+
+| System | Command |
+| --- | --- |
+| macOS | `brew install k6` |
+| Windows | `winget install k6 --source winget` |
+| Debian, Ubuntu | see [grafana.com/docs/k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) |
+
+If you can't install it, every exercise also works with the practice app's built-in tool, `npm run load`. You'll need Chrome for Lighthouse and the profiler.
+
+> **Run tests from a quiet machine.** Close heavy apps before a dynamic test and run the load generator and the app on the same machine only when comparing before with after. Numbers from different machines, or from a busy laptop, aren't comparable.
+
+## In this chapter
+
+- Lektion 3.1: [Labormessung mit Lighthouse](/demo/de/performance-testing/dynamic/lighthouse.md) (25 Min.). Die Seite auf einem simulierten Smartphone laden und messen, was der Nutzer wann sieht.
+- Lektion 3.2: [Lasttests mit k6](/demo/de/performance-testing/dynamic/load-testing.md) (30 Min.). Einen geschäftigen Abend voller Kunden simulieren und Schwellenwerte entscheiden lassen, ob die App ihre Budgets einhält.
+- Lektion 3.3: [Stress-, Spike- und Dauertests](/demo/de/performance-testing/dynamic/stress-spike-soak.md) (30 Min.). Über die erwartete Last hinausgehen, um die Obergrenze zu finden, einen Ansturm zu überstehen und schleichende Verschlechterung über Stunden zu erkennen.
+- Lektion 3.4: [Den Engpass finden](/demo/de/performance-testing/dynamic/bottlenecks.md) (30 Min.). Die App unter Last profilieren, den Flame Graph lesen, den heißen Pfad beheben und es mit demselben Test belegen.
+- Kapitel 3 · Zusammenfassung: [Dynamische Tests: Zusammenfassung](/demo/de/performance-testing/dynamic/summary.md) (5 Min.). Was das Ausführen der App gezeigt hat, das das Lesen nicht zeigen konnte.
+
+---
+
+Zurück: [Kapitel 2 · Zusammenfassung: Statische Tests: Zusammenfassung](/demo/de/performance-testing/static/summary.md)
+Weiter: [Lektion 3.1: Labormessung mit Lighthouse](/demo/de/performance-testing/dynamic/lighthouse.md)
+
+
+# Lektion 3.1: Labormessung mit Lighthouse
+
+Performance-Tests · Kapitel 3: Dynamische Tests · 25 Min.
+
+> Die Seite auf einem simulierten Smartphone laden und messen, was der Nutzer wann sieht.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Run Lighthouse from the command line against a local page
+- Explain FCP, LCP, Total Blocking Time and Cumulative Layout Shift in user terms
+- Confirm a static fix with a dynamic before-and-after measurement
+
+## Transkript: Lab measurement with Lighthouse (1:17)
+
+**0:00 Introduction.** The budget check predicted a much lighter page. Lighthouse measures what that means for someone on a phone.
+
+**0:08 Watching a page load.** Lighthouse loads the page on a simulated mid-range phone with a slow connection, and films it. First Contentful Paint at four point three seconds: until then, the screen is blank, because a six-hundred-kilobyte script blocks rendering. Largest Contentful Paint at nine point eight seconds, when the one-megabyte photo finally shows. The score is sixty-four. After the asset fixes from chapter two: first paint at zero point eight seconds, the main image at one point five. The score is a hundred.
+
+**0:42 Four metrics.** Four metrics matter most. First Contentful Paint, when anything appears. Largest Contentful Paint, when the main content appears. Total Blocking Time, how long scripts keep the page from responding. And Cumulative Layout Shift, how much the page jumps while it loads.
+
+**1:00 Before and after.** In the exercise you'll measure a frozen copy of the original page, and then the fixed storefront. Remember that lab numbers are for comparing builds. What real users experience is field data, and it varies with every phone and network.
+
+## Die Lektion
+
+The budget check said the storefront got 20 times lighter. That's a prediction. Lighthouse measures what it actually means for someone on a phone.
+
+## Watching a page load
+
+Lighthouse opens the page in Chrome, simulates a mid-range phone on a slow 4G connection (4× slower CPU, about 1.6 Mbit/s, 150 ms round trips), records every frame, and reports when key moments happened.
+
+> **Konzept-Animation: Watching a page load**
+>
+> 1. Lighthouse loads the page on a simulated mid-range phone with a slow connection, and films it.
+> 2. First Contentful Paint at 4.3 s: the first text appears. Until then the screen is blank, because a 600 KB script blocks rendering.
+> 3. Largest Contentful Paint at 9.8 s: the 1 MB hero photo finally shows. Performance score: 64.
+> 4. After the asset fixes, FCP is 0.8 s and LCP is 1.5 s. Score: 100.
+
+| Metric | The moment it marks | Good |
+| --- | --- | --- |
+| **First Contentful Paint** (FCP) | The first text or image appears | ≤ 1.8 s |
+| **Largest Contentful Paint** (LCP) | The biggest element, usually the main image or heading, appears | ≤ 2.5 s |
+| **Total Blocking Time** (TBT) | How long scripts kept the page from responding to input | ≤ 200 ms |
+| **Cumulative Layout Shift** (CLS) | How much the layout jumped while loading | ≤ 0.1 |
+
+LCP, CLS and a responsiveness metric (Interaction to Next Paint) are Google's **Core Web Vitals**. The performance score from 0 to 100 is a weighted blend of the lab metrics. It's convenient for a headline, but budgets should name the metric, not the score.
+
+## What changed and why
+
+| | Before | After |
+| --- | --- | --- |
+| Performance score | 64 | 100 |
+| First Contentful Paint | 4.3 s | 0.8 s |
+| Largest Contentful Paint | 9.8 s | 1.5 s |
+| Total transfer | 1,645 KiB | 68 KiB |
+
+Each improvement traces back to a static finding from chapter 2. FCP moved because the 600 KB script no longer blocks rendering. LCP moved because the hero image is a twentieth of the size. The transfer size is bigger than the budget check's 1,140 KB because the practice server doesn't compress responses, so the browser downloads the raw script.
+
+## Lab data and field data
+
+Lighthouse is **lab data**: one simulated device, one network, every time. That's what makes it good for comparing two builds. It isn't what real users experience. Their phones, networks and caches vary, and they interact with the page. **Field data** (real-user monitoring, or Chrome's CrUX report for public sites) tells you that. Use the lab to find and verify fixes; use the field to decide what to fix.
+
+## Hands-on: Measure the asset fixes in the lab
+
+**Praxis · 15 Min..** Ziel. Run Lighthouse against the frozen before page and the fixed storefront, and compare score, FCP, LCP and transfer size.
+
+1. With the app running, measure the frozen copy of the original page:
+
+   ```bash
+   npx lighthouse@12 http://localhost:3000/before.html --only-categories=performance --view
+   ```
+
+   `--view` opens the HTML report when it's done.
+
+![A Lighthouse report with an orange performance score of 64. Metrics: First Contentful Paint 4.3 s and Largest Contentful Paint 9.8 s in red, Total Blocking Time 20 ms and Cumulative Layout Shift 0 in green. Below, a filmstrip of blank frames until about 4 seconds.](screenshot-pending)
+*Screenshot (Lighthouse report · before.html): The original page: blank for over four seconds on a mid-range phone.*
+
+2. Measure the fixed storefront:
+
+   ```bash
+   npx lighthouse@12 http://localhost:3000/ --only-categories=performance --view
+   ```
+
+![A Lighthouse report with a green performance score of 100. First Contentful Paint 0.8 s, Largest Contentful Paint 1.5 s, Total Blocking Time 0 ms and Cumulative Layout Shift 0, all green.](screenshot-pending)
+*Screenshot (Lighthouse report · /): After chapter 2's asset fixes.*
+
+3. Open **Opportunities** in the before report. "Eliminate render-blocking resources" and "Properly size images" are the two static findings from lesson 2.4, now with a time cost attached.
+4. Record both runs in `notes/lighthouse.md`. Run each page two or three times: lab results vary a little between runs, so compare medians.
+
+**Fertig, wenn**
+- Both JSON reports exist in notes/
+- notes/lighthouse.md has a table with score, FCP, LCP, TBT, CLS and total bytes for both pages
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.1, "Lab measurement with Lighthouse".
+
+Exercise: Measure the asset fixes in the lab
+Goal: Run Lighthouse against the frozen before page and the fixed storefront, and compare score, FCP, LCP and transfer size.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Make sure the app is running on port 3000.
+2. Run `npx lighthouse@12 http://localhost:3000/before.html --only-categories=performance --output=json --output-path=./notes/lh-before.json --chrome-flags="--headless=new"`. If Chrome isn't found, set CHROME_PATH to a Chrome or Chromium binary and retry; if none exists, stop and report that.
+3. Run the same command for http://localhost:3000/ with output `./notes/lh-after.json`.
+4. From each JSON file, extract categories.performance.score and the numericValue of first-contentful-paint, largest-contentful-paint, total-blocking-time, cumulative-layout-shift and total-byte-weight.
+5. Write a before/after table to `notes/lighthouse.md`.
+
+Done when:
+- Both JSON reports exist in notes/
+- notes/lighthouse.md has a table with score, FCP, LCP, TBT, CLS and total bytes for both pages
+
+Report back:
+- The before/after table
+- Which static finding from chapter 2 explains each improvement
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/1-lab-measurement.mdx
+```
+
+## Das Wichtigste
+
+- Lighthouse loads a page on a simulated mid-range phone and slow network, so results are repeatable but pessimistic.
+- FCP is when anything appears; LCP is when the main content appears. LCP under 2.5 s counts as good.
+- Render-blocking scripts delay FCP; heavy images delay LCP. The static checks predicted both.
+- Lab data is for comparing builds. Field data from real users tells you what people actually experience.
+
+---
+
+Zurück: [Kapitel 3 · Einstieg: Dynamische Tests](/demo/de/performance-testing/dynamic.md)
+Weiter: [Lektion 3.2: Lasttests mit k6](/demo/de/performance-testing/dynamic/load-testing.md)
+
+
+# Lektion 3.2: Lasttests mit k6
+
+Performance-Tests · Kapitel 3: Dynamische Tests · 30 Min.
+
+> Einen geschäftigen Abend voller Kunden simulieren und Schwellenwerte entscheiden lassen, ob die App ihre Budgets einhält.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Explain virtual users, iterations, think time and stages
+- Write a k6 script with checks, tags and thresholds
+- Read a k6 summary and explain a failed threshold
+
+## Transkript: Load testing with k6 (1:26)
+
+**0:00 Introduction.** Your plan says the books endpoint should answer within three hundred milliseconds at p95, with fifty shoppers. Only a load test can check that.
+
+**0:10 The script.** A k6 script is JavaScript. Stages say how many virtual users run, and for how long. Thresholds say what counts as passing: p95 under three hundred milliseconds for books, under two hundred for orders. And sleep adds think time, so each virtual user behaves like a person reading a page, not a machine gun.
+
+**0:34 How a load test works.** k6 starts virtual users. Each one runs your script in a loop: browse, think, check orders, think, open a book. Stages ramp them up: from zero to fifty users in thirty seconds, hold for a minute, then ramp down. k6 times every request. Before chapter two's fixes, p95 for books climbed past a second as users piled up. The threshold turns that into a failure. And orders failed too, although it was fast on its own: Node runs on one thread, so the slow endpoint held up the rest.
+
+**1:11 After the fixes.** After the static fixes, the same test passes, with room to spare. That answers the plan's question for fifty users. It doesn't say how many more the app could take. That's the next lesson.
+
+## Die Lektion
+
+The budgets from your plan say `/api/books` should answer within 300 ms at p95 with 50 shoppers. Only one kind of test can check that: put 50 shoppers' worth of traffic through the app and measure.
+
+> **Konzept-Animation: How a k6 load test works**
+>
+> 1. k6 starts virtual users. Each one runs your script in a loop: browse, think, check orders, think, open a book.
+> 2. Stages control how many run at once: ramp from 0 to 50 users in 30 seconds, hold for a minute, ramp down.
+> 3. k6 times every request and reports percentiles per endpoint. As users pile up, p95 for the books endpoint climbs.
+> 4. Thresholds turn the numbers into pass or fail. Books p95 is 1.17 s against a 300 ms limit, so the run fails.
+
+## The script
+
+k6 scripts are JavaScript. The default function is one **iteration** of one virtual user; `options` says how many users run, for how long, and what counts as passing.
+
+```js title="load/load.k6.js"
+export const options = {
+  stages: [
+    { duration: "30s", target: 50 }, // ramp up
+    { duration: "1m", target: 50 },  // hold: a busy evening
+    { duration: "15s", target: 0 },  // ramp down
+  ],
+  thresholds: {
+    http_req_failed: ["rate<0.01"],
+    "http_req_duration{endpoint:books}": ["p(95)<300"],
+    "http_req_duration{endpoint:orders}": ["p(95)<200"],
+    "http_req_duration{endpoint:recommendations}": ["p(95)<400"],
+  },
+};
+
+export default function () {
+  group("browse", () => {
+    const page = 1 + Math.floor(Math.random() * 20);
+    const res = http.get(`${BASE}/api/books?page=${page}`, { tags: { endpoint: "books" } });
+    check(res, { "books 200": (r) => r.status === 200 });
+  });
+  sleep(1); // think time
+  // …then orders, sleep, a book page with recommendations, sleep
+}
+```
+
+Three details make the difference between a load test and a stress generator:
+
+- **Think time.** `sleep(1)` between requests makes each virtual user behave like a person reading a page. Without it, 50 virtual users send far more traffic than 50 people would.
+- **Varied data.** Random pages, customers and books spread requests across the data, the way real traffic does. Asking for the same row every time measures the cache, not the app.
+- **Tags.** `tags: { endpoint: "books" }` gives each endpoint its own percentiles and its own threshold.
+
+## Checks and thresholds
+
+A **check** tests one response ("status is 200") and records the result; it never stops the test. A **threshold** judges the whole run against a budget, and makes k6 exit with a non-zero code when it's crossed. That exit code is what lets a load test gate a release.
+
+## What the summary tells you
+
+Here's the load test against Larkspur as it was **before** chapter 2's fixes:
+
+```text
+  █ THRESHOLDS
+
+    http_req_duration{endpoint:books}
+    ✗ 'p(95)<300' p(95)=1.17s
+
+    http_req_duration{endpoint:orders}
+    ✗ 'p(95)<200' p(95)=941.52ms
+
+    http_req_duration{endpoint:recommendations}
+    ✗ 'p(95)<400' p(95)=968.7ms
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+```
+
+Books failing is no surprise. But orders and recommendations failed too, even though on their own they were much faster. Node.js runs JavaScript on a single thread, and SQLite calls here are synchronous: while one request runs 101 queries, every other request waits its turn. **One slow endpoint slows them all.** That's a finding a per-endpoint microbenchmark would never show.
+
+After chapter 2's fixes, the same test on the same machine:
+
+```text
+    ✓ 'p(95)<300' p(95)=10.29ms      books
+    ✓ 'p(95)<200' p(95)=8.98ms       orders
+    ✓ 'p(95)<400' p(95)=34.33ms      recommendations
+    ✓ 'rate<0.01' rate=0.00%
+```
+
+Every budget passes. That answers the plan's question for 50 users. It doesn't say how many users the app could take, or what happens in a rush. Those are the next lesson's questions.
+
+## Hands-on: Run a smoke test, then the load test
+
+**Praxis · 20 Min..** Ziel. Run load/smoke.k6.js and load/load.k6.js against Larkspur and record which thresholds pass.
+
+1. Start with a **smoke test**: one user for 30 seconds. If this fails, the script or the app is broken, and a big test would only produce big confusion.
+
+   ```bash
+   k6 run load/smoke.k6.js
+   ```
+
+2. Run the load test. It takes just under two minutes.
+
+   ```bash
+   k6 run load/load.k6.js
+   ```
+
+![The end of a k6 run summary. A THRESHOLDS section lists four thresholds with green check marks: books p95 about 10 ms, orders p95 about 9 ms, recommendations p95 about 34 ms, and failed requests 0.00%. Below it, TOTAL RESULTS with checks at 100% and HTTP request durations per endpoint.](screenshot-pending)
+*Screenshot (k6 run load/load.k6.js): After chapter 2's fixes, all four thresholds pass at 50 users.*
+
+3. If you skipped chapter 2's fixes, your run will fail like the "before" output above. Try it: `git stash`, restart the app, run again, then `git stash pop`.
+4. Record the results in `notes/load-test.md`.
+
+No k6? Run the same traffic shape per endpoint with the built-in tool, for example `npm run load -- --url "http://localhost:3000/api/books?page=1" --vus 50 --duration 60`. It has no think time, so expect higher latency than k6 reports.
+
+**Fertig, wenn**
+- The smoke test passed before the load test ran
+- notes/load-test.md lists every threshold with pass or fail and the measured value
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.2, "Load testing with k6".
+
+Exercise: Run a smoke test, then the load test
+Goal: Run load/smoke.k6.js and load/load.k6.js against Larkspur and record which thresholds pass.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Check that k6 is installed with `k6 version`. If it isn't, stop and report that; suggest `npm run load` as a fallback.
+2. With the app running, run `k6 run load/smoke.k6.js` and confirm all checks pass.
+3. Read load/load.k6.js and summarise its stages, think time and thresholds.
+4. Run `k6 run load/load.k6.js` (about 2 minutes). For a quicker run, use `k6 run --stage 15s:50 --stage 30s:50 --stage 5s:0 load/load.k6.js` and say that you did.
+5. Record each threshold's result and the p95 per endpoint in `notes/load-test.md`, with the command and date.
+
+Done when:
+- The smoke test passed before the load test ran
+- notes/load-test.md lists every threshold with pass or fail and the measured value
+
+Report back:
+- The THRESHOLDS block of the k6 summary
+- Whether the app meets the API budgets from your plan, and which chapter 2 fixes made the difference if it does
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/2-load-testing.mdx
+```
+
+## Das Wichtigste
+
+- A virtual user runs your script in a loop. Stages set how many run at once over time.
+- Think time (sleep) makes each user behave like a person, so 50 virtual users is close to 50 real shoppers.
+- Checks verify each response; thresholds turn the run's percentiles and error rate into pass or fail.
+- Tag requests per endpoint so each has its own threshold. A single-threaded server lets one slow endpoint delay all the others.
+- Always run a short smoke test first, to prove the script and the app work before you add load.
+
+---
+
+Zurück: [Lektion 3.1: Labormessung mit Lighthouse](/demo/de/performance-testing/dynamic/lighthouse.md)
+Weiter: [Lektion 3.3: Stress-, Spike- und Dauertests](/demo/de/performance-testing/dynamic/stress-spike-soak.md)
+
+
+# Lektion 3.3: Stress-, Spike- und Dauertests
+
+Performance-Tests · Kapitel 3: Dynamische Tests · 30 Min.
+
+> Über die erwartete Last hinausgehen, um die Obergrenze zu finden, einen Ansturm zu überstehen und schleichende Verschlechterung über Stunden zu erkennen.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Choose the right load shape for a question: load, stress, spike or soak
+- Find an endpoint's capacity from a stepped stress test
+- Judge whether an app recovers after a spike
+
+## Transkript: Stress, spike and soak tests (1:31)
+
+**0:00 Introduction.** A load test asks: are we fine at the traffic we expect? The tests in this lesson ask harder questions.
+
+**0:09 Four shapes of load.** A load test runs the traffic you expect on a busy day, and asks whether you meet the budget. A stress test keeps adding users in steps, to find where the app breaks, and how. A spike test sends a sudden surge, like a newsletter going out, and asks whether you survive and recover. And a soak test runs ordinary traffic for hours, looking for anything that leaks or drifts.
+
+**0:39 Finding capacity.** Here is the recommendations endpoint, measured with one, two, four, eight and sixteen users. Throughput is flat at about fifty-eight requests per second, from the very first user. That's the ceiling. So extra users only wait in line, and p95 grows with every step: from twenty-five milliseconds to over half a second. The knee, where p95 crosses the four-hundred-millisecond budget, is the practical capacity: somewhere between eight and sixteen users.
+
+**1:10 Spikes and soaks.** A spike test jumps from five users to a hundred in five seconds. During the surge, p95 hits five seconds and some requests time out. Afterwards, latency returns to normal. Larkspur recovers. Soak tests run for hours and watch the trend: memory, connections, and latency creeping up over time.
+
+## Die Lektion
+
+A load test answers "are we fine at the traffic we expect?". The tests in this lesson ask harder questions, and each uses a different shape of traffic over time.
+
+> **Konzept-Animation: Four shapes of load**
+>
+> 1. Load test: the traffic you expect on a busy day. Question: do we meet the budget?
+> 2. Stress test: keep adding users in steps. Question: where does it break, and how?
+> 3. Spike test: a sudden surge, like a newsletter going out. Question: do we survive it and recover?
+> 4. Soak test: ordinary load for hours. Question: does anything leak or drift over time?
+
+| Test | Shape | Question | Typical length |
+| --- | --- | --- | --- |
+| Load | Ramp to expected traffic, hold | Do we meet the budget? | 5–30 min |
+| Stress | Add users in steps until it breaks | Where's the limit, and how does it fail? | 10–30 min |
+| Spike | Jump from low to very high, then back | Do we survive a surge and recover? | 5–15 min |
+| Soak | Ordinary load, held | Does anything leak or drift? | Hours |
+
+## Finding capacity
+
+After chapter 2, the load test passes. So how much more can Larkspur take? Step up the users on the slowest endpoint, recommendations, and record throughput and latency at each step.
+
+> **Konzept-Animation: Finding capacity**
+>
+> 1. Add users in steps and record throughput and p95 at each one. These are real measurements of the recommendations endpoint.
+> 2. Throughput is flat at about 58 requests per second from the first user. That's the ceiling: more users can't make it go faster.
+> 3. So extra users only wait in line. p95 climbs from 25 ms with one user to 532 ms with sixteen.
+> 4. The knee, where p95 crosses the 400 ms budget, is the practical capacity: somewhere between 8 and 16 users. Plan to stay well below it.
+
+Two things happen, and they're the same thing seen from two sides. **Throughput stops growing**: the endpoint can do about 58 requests per second no matter how many users ask. And because requests can't be served any faster, **extra users only queue**: p95 rises in proportion to the number of users waiting.
+
+The point where p95 crosses the budget is the **practical capacity**. It's well before the point where the app crashes or returns errors, and it's the number to plan with. Here: between 8 and 16 users, at about 58 requests per second.
+
+A stress test with k6 adds users in steps until well past that point, to see **how** the app fails:
+
+```text
+    ✗ 'p(95)<300' p(95)=1.02s
+    ✓ 'rate<0.01' rate=0.59%
+    ✗ status is 200
+      ↳  99% — ✓ 4489 / ✗ 27
+```
+
+At 80 users, 27 requests waited longer than k6's 10-second timeout. Larkspur doesn't crash; it just makes people wait until they give up. Graceful in one sense, terrible in another.
+
+## Spikes and recovery
+
+A spike test jumps from 5 to 100 users in five seconds, holds, then drops back. The interesting number is what happens **after**:
+
+| Phase | p95 |
+| --- | --- |
+| Before (5 users) | 26 ms |
+| During the spike (100 users) | 5.3 s, with 3.5% of requests timing out |
+| After (5 users again) | 28 ms |
+
+Larkspur recovers fully once the surge passes. Many systems don't: queues stay full, connection pools stay exhausted, caches were evicted, or autoscaling arrives after the spike has gone. A spike test that only checks survival misses that.
+
+## Soak tests
+
+Some problems only show up over time: a cache that never evicts, a connection that's never returned, a log file filling a disk. A soak test runs ordinary load for hours and watches the **trend**: is p95 at hour three the same as at minute five? Is memory flat? `load/soak.k6.js` runs 15 users for 30 minutes; set `DURATION=5m` for a rehearsal. Watch the server's memory while it runs (`top`, Activity Monitor or Task Manager).
+
+## Hands-on: Find the capacity of /api/recommendations
+
+**Praxis · 25 Min..** Ziel. Use a stepped stress test and a spike test to find where /api/recommendations stops meeting its 400 ms budget, and whether it recovers from a surge.
+
+1. Step through increasing load with the built-in tool. Each stage runs five seconds.
+
+   ```bash
+   npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --stages 5:1,5:2,5:4,5:8,5:16,5:32
+   ```
+
+![A table with one row per stage: 1, 2, 4, 8, 16 and 32 virtual users. The requests-per-second column stays between about 55 and 61 throughout, while p95 rises from about 25 ms to 46, 105, 286, 532 and 957 ms.](screenshot-pending)
+*Screenshot (npm run load, stepped): Throughput is flat; p95 grows with every step. The budget is crossed between 8 and 16 users.*
+
+2. Find the ceiling (where req/s stops growing) and the capacity (the last stage with p95 under 400 ms).
+3. With k6, run the stepped stress test and the spike test against the same endpoint:
+
+   ```bash
+   TARGET="/api/recommendations?book_id=7" STEP=10s k6 run load/stress.k6.js
+   TARGET="/api/recommendations?book_id=7" k6 run load/spike.k6.js
+   ```
+
+![k6 spike test summary. Thresholds for phase:before and phase:after pass with p95 around 26 to 28 ms; phase:spike fails with p95 around 5.3 s. The failed request rate is about 3.5%.](screenshot-pending)
+*Screenshot (k6 run load/spike.k6.js): It survives the spike badly and recovers fully.*
+
+4. Write `notes/capacity.md`. Lesson 3.4 finds out why the ceiling is so low.
+
+**Fertig, wenn**
+- notes/capacity.md states the ceiling in req/s and the capacity in users, both taken from captured output
+- The spike result says whether the endpoint recovered, with before and after p95
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.3, "Stress, spike and soak tests".
+
+Exercise: Find the capacity of /api/recommendations
+Goal: Use a stepped stress test and a spike test to find where /api/recommendations stops meeting its 400 ms budget, and whether it recovers from a surge.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. With the app running, run `npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --stages 5:1,5:2,5:4,5:8,5:16,5:32` and capture the table.
+2. Identify the throughput ceiling (where req/s stops growing) and the first stage whose p95 exceeds 400 ms.
+3. If k6 is installed, run `TARGET="/api/recommendations?book_id=7" STEP=10s k6 run load/stress.k6.js` and capture the thresholds and http_req_failed.
+4. If k6 is installed, run `TARGET="/api/recommendations?book_id=7" k6 run load/spike.k6.js` and capture the per-phase durations (phase:before, phase:spike, phase:after).
+5. Write `notes/capacity.md` with the ceiling, the capacity in users and req/s at the 400 ms budget, and whether p95 in the after phase returned to the before level.
+
+Done when:
+- notes/capacity.md states the ceiling in req/s and the capacity in users, both taken from captured output
+- The spike result says whether the endpoint recovered, with before and after p95
+
+Report back:
+- The stepped load table
+- Ceiling, capacity and recovery, each with the number it's based on
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/3-stress-spike-soak.mdx
+```
+
+## Das Wichtigste
+
+- Load tests check expected traffic; stress tests find the breaking point; spike tests check survival and recovery; soak tests find slow drift.
+- When throughput stops growing as users increase, you've hit the ceiling. After that, extra users only add waiting time.
+- Capacity is the load at which p95 crosses the budget, not the load at which the app crashes.
+- In a spike, judge recovery as well as survival: latency and errors should return to normal once the surge ends.
+- Soak tests need hours and a watch on memory, connections and latency trend, not just the final percentiles.
+
+---
+
+Zurück: [Lektion 3.2: Lasttests mit k6](/demo/de/performance-testing/dynamic/load-testing.md)
+Weiter: [Lektion 3.4: Den Engpass finden](/demo/de/performance-testing/dynamic/bottlenecks.md)
+
+
+# Lektion 3.4: Den Engpass finden
+
+Performance-Tests · Kapitel 3: Dynamische Tests · 30 Min.
+
+> Die App unter Last profilieren, den Flame Graph lesen, den heißen Pfad beheben und es mit demselben Test belegen.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Decide which resource is the bottleneck: CPU, database, network or waiting
+- Record a CPU profile of a Node.js app under load and open it as a flame graph
+- Fix a CPU hot path and prove the improvement with the same load test
+
+## Transkript: Finding the bottleneck (1:12)
+
+**0:00 Introduction.** The stress test showed that recommendations stall at about fifty-eight requests per second. Now let's find out why.
+
+**0:08 What ran out?.** First find which resource ran out. Under the stress test, the Node process sits at a hundred percent of one core. A pegged core means the code itself is the limit. Time for a CPU profile.
+
+**0:23 Reading the flame graph.** A CPU profiler samples the call stack about a thousand times a second while the app is under load. A flame graph merges those samples. Width is the share of time. Each layer up is a function called by the one below. recommend takes two thirds of the samples. Inside it, similarity and normalise re-parse every book's tags on every single request. Parse the tags once and keep them, and the hot frames shrink.
+
+**0:56 Do it once.** The fix: load the catalogue once, normalise each book's tags once into a set, and normalise the target's tags once per request. Same test, same machine: fifty-seven requests per second became six hundred and ninety-nine. Responses are identical.
+
+## Die Lektion
+
+The stress test showed that recommendations stall at about 58 requests per second. It didn't say why. For that you look inside the process while it's under the same load.
+
+## Which resource is saturated?
+
+Every request uses some CPU, waits for the database or disk, and waits for the network. Under load, one of these runs out first. Check before you profile:
+
+| Symptom under load | Likely bottleneck | Look with |
+| --- | --- | --- |
+| App process at ~100% of one core | CPU in your code | A CPU profile |
+| Low CPU, high latency | Waiting: database, locks, another service | Query logs, tracing |
+| Database CPU high | Queries | Query plans (lesson 2.3) |
+| Errors rise before latency | Limits: connections, file handles, memory | Server logs, metrics |
+
+Run the stress test and watch the Node process in `top` or your activity monitor: it sits at 100% of one core. Node runs your JavaScript on one thread, so a pegged core means the code itself is the limit. Time for a CPU profile.
+
+## Reading a flame graph
+
+> **Konzept-Animation: Reading a flame graph**
+>
+> 1. A CPU profiler samples the call stack about a thousand times a second while the app is under load.
+> 2. A flame graph merges those samples. Width is the share of time; each layer up is a function called by the one below.
+> 3. recommend takes 67% of the samples. Inside it, similarity and normalise re-parse every book's tags on every request.
+> 4. Parse the tags once and keep them: the hot frames shrink, and throughput at 10 users rises from 57 to 699 requests per second.
+
+`npm run profile` starts the app with Node's built-in sampling profiler. While load runs, it records the call stack about a thousand times a second. When the app exits it writes a `.cpuprofile` file you can open in Chrome DevTools (Performance panel, then **Load profile**) or drop onto [speedscope.app](https://www.speedscope.app).
+
+Read a flame graph from the bottom up. Each bar is a function; the bars on top of it are what it called. **Width is time.** Look for wide bars that belong to your code:
+
+| Function | Share of samples | What it's doing |
+| --- | --- | --- |
+| `recommend` | 67% | The whole endpoint |
+| `similarity` | 36% | Comparing the target book with each of 5,000 books |
+| `normalise` | 27% | Splitting, trimming, lowercasing and sorting tag strings |
+| `all` | 11% | Loading all 5,000 books from SQLite, on every request |
+
+Here is the code that `similarity` and `normalise` come from:
+
+```js title="src/routes/recommendations.mjs"
+function similarity(a, b) {
+  const left = normalise(a);   // the same target tags, re-parsed 5,000 times
+  const right = normalise(b);  // every book's tags, re-parsed on every request
+  // …
+}
+```
+
+Nothing in it is wrong, exactly. It just does the same work over and over: the target's tags are normalised 5,000 times per request, and every book's tags are normalised again on every request, even though books rarely change. No static check flagged it, because there's no slow pattern to match, only a lot of repetition.
+
+## The fix: do it once
+
+Load the catalogue once, normalise each book's tags once into a `Set`, and normalise the target's tags once per request:
+
+```js title="src/routes/recommendations.mjs (after)"
+let cached;
+function catalogue() {
+  return (cached ??= query("SELECT id, title, tags FROM books").all()
+    .map((b) => ({ ...b, tagSet: new Set(normalise(b.tags)) })));
+}
+
+export function recommend(params) {
+  // …
+  const mine = normalise(target.tags);
+  const scored = catalogue()
+    .filter((b) => b.id !== id)
+    .map((b) => ({ id: b.id, title: b.title, score: similarity(mine, b.tagSet) }))
+  // …
+}
+```
+
+> **A cache is a decision.** This cache never expires, which is fine for a practice app and wrong for a real shop that adds books. In production, refresh it on a timer or when the catalogue changes, and say so in the code.
+
+| Same test, 10 users | Before | After |
+| --- | --- | --- |
+| Throughput | 57 req/s | 699 req/s |
+| p95 | 347 ms | 26 ms |
+| p95 at 32 users | 957 ms | 77 ms |
+
+## Hands-on: Profile /api/recommendations and fix its hot path
+
+**Praxis · 25 Min..** Ziel. Record a CPU profile while loading /api/recommendations, identify the hot functions, remove the repeated work, and show the throughput ceiling rise with the same test.
+
+1. Stop the app if it's running, then start it with the profiler and put it under load from a second terminal:
+
+   ```bash
+   npm run profile
+   npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --vus 10 --duration 10
+   ```
+
+2. Press Ctrl+C in the app's terminal. The app exits cleanly, and that clean exit is what lets the profiler write `profiles/CPU.….cpuprofile`. (If you kill it with `kill -9`, no profile is written.)
+3. Open the profile in Chrome DevTools: **Performance** panel, **Load profile**, then switch to the bottom-up or flame chart view.
+
+![Chrome DevTools Performance panel showing a loaded CPU profile as a flame chart. Repeated stacks show recommend at the base, with similarity and normalise stacked above it taking most of the width, and short calls to split, map and filter at the top.](screenshot-pending)
+*Screenshot (DevTools · Performance · CPU.cpuprofile): recommend → similarity → normalise, over and over.*
+
+4. Save the current responses, apply the fix, restart normally and compare:
+
+   ```bash
+   curl -s "http://localhost:3000/api/recommendations?book_id=7" > /tmp/rec-before.json
+   ```
+
+5. Rerun the exact load command from step 1 and compare with your numbers from lesson 3.3.
+
+![Two result rows from the mini load tool for /api/recommendations with 10 virtual users. Before: about 57 requests per second, p95 around 347 ms. After: about 699 requests per second, p95 around 26 ms.](screenshot-pending)
+*Screenshot (npm run load): Same test, same machine: twelve times the throughput.*
+
+**Fertig, wenn**
+- The profile summary names the functions that dominated, with percentages
+- Responses for book_id=7 and book_id=1234 are identical before and after the fix
+- The same load command shows higher req/s and lower p95 than before the fix
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.4, "Finding the bottleneck".
+
+Exercise: Profile /api/recommendations and fix its hot path
+Goal: Record a CPU profile while loading /api/recommendations, identify the hot functions, remove the repeated work, and show the throughput ceiling rise with the same test.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Stop any running instance of the app. Start it with the profiler: `npm run profile` (in the background).
+2. Run `npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --vus 10 --duration 10` and capture the result.
+3. Stop the app with SIGINT (Ctrl+C) so it writes `profiles/*.cpuprofile`.
+4. Summarise the profile with a short Node script: for each function name, total the sample time where it appears on the stack (inclusive), and print the top 10 as percentages.
+5. In `src/routes/recommendations.mjs`, load all books once and cache them with their tags already normalised into a Set; normalise the target's tags once per request; compute similarity against the cached Set. Keep the response identical.
+6. Start the app normally, compare the response for book_id=7 and book_id=1234 with the pre-fix responses, and rerun the same load command.
+
+Done when:
+- The profile summary names the functions that dominated, with percentages
+- Responses for book_id=7 and book_id=1234 are identical before and after the fix
+- The same load command shows higher req/s and lower p95 than before the fix
+
+Report back:
+- Top functions from the profile, before the fix
+- The diff of recommendations.mjs
+- Load results before and after
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/4-bottlenecks.mdx
+```
+
+## Das Wichtigste
+
+- A load test tells you that something is slow; a profile taken under the same load tells you where the time goes.
+- First find the saturated resource: CPU at 100% points to code; low CPU with high latency points to waiting on something else.
+- In a flame graph, width is time. Look for wide frames near the top that belong to your code.
+- Work that repeats the same computation on every request is a classic hot path. Do it once and cache the result.
+- Prove a fix by rerunning the exact test that found the problem, on the same machine.
+
+---
+
+Zurück: [Lektion 3.3: Stress-, Spike- und Dauertests](/demo/de/performance-testing/dynamic/stress-spike-soak.md)
+Weiter: [Kapitel 3 · Zusammenfassung: Dynamische Tests: Zusammenfassung](/demo/de/performance-testing/dynamic/summary.md)
+
+
+# Kapitel 3 · Zusammenfassung: Dynamische Tests: Zusammenfassung
+
+Performance-Tests · Kapitel 3: Dynamische Tests · 5 Min.
+
+> Was das Ausführen der App gezeigt hat, das das Lesen nicht zeigen konnte.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Dynamic testing: summary (0:47)
+
+**0:00 Recap.** Here's what running the app taught you that reading it couldn't.
+
+**0:05 Results.** Lighthouse confirmed the asset fixes: the score went from sixty-four to a hundred, and the main image now appears in one and a half seconds instead of ten. The load test confirmed the query fixes: every threshold passes with fifty shoppers. And the stress test and profile found a problem no static rule describes. Its fix multiplied throughput by twelve.
+
+**0:31 Together.** Static testing found three problems and predicted their cost. Dynamic testing confirmed those predictions, and found the one problem static testing couldn't see. Neither would have found everything alone. Chapter four turns that into a routine.
+
+## Die Lektion
+
+You measured the page the way a phone sees it, put a busy evening through the app, found its ceiling and its behaviour in a surge, and used a profile to fix a problem that no static check could see.
+
+## Key points
+
+### 3.1 Labormessung mit Lighthouse
+
+- Lighthouse loads a page on a simulated mid-range phone and slow network, so results are repeatable but pessimistic.
+- FCP is when anything appears; LCP is when the main content appears. LCP under 2.5 s counts as good.
+- Render-blocking scripts delay FCP; heavy images delay LCP. The static checks predicted both.
+- Lab data is for comparing builds. Field data from real users tells you what people actually experience.
+
+### 3.2 Lasttests mit k6
+
+- A virtual user runs your script in a loop. Stages set how many run at once over time.
+- Think time (sleep) makes each user behave like a person, so 50 virtual users is close to 50 real shoppers.
+- Checks verify each response; thresholds turn the run's percentiles and error rate into pass or fail.
+- Tag requests per endpoint so each has its own threshold. A single-threaded server lets one slow endpoint delay all the others.
+- Always run a short smoke test first, to prove the script and the app work before you add load.
+
+### 3.3 Stress-, Spike- und Dauertests
+
+- Load tests check expected traffic; stress tests find the breaking point; spike tests check survival and recovery; soak tests find slow drift.
+- When throughput stops growing as users increase, you've hit the ceiling. After that, extra users only add waiting time.
+- Capacity is the load at which p95 crosses the budget, not the load at which the app crashes.
+- In a spike, judge recovery as well as survival: latency and errors should return to normal once the surge ends.
+- Soak tests need hours and a watch on memory, connections and latency trend, not just the final percentiles.
+
+### 3.4 Den Engpass finden
+
+- A load test tells you that something is slow; a profile taken under the same load tells you where the time goes.
+- First find the saturated resource: CPU at 100% points to code; low CPU with high latency points to waiting on something else.
+- In a flame graph, width is time. Look for wide frames near the top that belong to your code.
+- Work that repeats the same computation on every request is a classic hot path. Do it once and cache the result.
+- Prove a fix by rerunning the exact test that found the problem, on the same machine.
+
+## Static and dynamic, together
+
+Look at where each fix came from. The static checks in chapter 2 found three problems and predicted their cost. The dynamic tests here **confirmed** those predictions (Lighthouse, the load test) and **found what static analysis couldn't** (the CPU hot path). Neither family would have found everything alone. Chapter 4 turns that into a routine.
+
+## Check yourself
+
+1. Lighthouse reports LCP 1.5 s for your page. A customer says it took five seconds. Who's wrong?
+   Probably neither. Lighthouse is lab data from one simulated device; the customer's phone, network and cache differ. Use field data to see the real distribution.
+2. During a stress test, req/s stays at 58 from 4 users to 32 users while p95 rises from 105 ms to 957 ms. What does that tell you?
+   58 req/s is the throughput ceiling. Beyond it, extra users only queue, so latency grows with the number of users waiting.
+3. A spike test passes: no errors above 5%. What else should you look at before calling the app resilient?
+   Recovery: latency and error rate in the phase after the spike should return to their levels before it.
+4. Why rerun the same load test after a fix, rather than a new one?
+   So the only thing that changed is the code. A different test, data set or machine would make the comparison meaningless.
+
+---
+
+Zurück: [Lektion 3.4: Den Engpass finden](/demo/de/performance-testing/dynamic/bottlenecks.md)
+Weiter: [Kapitel 4 · Einstieg: Zusammenfassung](/demo/de/performance-testing/review.md)
+
+
+# Kapitel 4 · Einstieg: Zusammenfassung
+
+Performance-Tests · Kapitel 4: Zusammenfassung · 5 Min.
+
+> Statische und dynamische Tests zu einer Routine verbinden, Ergebnisse berichten, die Abnahme durchführen, es auf das eigene Projekt anwenden und den Kurs wiederholen.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Summary (1:11)
+
+**0:00 Introduction.** The last two chapters went deep, one family of tests each. This one steps back: it makes performance testing a routine, turns results into a decision, and takes it to your own code.
+
+**0:14 Where you are.** Larkspur now runs one query per page instead of a hundred and one, has two new indexes, a storefront a twentieth of its old weight, and twelve times the throughput on recommendations. This chapter makes sure the next change can't quietly undo any of it.
+
+**0:33 What you'll get.** You'll decide which checks run on every pull request, which before a release, and which in production. You'll wire the static gates and a short load test into a CI workflow. You'll write a performance report that someone else can act on and repeat. You'll run a formal acceptance test against agreed criteria, and make the go or no-go call. You'll run the static checks on your own project, and hand the fixes to an agent. And you'll review the whole course in one place.
+
+## Die Lektion
+
+The last two chapters went deep: one family of tests each. This one steps back. A performance test that runs once finds today's problems; a routine finds tomorrow's before they ship. And a result nobody can read or repeat changes nothing.
+
+## Was Sie mitnehmen
+
+- Know which checks run on every pull request, which before a release, and which in production
+- Wire the static gates and a short load test into a CI workflow
+- Write a performance report that someone can act on and repeat
+- Run an acceptance test and record a go/no-go decision
+- Run the static checks on your own project and hand the fixes to an agent
+- Review the whole course and know where to go next
+
+## Where you are
+
+1. **Überblick** (Überblick): Was Performance-Tests messen, die zwei Testfamilien und die Übungs-App.
+2. **Statische Tests** (Vertiefung): Performance-Probleme finden, indem man das Gebaute untersucht, ohne es auszuführen.
+3. **Dynamische Tests** (Vertiefung): Das System laufen lassen, Last darauf schicken und messen, was Nutzer spüren.
+4. **Zusammenfassung** (Überblick): Beides zu einem Ablauf verbinden, Ergebnisse berichten, die Abnahme durchführen, es auf das eigene Projekt anwenden und den ganzen Kurs wiederholen.
+
+By now Larkspur has one query per page instead of 101, two indexes, a storefront a twentieth of its old weight, and a recommendations endpoint with twelve times the throughput. Every one of those changes has a measurement behind it. This chapter makes sure the next change can't quietly undo them. Then it turns the results into a decision, with a formal acceptance test, and takes the static checks to your own codebase.
+
+## In this chapter
+
+- Lektion 4.1: [Ein Ablauf für Performance-Tests](/demo/de/performance-testing/review/workflow.md) (25 Min.). Entscheiden, was wo läuft: statische Prüfungen bei jedem Pull Request, dynamische Tests vor dem Release, Monitoring in Produktion.
+- Lektion 4.2: [Ergebnisse berichten](/demo/de/performance-testing/review/reporting.md) (20 Min.). Performance-Ergebnisse so aufschreiben, dass andere entscheiden und den Test wiederholen können.
+- Lektion 4.3: [Performance-Abnahme](/demo/de/performance-testing/review/acceptance.md) (30 Min.). Budgets in Abnahmekriterien übersetzen, den Abnahmetest mit einem Befehl ausführen und eine unterschriebene Go/No-Go-Entscheidung treffen.
+- Lektion 4.4: [Statische Tests am eigenen Projekt](/demo/de/performance-testing/review/your-project.md) (45 Min.). Die statischen Prüfungen des Kurses selbst an echtem Code ausführen, die Zahlen lesen, erste Budgets setzen und die Korrekturen einem Agenten übergeben.
+- Kapitel 4 · Zusammenfassung: [Kurszusammenfassung](/demo/de/performance-testing/review/summary.md) (10 Min.). Alles, was der Kurs behandelt hat, an einem Ort, und wie es weitergeht.
+
+---
+
+Zurück: [Kapitel 3 · Zusammenfassung: Dynamische Tests: Zusammenfassung](/demo/de/performance-testing/dynamic/summary.md)
+Weiter: [Lektion 4.1: Ein Ablauf für Performance-Tests](/demo/de/performance-testing/review/workflow.md)
+
+
+# Lektion 4.1: Ein Ablauf für Performance-Tests
+
+Performance-Tests · Kapitel 4: Zusammenfassung · 25 Min.
+
+> Entscheiden, was wo läuft: statische Prüfungen bei jedem Pull Request, dynamische Tests vor dem Release, Monitoring in Produktion.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Place each kind of performance check at the right stage of delivery
+- Run all static gates with one command, and see one catch a regression
+- Adapt a CI workflow that runs static gates, Lighthouse and a short k6 test
+
+## Transkript: A performance testing workflow (1:10)
+
+**0:00 Introduction.** Everything so far was done by hand, once. A real codebase changes every day. So where should each check run?
+
+**0:09 The pipeline.** Every pull request runs the static checks first: the asset budget, the query linter and the query plans. They take seconds. Then the change is built and deployed to staging, where Lighthouse and a short k6 load test run. A failed threshold stops the release, and the failure message carries the numbers that explain why. Once it's fixed, the change ships. Production monitoring watches the same metrics, and informs the next budgets.
+
+**0:40 What runs where.** The rule is fast feedback first. A gate that fails in four seconds on a pull request costs the author nothing to fix. Long stress and soak tests belong on a schedule, against a stable environment, not on every change.
+
+**0:57 A gate in action.** In the exercise you'll undo one of your fixes on purpose. The static gates catch it in seconds, and name the file and the size that caused it.
+
+## Die Lektion
+
+Everything in chapters 2 and 3 was done by hand, once. A real codebase changes every day. The question is where each check runs, so that problems surface quickly and cheaply.
+
+> **Konzept-Animation: Performance checks in the delivery pipeline**
+>
+> 1. Every pull request runs the static checks first: asset budget, query lint and query plans. They take seconds.
+> 2. Then it builds, deploys to staging and runs the dynamic checks: Lighthouse and a short k6 load test.
+> 3. A failed threshold stops the release, and the failure message carries the numbers that explain why.
+> 4. Once fixed, the change ships. Production monitoring watches the same metrics and informs the next budgets.
+
+## What runs where
+
+| Stage | Runs | Takes | Catches |
+| --- | --- | --- | --- |
+| Every pull request | Static gates: budget, query lint, query plans | Seconds | Known slow patterns, before review |
+| Before release, on staging | Lighthouse, a short k6 load test against budgets | Minutes | Regressions in what users feel |
+| On a schedule (nightly, weekly) | Stress, spike and soak tests | Up to hours | Capacity and drift |
+| Production | Real-user monitoring, server metrics | Always | What the lab can't reproduce |
+
+The rule is **fast feedback first**. A static gate that fails in 4 seconds on a pull request costs the author nothing to fix. The same problem found by a nightly soak test costs a day; found by customers, much more.
+
+## One command for the static gates
+
+The practice app bundles its static gates into one script:
+
+```bash
+npm run check:static
+```
+
+```text
+budget      actual   limit   result
+script         0.9      50   pass
+…
+All budgets met.
+No queries inside loops found.
+pass  SELECT id, book_id, total_cents, created_at FROM orders WHERE customer_email = ? ORDER BY …
+pass  SELECT name FROM authors WHERE id = ?
+pass  SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?
+pass  SELECT id, tags FROM books WHERE id = ?
+
+All 4 query plans use indexes.
+```
+
+`check:plans` is new: it explains every query listed in `hot-queries.sql` and fails if any would scan a table of 1,000 rows or more. It turns lesson 2.3 into a gate. The cost is a habit: when you add a query to a route, add it to the file.
+
+## Dynamic tests in CI
+
+`ci/perf.yml` is a reference GitHub Actions workflow with two jobs. **Static** runs the three gates. **Dynamic** starts the app, runs Lighthouse CI against `lighthouserc.json` (LCP under 2.5 s, page weight under 350 KB), and a 70-second version of the k6 load test.
+
+```yaml title="ci/perf.yml (excerpt)"
+  dynamic:
+    needs: static
+    steps:
+      # …checkout, Node, seed, start the app…
+      - name: Lighthouse
+        run: npx @lhci/cli@0.15.1 autorun
+      - uses: grafana/setup-k6-action@v1
+      - name: Load test (short)
+        run: k6 run --stage 20s:50 --stage 40s:50 --stage 10s:0 load/load.k6.js
+```
+
+> **Shared CI runners are noisy.** CI machines are shared and vary from run to run. Keep load tests in CI short, compare against budgets with some headroom, and treat a single failure as a reason to rerun and look, not as proof. Capacity numbers belong on a dedicated, production-like environment.
+
+## Close the loop
+
+Production monitoring watches the same metrics your tests use: p95 per endpoint, error rate, LCP from real users. When real traffic grows or changes shape, those numbers tell you to revise the budgets, and the budgets drive the next round of tests.
+
+## Hands-on: Run the gates, then watch one catch a regression
+
+**Praxis · 20 Min..** Ziel. Run all static gates with one command, deliberately reintroduce a regression to see a gate fail, then adapt the reference CI workflow.
+
+1. Run all the static gates:
+
+   ```bash
+   npm run check:static; echo "exit $?"
+   ```
+
+2. Undo one of your fixes on purpose. In `public/index.html`, point the date library back at the all-locales file, and run the gates again.
+
+![Terminal output where the asset budget fails: script 96.2 KB against a 50 KB limit marked FAIL with +46.2 KB, followed by '1 budget(s) exceeded.' and exit code 1. The later gates don't run.](screenshot-pending)
+*Screenshot (npm run check:static): The regression is caught in seconds, with the file and the size that caused it.*
+
+3. Revert the change and confirm the gates pass again.
+4. Read `ci/perf.yml` and write down what you'd change to use it in your own repository: working directory, the branch it runs on, and whether its thresholds fit your CI runners.
+
+**Fertig, wenn**
+- check:static passes before and after the experiment, and failed during it
+- notes/ci.md explains each job and its failure conditions
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.1, "A performance testing workflow".
+
+Exercise: Run the gates, then watch one catch a regression
+Goal: Run all static gates with one command, deliberately reintroduce a regression to see a gate fail, then adapt the reference CI workflow.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run check:static` and capture the output and exit code. If any gate fails, list which and why, and stop here.
+2. Reintroduce a regression on a scratch basis: in `public/index.html`, change `/vendor/datefmt-en.js` back to `/vendor/datefmt-all-locales.js`.
+3. Run `npm run check:static` again and capture which gate fails and its message.
+4. Revert the change with `git checkout -- public/index.html` (or by hand if the file isn't committed) and confirm `npm run check:static` passes again.
+5. Read `ci/perf.yml`. Write `notes/ci.md` describing what each job does, what makes it fail, and what you'd change for a team's own repository (paths, branches, thresholds). Do not create files under .github/ unless asked.
+
+Done when:
+- check:static passes before and after the experiment, and failed during it
+- notes/ci.md explains each job and its failure conditions
+
+Report back:
+- The failing gate's output during the regression
+- Your notes on adapting ci/perf.yml
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/4-summary/1-workflow.mdx
+```
+
+## Das Wichtigste
+
+- Run cheap static gates on every pull request, dynamic tests before release, and monitoring in production.
+- A gate is only useful if it fails the build. Make every check exit non-zero on a breach.
+- Keep CI load tests short and their thresholds generous enough for shared runners; run long stress and soak tests on a schedule.
+- Feed production numbers back into budgets. The loop is what keeps performance from drifting.
+
+---
+
+Zurück: [Kapitel 4 · Einstieg: Zusammenfassung](/demo/de/performance-testing/review.md)
+Weiter: [Lektion 4.2: Ergebnisse berichten](/demo/de/performance-testing/review/reporting.md)
+
+
+# Lektion 4.2: Ergebnisse berichten
+
+Performance-Tests · Kapitel 4: Zusammenfassung · 20 Min.
+
+> Performance-Ergebnisse so aufschreiben, dass andere entscheiden und den Test wiederholen können.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Structure a performance report around the question it answers
+- Present results with their conditions, so they can be repeated
+- Write findings that name a cause, an impact and a next step
+
+## Transkript: Reporting results (1:11)
+
+**0:00 Introduction.** A performance test is finished when someone can act on it. That takes a report: short, in a predictable shape, with every number backed by a test anyone can rerun.
+
+**0:12 What the course changed.** Here are Larkspur's first measurements, each from a run you can repeat. After the static fixes: one query instead of a hundred and one, two indexes, and lighter assets. After the dynamic fix: book tags parsed once, instead of on every request. Every result names the test that produced it. That's what makes a report credible.
+
+**0:38 The shape of a report.** Start with a summary that answers the question the tests were for. Then the setup, so anyone can repeat it, and the results: before and after, same test, same machine. Then one finding per problem, the limits of what you tested, and the next steps.
+
+**0:58 A good finding.** A finding is a small argument: the cause, and exactly where it is, what users feel, with a measured number, the fix, and the evidence someone else can check.
+
+## Die Lektion
+
+A performance test is finished when someone can act on it. That takes a report: short, in a predictable shape, and with every number backed by a test anyone can rerun.
+
+> **Konzept-Animation: What the course changed**
+>
+> 1. Before: the first measurements of Larkspur, each from a run you can repeat.
+> 2. After the static fixes: one query instead of 101, two indexes, and lighter assets.
+> 3. After the dynamic fix: book tags parsed once instead of on every request.
+> 4. Each result names the test that produced it. That's what makes a performance report credible.
+
+## The shape of a useful report
+
+1. **Summary.** Answer the question the tests were for, in two or three sentences. "After four fixes, Larkspur meets all its budgets at 50 users. The recommendations endpoint is the first to saturate, at about 700 req/s on the test machine."
+2. **Test setup.** Machine, data set, tool versions, the commands. Enough for someone else to reproduce it.
+3. **Results.** Before and after, same tests, same machine. Percentiles and error rates, not averages.
+4. **Findings.** One per problem: what causes it, what users feel, what to do, and the evidence.
+5. **Limits.** What you didn't test: other endpoints, production hardware, real network conditions, longer soaks.
+6. **Next steps.** Decisions or follow-up tests, each with an owner if you can.
+
+## Writing findings
+
+A finding is a small argument. Compare:
+
+> The books API is slow.
+
+> **N+1 queries in /api/books.** `listBooks` runs 2 queries per book, 101 per page (`src/routes/books.mjs:11`, `:13`). At 50 users p95 was 1.17 s against a 300 ms budget, and it slowed every other endpoint because the server is single-threaded. Replacing the loop with one joined query and indexing `reviews.book_id` brought p95 to 10 ms in the same k6 test. Evidence: `notes/load-test.md`.
+
+The second names the cause and its location, says what users feel, gives the fix, and points at the evidence. Someone who wasn't there can check every claim.
+
+## Numbers people can trust
+
+- **Same test, same machine** for every before/after pair. If anything else changed, say so.
+- **Percentiles and errors together.** A fast p95 with 5% errors is not a success.
+- **Ranges, not false precision.** Repeat runs differ by a few percent. "About 700 req/s" is more honest than "698.97".
+- **Lab versus field.** Say which numbers came from Lighthouse or a laptop, and which from production.
+
+> **Reports from agents.** When an agent writes a report for you, ask it to cite where each number came from, as the prompt below does. Then spot-check a few against the files. Agents are good at prose and structure; a confident number with no source is the thing to catch.
+
+## Hands-on: Write Larkspur's performance report
+
+**Praxis · 20 Min..** Ziel. Turn your notes from the course into a one-page performance report with an answer, a results table, findings and limits.
+
+1. Collect your notes: `perf-baseline.md`, `perf-plan.md`, `lighthouse.md`, `load-test.md`, `capacity.md`.
+2. Write `notes/report.md` in the six sections above. Use this results table as a start, filled with **your** numbers:
+
+   | Measure | Test | Before | After |
+   | --- | --- | --- | --- |
+   | /api/books p95 | mini load, 10 users | 1,320 ms | 12 ms |
+   | /api/orders p95 | mini load, 10 users | 205 ms | 5 ms |
+   | /api/recommendations p95 | mini load, 10 users | 347 ms | 26 ms |
+   | Error rate | k6 load, 50 users | 0% | 0% |
+   | LCP | Lighthouse, mobile | 9.8 s | 1.5 s |
+   | Page weight | Lighthouse | 1,645 KiB | 68 KiB |
+
+![A Markdown report open in an editor. A short Summary paragraph, a Test setup list, a Results table comparing before and after, and a Findings section whose first entry is titled 'N+1 queries in /api/books' with cause, impact, fix and evidence lines.](screenshot-pending)
+*Screenshot (notes/report.md): One page. Every number has a source.*
+
+3. Read it as someone who wasn't there. Could they rerun every test from the Setup section? Could they find the evidence for every finding?
+
+**Fertig, wenn**
+- notes/report.md has all six sections
+- Every number is traceable to a notes file or a quoted command output
+- Missing measurements are listed under Limits instead of being estimated
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.2, "Reporting results".
+
+Exercise: Write Larkspur's performance report
+Goal: Turn your notes from the course into a one-page performance report with an answer, a results table, findings and limits.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Read everything in `notes/` (baseline, plan, lighthouse, load test, capacity). If a file is missing, list it as missing; do not invent its numbers.
+2. Create `notes/report.md` with these sections: Summary (2 to 3 sentences answering whether Larkspur meets its budgets), Test setup (machine, tools and versions, commands), Results (a before/after table with p95 per endpoint, throughput, error rate, LCP and page weight), Findings (one per problem found: cause, user impact, fix, evidence), Limits (what wasn't tested), Next steps.
+3. Every number in the report must come from a file in notes/ or from a command you run now; cite which.
+
+Done when:
+- notes/report.md has all six sections
+- Every number is traceable to a notes file or a quoted command output
+- Missing measurements are listed under Limits instead of being estimated
+
+Report back:
+- The Summary and Results sections
+- Any numbers you couldn't source
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/4-summary/2-reporting.mdx
+```
+
+## Das Wichtigste
+
+- Lead with the answer to the question the test was for, then the evidence.
+- Every number needs its conditions: what was tested, with what load, on what machine, with which command.
+- Report percentiles and error rates, before and after, from the same test on the same machine.
+- A finding states the cause, the impact in user terms, and the recommended next step.
+- Say what you didn't test. Limits are part of the result.
+
+---
+
+Zurück: [Lektion 4.1: Ein Ablauf für Performance-Tests](/demo/de/performance-testing/review/workflow.md)
+Weiter: [Lektion 4.3: Performance-Abnahme](/demo/de/performance-testing/review/acceptance.md)
+
+
+# Lektion 4.3: Performance-Abnahme
+
+Performance-Tests · Kapitel 4: Zusammenfassung · 30 Min.
+
+> Budgets in Abnahmekriterien übersetzen, den Abnahmetest mit einem Befehl ausführen und eine unterschriebene Go/No-Go-Entscheidung treffen.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Follow the performance testing method from question to sign-off
+- Write acceptance criteria that are measurable, agreed in advance and traceable to a budget
+- Check entry criteria, run an acceptance test and read its verdict
+- Make a go/no-go decision, handle a waiver, and record the sign-off
+
+## Transkript: Performance acceptance (2:42)
+
+**0:00 Introduction.** Finding and fixing problems isn't the end. A release needs a decision: go, or no-go. That's acceptance.
+
+**0:07 The method.** Every lesson in this course is one step of the same method. First, ask the questions the tests must answer. Set budgets before you measure. They become the acceptance criteria. Take a baseline, then test: static checks first, then lab and load tests. Fix one cause at a time. That's the step to hand to an agent. Verify by rerunning the same test yourself. Then accept, report, and guard it with gates.
+
+**0:40 Acceptance criteria.** An acceptance criterion is a budget with its conditions. Not, the API should be fast. But: the books endpoint's p95 is at most 300 milliseconds, with 50 users, under one percent errors, measured with npm run accept. It's measurable, it states its conditions, it's agreed before the test, and it traces back to a budget.
+
+**1:03 Entry and exit.** Entry criteria decide whether a run counts at all: the right build, seeded data, a quiet machine. Miss one, and the run is invalid, not failed. Exit criteria decide when you're done: every criterion passes or has a signed waiver, and the record is saved.
+
+**1:23 Before.** Here's the acceptance test on Larkspur as it was before the course. All three static gates fail. The books endpoint's p95 is over thirteen seconds at 50 users. Six of seven automated criteria fail. Verdict: reject, with exit code one.
+
+**1:41 After.** After the four fixes from chapters two and three: same command, same machine. Every gate passes. Books is down to 64 milliseconds, orders 17, recommendations 125. Recommendations passes, but it's the closest to its limit. That goes in the report, even though it passed.
+
+**2:00 Go or no-go.** If every criterion passes, it's a go. Sign the record. If any fails, it's no-go. Fix it, and rerun the whole test. If the release can't wait, a named person can sign a waiver, with an expiry date and a follow-up. And never loosen a limit to make a run pass. Changing a criterion is a separate decision, for the next run.
+
+**2:28 Your turn.** In the exercise, you run the acceptance test yourself. If anything fails, an agent fixes it, without touching the limits. Then you rerun it, record Lighthouse, and make the call. Go, or no-go.
+
+## Die Lektion
+
+Chapters 2 and 3 found problems and fixed them. A release needs one more thing: a decision. **Acceptance** is where the measurements meet the budgets agreed at the start, and someone says go or no-go.
+
+## The method, end to end
+
+Every lesson in this course is one step of the same method. Here it is in order, with who does what:
+
+| Step | What happens | Who | Lesson |
+| --- | --- | --- | --- |
+| 1. Ask | Write the questions the tests must answer, and the user journeys they cover | You | 1.2 |
+| 2. Set budgets | Agree on limits before measuring; they become the acceptance criteria | You and the team | 2.1, 3.2 |
+| 3. Baseline | Measure the current build with the tools you'll use for acceptance | You | 1.1 |
+| 4. Test, static first | Static checks in seconds, then lab and load tests | You | 2.x, 3.x |
+| 5. Fix | One cause at a time, smallest change | Agent | 2.2 to 3.4 |
+| 6. Verify | Rerun the same test on the same machine; your run is the evidence | You | every exercise |
+| 7. Accept and report | Compare with the criteria, decide, sign, write it up | You | 4.2, this lesson |
+| 8. Guard | Gates in CI, monitoring in production, so it stays accepted | Agent sets up, you review | 4.1 |
+
+Steps 5 and 6 are where an agent saves you time without taking the decision away from you. It writes the fix and quotes its output. You rerun the check, and the number you see is the one that counts.
+
+## Acceptance criteria
+
+A budget is a limit. An **acceptance criterion** adds the conditions under which the limit is checked:
+
+> The API should be fast.
+
+> **D1.** `/api/books` p95 ≤ 300 ms with 50 concurrent users, error rate under 1%, measured with `npm run accept` on the test machine.
+
+A good criterion is:
+
+- **Measurable.** It names a metric and a number, and a tool that produces that number.
+- **Conditional.** It says under what load, on what device or machine, with what data.
+- **Agreed in advance.** It's written down before the test runs, by the people who'll live with the result.
+- **Traceable.** It points back to a budget and to the user need behind it.
+
+Larkspur's criteria live in `acceptance.json`, next to `budget.json`:
+
+```json title="acceptance.json (excerpt)"
+"dynamic": [
+  { "id": "D1", "name": "/api/books p95 at 50 users", "path": "/api/books?page={1-20}", "p95": 300 },
+  { "id": "D2", "name": "/api/orders p95 at 50 users", "path": "/api/orders?email=reader{0-19999}@larkspur.test", "p95": 200 },
+  { "id": "D3", "name": "/api/recommendations p95 at 50 users", "path": "/api/recommendations?book_id={1-5000}", "p95": 400 }
+],
+"errorRate": { "id": "D4", "name": "Error rate across all requests", "max": 1 },
+```
+
+There are ten criteria in all: three static gates (S1 to S3), four dynamic ones (D1 to D4), and two that need Lighthouse in a real browser (M1, M2), which you record by hand.
+
+## Entry and exit criteria
+
+**Entry criteria** decide whether a run counts at all. If one isn't met, the run is invalid, not failed, and you fix the setup instead of the code.
+
+- The build under test is the one you mean to release: note its commit.
+- The data is seeded to production-like size (here, `npm run seed`).
+- The app is running, warmed up, and nothing else heavy is running on the machine.
+- The tools and their versions are the ones in the plan.
+
+`npm run accept` checks the ones it can: if Larkspur isn't answering with seeded data, it stops with exit code 2 before measuring anything.
+
+**Exit criteria** decide when acceptance is finished: every criterion passes, or each failure has a signed waiver; the manual criteria are recorded; and the acceptance record is saved where the team can find it.
+
+## Running the acceptance test
+
+Here is the first run, on Larkspur as it was before the course:
+
+```text
+id   result      measured  limit      criterion
+S1   FAIL          exit 1  exit 0     Asset budget: script 50, stylesheet 20, image 250, total 350 KB
+              3 budget(s) exceeded.
+S2   FAIL          exit 1  exit 0     No queries inside loops
+              2 possible N+1 pattern(s).
+S3   FAIL          exit 1  exit 0     No full scans of large tables on request paths
+              2 of 4 queries scan a large table.
+D1   FAIL        13246 ms  ≤ 300 ms   /api/books p95 at 50 users
+D2   FAIL          797 ms  ≤ 200 ms   /api/orders p95 at 50 users
+D3   FAIL         1109 ms  ≤ 400 ms   /api/recommendations p95 at 50 users
+D4   PASS          0.00 %  < 1 %      Error rate across all requests
+M1   RECORD             —  ≤ 2.5 s    LCP on a simulated mid-range phone (Lighthouse)
+M2   RECORD             —  ≥ 90       Lighthouse performance score
+
+REJECT: 6 of 7 automated criteria failed (S1, S2, S3, D1, D2, D3).
+```
+
+And after the four fixes from chapters 2 and 3, same command, same machine:
+
+```text
+S1   PASS          exit 0  exit 0     Asset budget: script 50, stylesheet 20, image 250, total 350 KB
+S2   PASS          exit 0  exit 0     No queries inside loops
+S3   PASS          exit 0  exit 0     No full scans of large tables on request paths
+D1   PASS           64 ms  ≤ 300 ms   /api/books p95 at 50 users
+D2   PASS           17 ms  ≤ 200 ms   /api/orders p95 at 50 users
+D3   PASS          125 ms  ≤ 400 ms   /api/recommendations p95 at 50 users
+D4   PASS          0.00 %  < 1 %      Error rate across all requests
+
+ACCEPT: all 7 automated criteria passed. Record M1, M2 from Lighthouse before sign-off.
+```
+
+Read it row by row, not just the last line. D3 passes at 125 ms, but that's the closest to its limit of any criterion, and the capacity test in lesson 3.3 showed recommendations is the first endpoint to saturate. That belongs in the report even though it passed.
+
+![Terminal showing the acceptance table: S1 to S3 PASS with exit 0, D1 64 ms, D2 17 ms and D3 125 ms all PASS against limits of 300, 200 and 400 ms, D4 error rate 0.00% PASS, M1 and M2 marked RECORD, and the line 'ACCEPT: all 7 automated criteria passed.'](screenshot-pending)
+*Screenshot (npm run accept): Every row is a criterion with its limit. The verdict is the last line, and the exit code says the same thing to CI.*
+
+## Go, no-go and waivers
+
+| Result | Decision |
+| --- | --- |
+| Every criterion passes | **Go.** Sign the record. |
+| A criterion fails | **No-go.** Fix it, then run the whole acceptance test again, not just the failed row. |
+| A criterion fails, but the release can't wait | **Waiver.** A named person accepts the risk in writing, with an expiry date and a follow-up ticket. It's still recorded as a failure. |
+| An entry criterion isn't met | **No result.** Fix the setup and run again. |
+
+One rule matters more than the rest: **never change a limit to make a run pass.** If the team decides a limit was wrong, that's a separate decision, recorded with its reason, and it applies from the next run. The agent prompt below says the same thing to the agent.
+
+> **A waiver is a debt.** A waiver with no expiry becomes the new budget without anyone deciding it should be. Give every waiver an owner and a date, and check it at the next acceptance run.
+
+## The acceptance record
+
+`npm run accept -- --out notes/acceptance-run.md` writes the measured part: date, commit, machine, Node.js version, load settings, every criterion and the verdict. You add what only you can:
+
+```md title="notes/acceptance.md"
+# Performance acceptance: Larkspur storefront and API
+
+Run record: notes/acceptance-run.md (commit, machine and command are in it)
+
+| ID | Criterion | Limit | Measured | Result |
+| -- | --------- | ----- | -------- | ------ |
+| M1 | LCP, Lighthouse mobile | ≤ 2.5 s | … | … |
+| M2 | Lighthouse performance score | ≥ 90 | … | … |
+
+Waivers: none
+Risks noted: recommendations is the first endpoint to saturate (lesson 3.3)
+
+Decision: GO / NO-GO
+Signed: <name>, <role>, <date>
+```
+
+## Hands-on: Run Larkspur's acceptance test, fix what fails, and sign it off
+
+**Praxis · 30 Min..** Ziel. Run the acceptance test yourself, have an agent fix any failing criterion, verify the fix with the same test, and write the acceptance record with a go/no-go decision.
+
+1. Check the entry criteria: `npm run seed`, then `npm start` in its own terminal. Close anything heavy on your machine.
+2. Run the acceptance test yourself and keep the record:
+
+   ```bash
+   npm run accept -- --out notes/acceptance-run.md
+   echo $?
+   ```
+
+3. Read every row. Which criteria fail, by how much, and which is closest to its limit even if it passes?
+4. If anything fails, copy the agent prompt below. The agent fixes one criterion at a time and is not allowed to touch the limits.
+5. When the agent reports back, **run step 2 again yourself.** Compare your numbers with the ones it quoted. They should agree within a few percent.
+6. Run Lighthouse as in lesson 3.1 and record M1 and M2.
+7. Write `notes/acceptance.md` from the template above, and make the call: go or no-go. Sign it.
+
+**Fertig, wenn**
+- `npm run accept` exits 0, or every remaining failure is explained with its cause
+- Each change is tied to the criterion it fixes
+- acceptance.json, budget.json and all thresholds are unchanged
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.3, "Performance acceptance".
+
+Exercise: Run Larkspur's acceptance test, fix what fails, and sign it off
+Goal: Run the acceptance test yourself, have an agent fix any failing criterion, verify the fix with the same test, and write the acceptance record with a go/no-go decision.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run accept -- --out notes/acceptance-run.md` and capture the full output and the exit code. Exit code 2 means an entry criterion wasn't met: report which one and stop.
+2. If the verdict is ACCEPT, report that and stop: there is nothing to fix.
+3. For each FAIL row, find the cause with the course's own tools: `npm run budget`, `npm run lint:queries`, `npm run explain`, `npm run check:plans`, `npm run load`, and `npm run profile` for CPU. Name the file and line responsible.
+4. Fix one criterion at a time with the smallest change that addresses the cause. After each fix, run that criterion's own check and quote its output.
+5. Do not edit `acceptance.json`, `budget.json`, `hot-queries.sql` or any threshold. If you believe a limit is wrong, say so in your report instead.
+6. When every fix is in, run `npm run accept -- --out notes/acceptance-run.md` again and capture the output and exit code.
+7. Do not record the Lighthouse criteria M1 and M2 and do not write the sign-off; the learner does both.
+
+Done when:
+- `npm run accept` exits 0, or every remaining failure is explained with its cause
+- Each change is tied to the criterion it fixes
+- acceptance.json, budget.json and all thresholds are unchanged
+
+Report back:
+- A table of each criterion: limit, measured before, measured after
+- The files you changed for each criterion, with a one-line reason
+- The full output of the final acceptance run and its exit code
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/4-summary/3-acceptance.mdx
+```
+
+## Das Wichtigste
+
+- The method: ask the question, set budgets, take a baseline, test static then dynamic, fix one thing at a time, verify with the same test, then accept and report.
+- An acceptance criterion names a metric, a limit and the conditions it's measured under. It is agreed before the test and traces back to a budget.
+- Entry criteria decide whether a run counts at all: the right build, seeded data, a quiet machine. A run that misses them is invalid, not failed.
+- Any failed criterion means no-go, unless a named person accepts the risk in writing, with an expiry date and a follow-up.
+- Never loosen a limit to make a run pass. Changing a criterion is a separate decision, made before the next run.
+- The agent implements fixes; you run the acceptance test, read the numbers and sign. The record holds the command, the machine, the commit and every result.
+
+---
+
+Zurück: [Lektion 4.2: Ergebnisse berichten](/demo/de/performance-testing/review/reporting.md)
+Weiter: [Lektion 4.4: Statische Tests am eigenen Projekt](/demo/de/performance-testing/review/your-project.md)
+
+
+# Lektion 4.4: Statische Tests am eigenen Projekt
+
+Performance-Tests · Kapitel 4: Zusammenfassung · 45 Min.
+
+> Die statischen Prüfungen des Kurses selbst an echtem Code ausführen, die Zahlen lesen, erste Budgets setzen und die Korrekturen einem Agenten übergeben.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+**Sie werden können:**
+- Find the equivalent of each of the course's static checks for your own stack
+- Run them yourself on one user journey and record a baseline
+- Turn the baseline into first budgets and one gate
+- Hand a finding to an agent, then verify its fix with the same command
+
+## Transkript: Static testing on your own project (2:17)
+
+**0:00 Introduction.** Larkspur was slow in instructive ways. Your own project is slow in its own ways, and the only way to find out how is to run the checks on it.
+
+**0:12 Why you run them.** An agent could run every command in this lesson. So why run them yourself? Because reading real output is the skill. You learn what's normal for your code by seeing its numbers. Because whether a number is acceptable depends on your users, and that's your call. And because your run is the evidence, when an agent later says it's fixed.
+
+**0:39 Four questions.** The four static questions from chapter two work on almost any stack. How heavy is what we ship? How many queries does one request run, and does that number grow with the page size? Does each hot query use an index, or scan a large table? And what blocks the first render?
+
+**1:03 Baseline.** Pick one user journey: the page most users land on, and the calls it makes. Weigh the production build, not the development one. Count the queries for one request, then for a page twice as long. Explain the top queries, and write it all down in the same table every time. That's your baseline.
+
+**1:26 Reading the numbers.** Real output is noisier than Larkspur's. Growth matters more than size: queries that double when the page doubles are an N+1. Scans only matter on large tables. A scan of a forty-row lookup table is normal. And set first budgets just above today's numbers, so the gate passes now and catches the next regression.
+
+**1:50 Hand it over.** Two agent prompts finish the job. The first maps the four checks onto your stack, as commands you run yourself. The second fixes one finding on a new branch, and adds a gate that fails if it comes back. Then you rerun the check yourself, break the fix on purpose to see the gate fail, and review the branch like any other change.
+
+## Die Lektion
+
+Larkspur was built to be slow in instructive ways. Your own project is slow in its own ways, and the only way to find out how is to run the checks on it. This lesson is the bridge: the same four static questions, on a real codebase, with you running the checks and an agent doing the fixing.
+
+## Why you run these yourself
+
+An agent can run every command in this lesson, so why do it by hand? Three reasons:
+
+- **Reading real output is the skill.** Knowing that 90 KB of script is a lot, or that 12 queries for one page is suspicious, comes from having seen the numbers for your own code.
+- **You own the decision.** Whether a number is acceptable depends on your users, which an agent doesn't know.
+- **Your run is the evidence.** When an agent later says "fixed", you rerun the same command and see it yourself.
+
+Static checks make this cheap: none of them need load, staging or special hardware. Most take seconds.
+
+## Four questions, any stack
+
+Each static check in chapter 2 answers a question that applies to almost any web application. Here's how to ask it on common stacks:
+
+| Question | Larkspur | Your project |
+| --- | --- | --- |
+| **How heavy is what we ship?** | `npm run budget` | Build for production, then weigh the output (command below). For a gate: [size-limit](https://github.com/ai/size-limit) for JavaScript, or Lighthouse CI's resource-size assertions. |
+| **How many queries per request?** | `npm run lint:queries`, `x-query-count` header | Turn on query logging in development and count lines per request. Django: `assertNumQueries` in a test. Rails: the `bullet` gem. Laravel: `Model::preventLazyLoading()`. Hibernate: `hibernate.generate_statistics=true`. Prisma: `log: ['query']`. |
+| **Does each hot query use an index?** | `npm run explain`, `npm run check:plans` | PostgreSQL: `EXPLAIN (ANALYZE, BUFFERS)`; look for `Seq Scan` on a large table. MySQL 8: `EXPLAIN FORMAT=TREE`; look for `Table scan`. SQLite: `EXPLAIN QUERY PLAN`; look for `SCAN`. |
+| **What blocks the first render?** | the `<script>` tags in `public/index.html` | Look for `<script src>` in the `<head>` without `defer`, `async` or `type="module"`, and for large stylesheets. Lighthouse lists them under "Eliminate render-blocking resources". |
+
+To find the queries worth explaining, start from what actually runs most: PostgreSQL's `pg_stat_statements` sorted by `total_exec_time`, MySQL's slow query log, or simply the query log from one pass through your user journey.
+
+> **EXPLAIN ANALYZE runs the query.** `EXPLAIN ANALYZE` executes the statement to time it. That's fine for `SELECT` on a development database. For anything that writes, use plain `EXPLAIN`, or wrap it in a transaction you roll back.
+
+## Step by step
+
+**1. Pick one user journey.** The page most users land on, and the two or three API calls it makes. A whole-app survey is tempting and rarely finished.
+
+**2. Weigh the production build.** Development builds are unminified and much larger, so their numbers mislead. For a JavaScript front end:
+
+```bash
+npm run build
+find dist -type f \( -name '*.js' -o -name '*.css' \) | while read -r f; do
+  printf '%8.1f KB  %s\n' "$(gzip -c "$f" | wc -c | awk '{print $1/1024}')" "$f"
+done | sort -rn | head -15
+```
+
+Change `dist` to your build's output folder (`build`, `.next/static`, `public/assets`…). Then look for images over 200 KB: `find dist public -type f \( -name '*.jpg' -o -name '*.png' -o -name '*.webp' \) -size +200k`.
+
+**3. Count queries per request.** Switch on query logging in development, request one endpoint once, and count the queries it ran. Then request a page with twice as many items. If the count doubles, you have an N+1.
+
+**4. Explain the top queries.** Take the three slowest or most frequent queries from step 3 and run them through your database's `EXPLAIN`. Note every full scan of a table with more than a few thousand rows.
+
+**5. Write it down.** Same format every time, so the next run can be compared with this one:
+
+```md title="perf/baseline.md"
+# Static baseline: <journey>, <date>, commit <sha>
+
+| Check | Command | Result | Budget |
+| ----- | ------- | ------ | ------ |
+| JS shipped (gz) | see STATIC-CHECKS.md §1 | 412 KB | 400 KB |
+| Largest image | find … -size +200k | hero.png 1.1 MB | 250 KB |
+| Queries, GET /api/products | query log | 52 (grows with page size) | ≤ 5 |
+| Plan, orders by customer | EXPLAIN | Seq Scan on orders (1.2M rows) | index search |
+| Render-blocking scripts | <head> scan | 2 | 0 |
+
+Findings, largest first:
+1. …
+```
+
+The numbers above are an example of the shape, not targets.
+
+## Reading real numbers
+
+On Larkspur every problem was planted and obvious. Real output is noisier. Some rules of thumb:
+
+- **Growth beats size.** 8 queries for a page may be fine. 8 queries that become 58 when the page shows 50 more items is not.
+- **Scans matter on large tables only.** A `Seq Scan` on a 40-row lookup table is normal and often faster than an index.
+- **Weigh against the user's network, not yours.** Your laptop on office Wi-Fi hides what 400 KB of script costs on a mid-range phone. Lesson 3.1 showed what it cost on Larkspur.
+- **One finding per cause.** Three slow endpoints that share one unindexed query are one finding, not three.
+
+## From baseline to budget
+
+The first budgets come from the baseline, as in lesson 2.1: just above today's numbers, so the gate passes today and fails on the next regression. Write down the target next to it, the number you'd like to reach once fixes land. Then pick **one** gate to automate first, usually the bundle size or a query-count test, because both are fast, deterministic and easy to explain when they fail.
+
+## Hand fixes to an agent
+
+The division of labour from the rest of the course holds here, with one difference: this is a codebase other people depend on. So the prompts below tell the agent to work on a branch, to ask before adding dependencies, and never to loosen a budget to make a check pass.
+
+**Praxis · 15 Min..** Ziel. Have an agent map the course's four static checks onto your repository's stack, as commands you will run yourself.
+
+1. Open your project in a terminal and start a coding agent there.
+2. Copy the prompt below. It asks the agent to write `perf/STATIC-CHECKS.md` with the commands for your stack, and not to run anything heavy or change code.
+3. Read what it wrote. Does each command make sense for your project? Ask it to explain any you don't understand.
+
+**Fertig, wenn**
+- perf/STATIC-CHECKS.md has a command and reading guide for all four questions
+- Every command fits this repository's stack, paths and tools
+- No application code or configuration changed
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.4, "Static testing on your own project".
+
+Exercise: Find the static checks for your stack
+Goal: Have an agent map the course's four static checks onto your repository's stack, as commands you will run yourself.
+
+Project: the learner's own repository, which is your current working directory. Before anything else, read its README and build files to learn the stack.
+
+Steps:
+1. Identify the stack from the repository: languages, framework, build tool and its output folder, ORM or database library, and database engine. Quote the files you read.
+2. For each of these four questions, give one concrete command or procedure for this repository, preferring tools the project already has: (1) the weight of the production build's scripts, stylesheets and images, gzipped where the server compresses; (2) the number of database queries per request on one endpoint; (3) the query plan of the endpoint's main queries, and how to tell a full scan from an index search on this database; (4) which scripts or stylesheets block the first render.
+3. Write `perf/STATIC-CHECKS.md` with one section per question: the command, what it measures, how to read its output, and any setting that must be switched on first (for example query logging in development).
+4. If a check needs a new dev dependency, name it and why, and don't install it.
+5. Do not run load tests, and do not change application code or configuration. The learner runs the checks.
+
+Done when:
+- perf/STATIC-CHECKS.md has a command and reading guide for all four questions
+- Every command fits this repository's stack, paths and tools
+- No application code or configuration changed
+
+Report back:
+- A summary of the stack, with the files that show it
+- The four commands, in a table
+- Any new dev dependencies the learner would need to approve
+
+Ground rules:
+- Work on a new branch. Don't commit to the main branch, push, or deploy unless the learner asks.
+- Ask before adding a dependency or changing configuration that production uses.
+- Never loosen a budget, threshold or acceptance criterion to make a check pass. If you think one is wrong, say so and stop.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: https://johnsonnoronathan.github.io/demo/performance-testing/review/your-project.md
+```
+
+Now the part only you can do: run each command in `perf/STATIC-CHECKS.md` yourself, on your chosen journey, and fill in `perf/baseline.md` as in step 5. Set the budgets. Rank the findings.
+
+**Praxis · 30 Min..** Ziel. Have an agent fix one finding from your baseline and add a gate that would catch it again; then verify it with your own run.
+
+1. Pick the finding you want fixed first, and name it when you paste the prompt below.
+2. When the agent reports back, check out its branch and **rerun the finding's check yourself**. Does your number match the one it quoted?
+3. Break it on purpose, as in lesson 4.1: undo the fix locally and confirm the new gate fails. Then restore it.
+4. Update `perf/baseline.md` with the new number. Review the branch like any other change before it's merged.
+
+**Fertig, wenn**
+- The finding's check shows the improvement, before and after quoted from the same command
+- The project's existing tests pass
+- A gate exists that fails when the problem comes back
+
+**Teil des Agenten: die Umsetzung übergeben**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 4.4, "Static testing on your own project".
+
+Exercise: Fix one finding and add a gate
+Goal: Have an agent fix one finding from your baseline and add a gate that would catch it again; then verify it with your own run.
+
+Project: the learner's own repository, which is your current working directory. Before anything else, read its README and build files to learn the stack.
+
+Steps:
+1. Read `perf/baseline.md` and `perf/STATIC-CHECKS.md`. Work on the finding the learner names; if none is named, take the one furthest over its budget, and say which you chose.
+2. Create a new branch. Before changing anything, run the finding's check from STATIC-CHECKS.md and quote the output.
+3. Find the cause and name the file and line. Make the smallest change that removes it. Keep behaviour the same; run the project's existing tests and quote the result.
+4. Run the same check again and quote the output, so before and after come from the same command.
+5. Add a gate that fails if this regresses, using the project's existing test or CI setup: for example a test that asserts the number of queries for the endpoint, or a bundle-size limit in CI. Make sure it exits non-zero on a breach.
+6. Do not change any budget in perf/baseline.md. Do not push, merge or deploy.
+
+Done when:
+- The finding's check shows the improvement, before and after quoted from the same command
+- The project's existing tests pass
+- A gate exists that fails when the problem comes back
+
+Report back:
+- The cause, with file and line
+- Before and after output of the check
+- The gate you added and how to run it
+- The branch name and the list of changed files
+
+Ground rules:
+- Work on a new branch. Don't commit to the main branch, push, or deploy unless the learner asks.
+- Ask before adding a dependency or changing configuration that production uses.
+- Never loosen a budget, threshold or acceptance criterion to make a check pass. If you think one is wrong, say so and stop.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: https://johnsonnoronathan.github.io/demo/performance-testing/review/your-project.md
+```
+
+## Das Wichtigste
+
+- The four static questions carry over to any stack: how heavy is what we ship, how many queries per request, does each hot query use an index, and what blocks rendering.
+- Run the checks yourself the first time. Reading real output is how you learn what's normal for your codebase, and you're the one who decides what's acceptable.
+- Measure one user journey first, not the whole app. A baseline you can repeat beats a survey you can't.
+- Queries per request that grow with page size, and full scans of large tables on a request path, are findings on any stack.
+- Set first budgets just above today's numbers so the gate passes now and catches the next regression; tighten them as fixes land.
+- The agent proposes commands and writes fixes and gates; you run the checks, read the numbers and approve.
+
+---
+
+Zurück: [Lektion 4.3: Performance-Abnahme](/demo/de/performance-testing/review/acceptance.md)
+Weiter: [Kapitel 4 · Zusammenfassung: Kurszusammenfassung](/demo/de/performance-testing/review/summary.md)
+
+
+# Kapitel 4 · Zusammenfassung: Kurszusammenfassung
+
+Performance-Tests · Kapitel 4: Zusammenfassung · 10 Min.
+
+> Alles, was der Kurs behandelt hat, an einem Ort, und wie es weitergeht.
+
+*Diese Lektion ist noch nicht auf de übersetzt, daher lesen Sie den englischen Text. Titel und Navigation sind übersetzt.*
+
+## Transkript: Course summary (0:54)
+
+**0:00 Recap.** You started with a slow bookshop and a vague complaint. Here's what you can do now.
+
+**0:07 Four chapters.** You can measure: latency as percentiles, throughput, and errors, and write a plan around concrete questions. You can read for performance: budgets, N+1 queries, query plans and asset weight, all in seconds and without a server. You can run and measure: Lighthouse, load, stress, spike and soak tests, and a profile that points at the slow code. And you can make it a routine: gates in CI, and a report that explains every change.
+
+**0:39 Your next step.** Pick one application you work on. Write a one-page plan for it, like the one in lesson one point two. Then add one static gate and one dynamic test this week. Go find what's slow.
+
+## Die Lektion
+
+You started with a slow bookshop and a vague complaint. You end with measured budgets, three static gates, a load test with thresholds, a known capacity, and a report that explains every change.
+
+## The whole course
+
+### 1.1 Was Performance-Tests messen
+
+- Latency is how long one request takes, throughput is how many complete per second, and the error rate is the share that fail.
+- Latency is a distribution. Report percentiles: p50 for the typical request, p95 and p99 for the slow tail.
+- An average blends fast and slow requests into a number no user experienced. Don't set budgets on averages.
+- Write down how you measured (users, duration, endpoint), so the number can be repeated and compared.
+
+### 1.2 Statische und dynamische Tests
+
+- Static testing inspects code, queries, assets and configuration without running the system. It is fast and runs on every change, but it can only find likely problems.
+- Dynamic testing runs the system under realistic traffic and measures what users feel. It is slower and needs an environment, but it proves the impact.
+- Use static checks to catch known patterns early, and dynamic tests to confirm impact and find what no rule describes.
+- Plan with questions first ("can checkout take 50 users at p95 under 300 ms?"), then choose the cheapest test that answers each one.
+
+### 2.1 Performance-Budgets
+
+- A budget is a limit agreed before measuring. It turns "is this fast enough?" into pass or fail.
+- Quantity budgets (KB, requests, queries) can be checked statically on every change. Timing budgets (p95, LCP) need a dynamic test.
+- Base budgets on user needs and competitors, then on today's numbers so they're achievable. Tighten them as you improve.
+- A budget check that fails the build gets fixed. A dashboard that turns red gets ignored.
+
+### 2.2 Code-Review für N+1-Abfragen
+
+- N+1 means one query for a list, then one more per item. The cost grows with the list and hides in fast local databases.
+- Statically, it looks like a database call inside a loop or a .map callback. A simple lint rule catches most cases.
+- Fix it by fetching everything in one query (JOIN, GROUP BY) or in one batched query (WHERE id IN (...)).
+- Count queries per request. A count that grows with the page size is the signature of N+1.
+
+### 2.3 Abfragepläne lesen
+
+- EXPLAIN QUERY PLAN shows how the database will run a query, without running it. That makes it a static check.
+- SCAN reads every row of a table; SEARCH uses an index to jump to the matching rows. A SCAN of a large table on a hot path is a bug.
+- Index the columns you filter on first, then the columns you sort by, so the database can skip the sort too.
+- Indexes speed up reads and slow down writes. Add the ones your queries need, not one per column.
+
+### 2.4 Gewicht der Assets
+
+- Weigh what the page actually loads. A few files are usually most of the weight.
+- Ask of each heavy file: is all of it needed, and is it needed now? Libraries often bundle far more than you use.
+- A plain <script> in <head> blocks rendering until it downloads and runs. Use defer, or move it.
+- Serve images at the size they're displayed, compressed sensibly, and give them width and height.
+
+### 3.1 Labormessung mit Lighthouse
+
+- Lighthouse loads a page on a simulated mid-range phone and slow network, so results are repeatable but pessimistic.
+- FCP is when anything appears; LCP is when the main content appears. LCP under 2.5 s counts as good.
+- Render-blocking scripts delay FCP; heavy images delay LCP. The static checks predicted both.
+- Lab data is for comparing builds. Field data from real users tells you what people actually experience.
+
+### 3.2 Lasttests mit k6
+
+- A virtual user runs your script in a loop. Stages set how many run at once over time.
+- Think time (sleep) makes each user behave like a person, so 50 virtual users is close to 50 real shoppers.
+- Checks verify each response; thresholds turn the run's percentiles and error rate into pass or fail.
+- Tag requests per endpoint so each has its own threshold. A single-threaded server lets one slow endpoint delay all the others.
+- Always run a short smoke test first, to prove the script and the app work before you add load.
+
+### 3.3 Stress-, Spike- und Dauertests
+
+- Load tests check expected traffic; stress tests find the breaking point; spike tests check survival and recovery; soak tests find slow drift.
+- When throughput stops growing as users increase, you've hit the ceiling. After that, extra users only add waiting time.
+- Capacity is the load at which p95 crosses the budget, not the load at which the app crashes.
+- In a spike, judge recovery as well as survival: latency and errors should return to normal once the surge ends.
+- Soak tests need hours and a watch on memory, connections and latency trend, not just the final percentiles.
+
+### 3.4 Den Engpass finden
+
+- A load test tells you that something is slow; a profile taken under the same load tells you where the time goes.
+- First find the saturated resource: CPU at 100% points to code; low CPU with high latency points to waiting on something else.
+- In a flame graph, width is time. Look for wide frames near the top that belong to your code.
+- Work that repeats the same computation on every request is a classic hot path. Do it once and cache the result.
+- Prove a fix by rerunning the exact test that found the problem, on the same machine.
+
+### 4.1 Ein Ablauf für Performance-Tests
+
+- Run cheap static gates on every pull request, dynamic tests before release, and monitoring in production.
+- A gate is only useful if it fails the build. Make every check exit non-zero on a breach.
+- Keep CI load tests short and their thresholds generous enough for shared runners; run long stress and soak tests on a schedule.
+- Feed production numbers back into budgets. The loop is what keeps performance from drifting.
+
+### 4.2 Ergebnisse berichten
+
+- Lead with the answer to the question the test was for, then the evidence.
+- Every number needs its conditions: what was tested, with what load, on what machine, with which command.
+- Report percentiles and error rates, before and after, from the same test on the same machine.
+- A finding states the cause, the impact in user terms, and the recommended next step.
+- Say what you didn't test. Limits are part of the result.
+
+### 4.3 Performance-Abnahme
+
+- The method: ask the question, set budgets, take a baseline, test static then dynamic, fix one thing at a time, verify with the same test, then accept and report.
+- An acceptance criterion names a metric, a limit and the conditions it's measured under. It is agreed before the test and traces back to a budget.
+- Entry criteria decide whether a run counts at all: the right build, seeded data, a quiet machine. A run that misses them is invalid, not failed.
+- Any failed criterion means no-go, unless a named person accepts the risk in writing, with an expiry date and a follow-up.
+- Never loosen a limit to make a run pass. Changing a criterion is a separate decision, made before the next run.
+- The agent implements fixes; you run the acceptance test, read the numbers and sign. The record holds the command, the machine, the commit and every result.
+
+### 4.4 Statische Tests am eigenen Projekt
+
+- The four static questions carry over to any stack: how heavy is what we ship, how many queries per request, does each hot query use an index, and what blocks rendering.
+- Run the checks yourself the first time. Reading real output is how you learn what's normal for your codebase, and you're the one who decides what's acceptable.
+- Measure one user journey first, not the whole app. A baseline you can repeat beats a survey you can't.
+- Queries per request that grow with page size, and full scans of large tables on a request path, are findings on any stack.
+- Set first budgets just above today's numbers so the gate passes now and catches the next regression; tighten them as fixes land.
+- The agent proposes commands and writes fixes and gates; you run the checks, read the numbers and approve.
+
+## Check yourself
+
+1. A teammate wants to add a nightly 4-hour soak test as a required check on every pull request. What would you suggest instead?
+   Keep pull requests to fast static gates (and at most a short load test). Run the soak test on a schedule against a stable environment, and alert on its results.
+2. Your load test passes in CI on Monday and fails on Tuesday with no code change. What do you do first?
+   Rerun and compare. Shared runners are noisy; check whether the failure reproduces, whether other jobs ran on the same machine, and whether the margin to the threshold is too thin.
+3. Name one problem in Larkspur that only static testing found first, and one that only dynamic testing found.
+   Static: the N+1 loop, the full table scans or the heavy assets. Dynamic: the CPU hot path in recommendations, which matched no static rule.
+4. What makes a performance finding actionable?
+   It names the cause and where it is, the impact in user terms with a measured number, the fix, and the evidence someone can check.
+5. The acceptance run fails D3 by 20 ms the day before a release. The product owner asks you to raise the limit to 450 ms so it passes. What do you do?
+   Don't change the limit to pass the run. Report the failure. If the release can't wait, the product owner can sign a waiver with an expiry date and a follow-up; changing the criterion itself is a separate decision for the next run.
+6. An agent reports that it fixed an N+1 in your project and the endpoint now runs 3 queries. How do you accept that?
+   Rerun the same check yourself, on the same journey, and compare your number with the one it quoted. Then break the fix locally to see the new gate fail, and review the branch before merging.
+
+## Where to go next
+
+- **Your own app.** Write the one-page plan from lesson 1.2 for something you work on. Pick one static gate and one dynamic test to add this week.
+- **Real-user monitoring.** Lab numbers find problems; field numbers decide priorities. Look at what your platform already records before adding anything.
+- **Distributed tracing.** When requests cross several services, a trace shows which one the time went to, the way a flame graph does inside one process.
+- **Database depth.** Your database's own `EXPLAIN` (PostgreSQL's `EXPLAIN ANALYZE`, MySQL's `EXPLAIN FORMAT=TREE`) and its slow-query log go much further than SQLite's.
+
+> **Reset the practice app.** To run the course again from the start: `git checkout -- academy/practice/larkspur`, delete `db/migrations/001_indexes.sql` if you created it, and run `npm run seed`.
+
+---
+
+Zurück: [Lektion 4.4: Statische Tests am eigenen Projekt](/demo/de/performance-testing/review/your-project.md)

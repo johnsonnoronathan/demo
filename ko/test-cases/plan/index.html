@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>교안 · 테스트 케이스 작성법</title><meta name="description" content="짧은 강의로 배우는 테스트의 기초. 테스트 케이스란 무엇이고 믿을 만한 케이스의 조건은 무엇인지, 동등 분할과 경계값으로 입력을 고르는 법, 비정상 경로 다루기, 작성한 케이스를 자동 테스트로 바꾸기, 커지는 테스트 스위트를 건강하게 유지하기를 배웁니다."><link rel="alternate" type="text/markdown" href="/demo/ko/test-cases/plan.md" title="Markdown"><link rel="alternate" hreflang="en" href="/demo/test-cases/plan/"><link rel="alternate" hreflang="zh-CN" href="/demo/zh/test-cases/plan/"><link rel="alternate" hreflang="ja" href="/demo/ja/test-cases/plan/"><link rel="alternate" hreflang="ko" href="/demo/ko/test-cases/plan/"><link rel="alternate" hreflang="es" href="/demo/es/test-cases/plan/"><link rel="alternate" hreflang="fr" href="/demo/fr/test-cases/plan/"><link rel="alternate" hreflang="de" href="/demo/de/test-cases/plan/"><link rel="icon" href="/demo/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&amp;family=JetBrains+Mono:wght@400..600&amp;family=Public+Sans:ital,wght@0,400..700;1,400&amp;family=Noto+Sans+KR:wght@400..800&amp;display=swap"><script>
+      try {
+        const t = localStorage.getItem("testbench:theme");
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script><link rel="stylesheet" href="/demo/_astro/_..w5xLQPFL.css"></head><body data-locale="ko"><a class="skip" href="#main">강의 본문</a><header class="topbar"><div class="topbar-in"><a class="brand" href="/demo/ko/" aria-label="Testbench"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path><path d="M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><span>Testbench</span></a><nav class="mainnav" aria-label="Testbench"><a href="/demo/ko/courses/" aria-current="page">강좌</a><a href="/demo/ko/learning/">내 학습</a><a href="/demo/ko/agents/">에이전트용</a></nav><nav class="modes" aria-label="테스트 케이스 작성법"><a href="/demo/ko/test-cases/">강의실</a><a href="/demo/ko/test-cases/plan/" aria-current="page">교안</a></nav><div class="topbar-end"><details class="lang"><summary aria-label="언어"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg><span>한국어</span></summary><ul><li><a href="/demo/test-cases/plan/" lang="en" hreflang="en">English</a></li><li><a href="/demo/zh/test-cases/plan/" lang="zh-CN" hreflang="zh-CN">简体中文</a></li><li><a href="/demo/ja/test-cases/plan/" lang="ja" hreflang="ja">日本語</a></li><li><a href="/demo/ko/test-cases/plan/" lang="ko" hreflang="ko" aria-current="true">한국어</a></li><li><a href="/demo/es/test-cases/plan/" lang="es" hreflang="es">Español</a></li><li><a href="/demo/fr/test-cases/plan/" lang="fr" hreflang="fr">Français</a></li><li><a href="/demo/de/test-cases/plan/" lang="de" hreflang="de">Deutsch</a></li></ul></details><button class="theme-btn" type="button" id="theme-toggle" data-l-light="밝은 테마로 전환" data-l-dark="어두운 테마로 전환"><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.4 8.4 0 0 1 9.4 4a8.4 8.4 0 1 0 10.6 10.6z" fill="currentColor"></path></svg></button></div></div></header><main class="plan wrap" id="main"><header class="plan-head"><p class="eyebrow">교안</p><h1>테스트 케이스 작성법</h1><p class="plan-lede">짧은 강의로 배우는 테스트의 기초. 테스트 케이스란 무엇이고 믿을 만한 케이스의 조건은 무엇인지, 동등 분할과 경계값으로 입력을 고르는 법, 비정상 경로 다루기, 작성한 케이스를 자동 테스트로 바꾸기, 커지는 테스트 스위트를 건강하게 유지하기를 배웁니다.</p><dl class="plan-facts"><div><dt>총 시간</dt><dd>1 시간 45 분</dd></div><div><dt>동영상</dt><dd>13:05</dd></div><div><dt>장</dt><dd>3</dd></div><div><dt>강의</dt><dd>7</dd></div></dl><div class="plan-actions"><button type="button" class="btn btn-primary" id="copy-plan" data-l-copy="교안을 Markdown으로 복사" data-l-copied="복사됨" data-l-blocked="복사 불가: Markdown으로 열기를 사용하세요">교안을 Markdown으로 복사</button><a class="btn" href="/demo/ko/test-cases/plan.md">Markdown으로 열기</a><a class="btn btn-ghost" href="/demo/ko/test-cases/">강의실로</a></div><template id="plan-md"># 교안: 테스트 케이스 작성법
+
+짧은 강의로 배우는 테스트의 기초. 테스트 케이스란 무엇이고 믿을 만한 케이스의 조건은 무엇인지, 동등 분할과 경계값으로 입력을 고르는 법, 비정상 경로 다루기, 작성한 케이스를 자동 테스트로 바꾸기, 커지는 테스트 스위트를 건강하게 유지하기를 배웁니다.
+
+- 총 시간: 1 시간 45 분
+- 동영상: 7 (13:05)
+- 소프트웨어를 테스트하거나 테스트하고 싶은 누구나: 개발자, 테스터, 프로덕트 담당자. 테스트 경험은 필요 없으며, 3.1강에서 JavaScript를 조금 읽습니다.
+
+## 강좌 목표
+
+- 테스트 케이스를 읽고, 쓰고, 손으로 실행하기
+- 모호한 테스트 케이스를 구체적이고 반복 가능하게 고쳐 쓰기
+- 동등 분할과 경계값으로 테스트 입력 고르기
+- 비정상 케이스를 다루고 결정 테이블로 빈틈 찾기
+- Arrange, Act, Assert로 테스트 케이스를 자동 테스트로 바꾸기
+- 테스트 피라미드와 추적 매트릭스로 스위트 정리하기
+
+## 시작하기 전에
+
+- 소프트웨어가 어떻게 망가지는지에 대한 호기심
+- Node.js (3.1강의 테스트를 직접 실행할 때만)
+
+## 구성
+
+1. **기초** (30 min): 테스트 케이스란 무엇이며, 좋은 케이스와 약한 케이스는 어떻게 다른가.
+2. **테스트 케이스 설계** (45 min): 분할, 경계값, 결정 테이블로 어떤 케이스를 쓸지 고릅니다.
+3. **자동화와 확장** (30 min): 케이스를 코드로 바꾸고, 사람들이 믿는 스위트로 정리합니다.
+
+## 1장: 기초
+
+테스트 케이스란 무엇이며, 좋은 케이스와 약한 케이스는 어떻게 다른가. (30 분)
+
+### 강의 1.1: 테스트 케이스란? (15분, ▶ 2:56)
+
+테스트 케이스의 구성 요소를 항목별로 만들고, 실제 로그인 페이지에 대해 손으로 실행합니다.
+
+/demo/ko/test-cases/foundations/anatomy.md
+
+학습 성과:
+- Name the fields of a test case and what each is for
+- Write a test case precise enough for anyone to repeat
+- Run a test case by hand and record the result
+
+핵심:
+- A test case checks one behavior, with an ID and a clear title.
+- Preconditions, test data and steps make it repeatable.
+- Decide the expected result before running; record the actual result after.
+- A failed test case with a precise actual result is half a bug report.
+
+### 강의 1.2: 좋은 테스트 케이스, 약한 테스트 케이스 (15분, ▶ 1:55)
+
+테스트 케이스를 믿을 수 있게 만드는 다섯 가지 습관과, 많은 팀이 쓰는 Given, When, Then 형식.
+
+/demo/ko/test-cases/foundations/good-cases.md
+
+학습 성과:
+- Spot vague wording in a test case and rewrite it
+- Apply five habits: atomic, independent, repeatable, specific, traceable
+- Write a scenario in Given, When, Then form
+
+핵심:
+- Replace vague words with real values and observable results.
+- Keep each case atomic, independent, repeatable, specific and traceable.
+- Given is the setup, When is the one action, Then is the expected result.
+
+## 2장: 테스트 케이스 설계
+
+분할, 경계값, 결정 테이블로 어떤 케이스를 쓸지 고릅니다. (45 분)
+
+### 강의 2.1: 분할과 경계 (15분, ▶ 1:30)
+
+동등 분할과 경계값 분석: 수천 개의 입력 대신 잘 고른 몇 개.
+
+/demo/ko/test-cases/design/partitions.md
+
+학습 성과:
+- Divide an input range into equivalence partitions
+- Pick boundary values and their neighbors
+- Turn partitions and boundaries into a compact set of test cases
+
+핵심:
+- Group inputs the software should treat the same way, and test one from each group.
+- Bugs cluster at edges: test each boundary and the value just outside it.
+- An off-by-one comparison is only caught by the exact boundary value.
+
+### 강의 2.2: 정상 경로 너머 (15분, ▶ 1:28)
+
+비정상 케이스, 극단 케이스, 그리고 조건이 결합하는 규칙을 위한 결정 테이블.
+
+/demo/ko/test-cases/design/negative.md
+
+학습 성과:
+- List the usual ways input goes wrong
+- Write negative test cases with clear expected messages
+- Build a decision table and spot gaps in requirements
+
+핵심:
+- Every happy path has unhappy siblings: empty, wrong format, extremes, bad timing.
+- Negative cases check that the software fails gracefully, with a clear message.
+- Decision tables list every combination of conditions and expose unspecified ones.
+
+### 강의 2.3: Exploratory testing (15분, ▶ 2:06)
+
+Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.
+
+/demo/ko/test-cases/design/exploratory.md
+
+학습 성과:
+- Write a charter that gives an exploratory session one clear mission
+- Run a time-boxed session and keep notes someone else can read
+- Turn findings from a session into bugs, questions and new test cases
+
+핵심:
+- Exploratory testing is designing and running tests at the same time, learning as you go.
+- A charter names a target, the resources you&#39;ll use and the information you want: one mission per session.
+- Session notes record what you covered, what you found and what you&#39;d explore next, so the session can be reviewed.
+- Good findings become scripted test cases, so the next run doesn&#39;t depend on memory.
+
+## 3장: 자동화와 확장
+
+케이스를 코드로 바꾸고, 사람들이 믿는 스위트로 정리합니다. (30 분)
+
+### 강의 3.1: 테스트 케이스에서 자동 테스트로 (15분, ▶ 1:28)
+
+작성한 테스트 케이스를 Arrange, Act, Assert로 코드로 바꾸고, 경계값 테스트가 진짜 버그를 잡는 것을 봅니다.
+
+/demo/ko/test-cases/automation/unit-tests.md
+
+학습 성과:
+- Map a written test case onto Arrange, Act, Assert
+- Write a unit test with a test runner
+- Watch a test fail before trusting it to pass
+
+핵심:
+- The test name is the title, Arrange is the setup, Act is the step, Assert is the expected result.
+- A boundary test turns an off-by-one bug red in milliseconds.
+- See a test fail once before you trust it to pass.
+
+### 강의 3.2: 테스트 스위트 정리하기 (15분, ▶ 1:42)
+
+테스트 피라미드, 요구사항 추적, 그리고 커지는 스위트를 건강하게 유지하기.
+
+/demo/ko/test-cases/automation/suites.md
+
+학습 성과:
+- Balance a suite with the test pyramid
+- Trace test cases to requirements and find gaps and orphans
+- Keep a suite healthy: names, flaky tests, ownership
+
+핵심:
+- Many fast unit tests, fewer integration tests, a handful of end-to-end tests.
+- A traceability matrix shows requirements with no tests and tests with no requirement.
+- Name tests by behavior and fix flaky tests quickly, or people learn to ignore red.
+</template></header><section class="plan-sec"><h2>구성</h2><div class="arc arc-plain" aria-label="강좌 구성" style="--n:3"><ol class="arc-row"><li class="arc-ch arc-plain"><a href="/demo/ko/test-cases/foundations/anatomy/" data-chapter-link="foundations"><span class="arc-n">1장</span><b>기초</b><span class="arc-role">30분</span></a></li><li class="arc-ch arc-plain"><a href="/demo/ko/test-cases/design/partitions/" data-chapter-link="design"><span class="arc-n">2장</span><b>테스트 케이스 설계</b><span class="arc-role">45분</span></a></li><li class="arc-ch arc-plain"><a href="/demo/ko/test-cases/automation/unit-tests/" data-chapter-link="automation"><span class="arc-n">3장</span><b>자동화와 확장</b><span class="arc-role">30분</span></a></li></ol></div></section><section class="plan-sec plan-grid"><div><h2>강좌 목표</h2><ul class="check-list"><li>테스트 케이스를 읽고, 쓰고, 손으로 실행하기</li><li>모호한 테스트 케이스를 구체적이고 반복 가능하게 고쳐 쓰기</li><li>동등 분할과 경계값으로 테스트 입력 고르기</li><li>비정상 케이스를 다루고 결정 테이블로 빈틈 찾기</li><li>Arrange, Act, Assert로 테스트 케이스를 자동 테스트로 바꾸기</li><li>테스트 피라미드와 추적 매트릭스로 스위트 정리하기</li></ul></div><div><h2>대상과 준비</h2><p>소프트웨어를 테스트하거나 테스트하고 싶은 누구나: 개발자, 테스터, 프로덕트 담당자. 테스트 경험은 필요 없으며, 3.1강에서 JavaScript를 조금 읽습니다.</p><ul class="plain-list"><li>소프트웨어가 어떻게 망가지는지에 대한 호기심</li><li>Node.js (3.1강의 테스트를 직접 실행할 때만)</li></ul></div></section><section class="plan-sec"><h2>일정</h2><div class="table-wrap"><table class="schedule"><thead><tr><th>시작</th><th>파트</th><th>제목</th><th>분</th><th>동영상</th><th>개념</th><th>실습</th></tr></thead><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">1장 · 기초 </th><td>30</td><td class="mono">4:51</td><td></td><td></td></tr><tr><td class="mono">0:00</td><td class="mono">1.1</td><td><a href="#plan-test-cases-foundations-anatomy">테스트 케이스란?</a></td><td class="mono">15</td><td class="mono">▶ 2:56</td><td>–</td><td>–</td></tr><tr><td class="mono">0:15</td><td class="mono">1.2</td><td><a href="#plan-test-cases-foundations-good-cases">좋은 테스트 케이스, 약한 테스트 케이스</a></td><td class="mono">15</td><td class="mono">▶ 1:55</td><td>–</td><td>–</td></tr></tbody><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">2장 · 테스트 케이스 설계 </th><td>45</td><td class="mono">5:04</td><td></td><td></td></tr><tr><td class="mono">0:30</td><td class="mono">2.1</td><td><a href="#plan-test-cases-design-partitions">분할과 경계</a></td><td class="mono">15</td><td class="mono">▶ 1:30</td><td>–</td><td>–</td></tr><tr><td class="mono">0:45</td><td class="mono">2.2</td><td><a href="#plan-test-cases-design-negative">정상 경로 너머</a></td><td class="mono">15</td><td class="mono">▶ 1:28</td><td>–</td><td>–</td></tr><tr><td class="mono">1:00</td><td class="mono">2.3</td><td><a href="#plan-test-cases-design-exploratory">Exploratory testing</a></td><td class="mono">15</td><td class="mono">▶ 2:06</td><td>–</td><td>–</td></tr></tbody><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">3장 · 자동화와 확장 </th><td>30</td><td class="mono">3:10</td><td></td><td></td></tr><tr><td class="mono">1:15</td><td class="mono">3.1</td><td><a href="#plan-test-cases-automation-unit-tests">테스트 케이스에서 자동 테스트로</a></td><td class="mono">15</td><td class="mono">▶ 1:28</td><td>–</td><td>–</td></tr><tr><td class="mono">1:30</td><td class="mono">3.2</td><td><a href="#plan-test-cases-automation-suites">테스트 스위트 정리하기</a></td><td class="mono">15</td><td class="mono">▶ 1:42</td><td>–</td><td>–</td></tr></tbody></table></div></section><section class="plan-sec plan-chapter" id="chapter-foundations"><header class="pc-head"><span class="pc-n">1장</span><h2>기초</h2><p>테스트 케이스란 무엇이며, 좋은 케이스와 약한 케이스는 어떻게 다른가. · 30 분</p></header><article class="pl-item pl-lesson" id="plan-test-cases-foundations-anatomy"><div class="pl-rail"><span class="pl-num">1.1</span><span class="pl-min">15분</span><span class="pl-min">▶ 2:56</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/foundations/anatomy/">테스트 케이스란?</a></h3><p class="pl-desc">테스트 케이스의 구성 요소를 항목별로 만들고, 실제 로그인 페이지에 대해 손으로 실행합니다.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>Name the fields of a test case and what each is for</li><li>Write a test case precise enough for anyone to repeat</li><li>Run a test case by hand and record the result</li></ul></div><div><h4>핵심</h4><ul><li>A test case checks one behavior, with an ID and a clear title.</li><li>Preconditions, test data and steps make it repeatable.</li><li>Decide the expected result before running; record the actual result after.</li><li>A failed test case with a precise actual result is half a bug report.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>Which expected result is written well?</span> <em>The account page opens with the heading “Welcome back, Ada”.. It names something you can observe and compare. The others leave room for two testers to disagree.</em></li><li><span>When should the expected result be written?</span> <em>Before running the test. If you write it afterwards, you tend to describe whatever happened, and bugs slip through as “expected”.</em></li><li><span>A customer account must exist before step 1. Which field holds that?</span> <em>Preconditions. Preconditions describe the state of the world before you start. Test data lists the inputs you type or send.</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-foundations-good-cases"><div class="pl-rail"><span class="pl-num">1.2</span><span class="pl-min">15분</span><span class="pl-min">▶ 1:55</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/foundations/good-cases/">좋은 테스트 케이스, 약한 테스트 케이스</a></h3><p class="pl-desc">테스트 케이스를 믿을 수 있게 만드는 다섯 가지 습관과, 많은 팀이 쓰는 Given, When, Then 형식.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>Spot vague wording in a test case and rewrite it</li><li>Apply five habits: atomic, independent, repeatable, specific, traceable</li><li>Write a scenario in Given, When, Then form</li></ul></div><div><h4>핵심</h4><ul><li>Replace vague words with real values and observable results.</li><li>Keep each case atomic, independent, repeatable, specific and traceable.</li><li>Given is the setup, When is the one action, Then is the expected result.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>A title reads “Add to cart and checkout and apply coupon”. Which habit does it break?</span> <em>Atomic. Three behaviors in one case means a failure doesn&#39;t tell you which one broke. Split it into three cases.</em></li><li><span>Case B only passes if case A ran first and created an order. What should change?</span> <em>B sets up its own order in its preconditions. Independent cases can run in any order, alone or in parallel. B should create the order it needs.</em></li><li><span>In Given, When, Then, where does the expected result go?</span> <em>Then. Given is the setup, When is the one action, Then is what you expect to observe.</em></li></ol></div></div></article></section><section class="plan-sec plan-chapter" id="chapter-design"><header class="pc-head"><span class="pc-n">2장</span><h2>테스트 케이스 설계</h2><p>분할, 경계값, 결정 테이블로 어떤 케이스를 쓸지 고릅니다. · 45 분</p></header><article class="pl-item pl-lesson" id="plan-test-cases-design-partitions"><div class="pl-rail"><span class="pl-num">2.1</span><span class="pl-min">15분</span><span class="pl-min">▶ 1:30</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/design/partitions/">분할과 경계</a></h3><p class="pl-desc">동등 분할과 경계값 분석: 수천 개의 입력 대신 잘 고른 몇 개.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>Divide an input range into equivalence partitions</li><li>Pick boundary values and their neighbors</li><li>Turn partitions and boundaries into a compact set of test cases</li></ul></div><div><h4>핵심</h4><ul><li>Group inputs the software should treat the same way, and test one from each group.</li><li>Bugs cluster at edges: test each boundary and the value just outside it.</li><li>An off-by-one comparison is only caught by the exact boundary value.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>A field accepts ages 18 to 65. Which set covers all the boundaries?</span> <em>17, 18, 65, 66. Each edge plus its neighbor just outside: 17 and 18 at the bottom, 65 and 66 at the top.</em></li><li><span>Why test only one value from the middle of a partition?</span> <em>The software should treat every value in it the same way. That&#39;s what makes it an equivalence partition. If 5 works, 6 is very unlikely to behave differently.</em></li><li><span>The code says qty &lt; 10 but the rule is 1 to 10. Which test catches it?</span> <em>Quantity 10. Only the exact maximum hits the wrong comparison. 5, 0 and 15 give the same answer either way.</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-design-negative"><div class="pl-rail"><span class="pl-num">2.2</span><span class="pl-min">15분</span><span class="pl-min">▶ 1:28</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/design/negative/">정상 경로 너머</a></h3><p class="pl-desc">비정상 케이스, 극단 케이스, 그리고 조건이 결합하는 규칙을 위한 결정 테이블.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>List the usual ways input goes wrong</li><li>Write negative test cases with clear expected messages</li><li>Build a decision table and spot gaps in requirements</li></ul></div><div><h4>핵심</h4><ul><li>Every happy path has unhappy siblings: empty, wrong format, extremes, bad timing.</li><li>Negative cases check that the software fails gracefully, with a clear message.</li><li>Decision tables list every combination of conditions and expose unspecified ones.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>Which is a negative test case for the email field?</span> <em>ada.larkspur.test shows “Enter a valid email”. It feeds deliberately bad input and checks that the software rejects it clearly.</em></li><li><span>Three yes/no conditions combine. How many rows can the full decision table have?</span> <em>8. Each condition doubles the combinations: 2 × 2 × 2 = 8. Some rows may collapse.</em></li><li><span>A decision table row has no specified outcome. What should you do?</span> <em>Ask the product owner before testing. It&#39;s a gap in the requirements. Raising it is part of testing.</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-design-exploratory"><div class="pl-rail"><span class="pl-num">2.3</span><span class="pl-min">15분</span><span class="pl-min">▶ 2:06</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/design/exploratory/">Exploratory testing</a></h3><p class="pl-desc">Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>Write a charter that gives an exploratory session one clear mission</li><li>Run a time-boxed session and keep notes someone else can read</li><li>Turn findings from a session into bugs, questions and new test cases</li></ul></div><div><h4>핵심</h4><ul><li>Exploratory testing is designing and running tests at the same time, learning as you go.</li><li>A charter names a target, the resources you'll use and the information you want: one mission per session.</li><li>Session notes record what you covered, what you found and what you'd explore next, so the session can be reviewed.</li><li>Good findings become scripted test cases, so the next run doesn't depend on memory.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>Which is the best charter for one exploratory session?</span> <em>Explore the discount code field with expired, misspelled and pasted codes to discover how errors are reported. It names a target, the resources (kinds of codes) and the information wanted. The others give no mission, so nobody can tell when the session is done or what it covered.</em></li><li><span>Halfway through a session on the discount field, you notice the delivery estimate looks wrong. What should you do?</span> <em>Write it in your notes as an issue or follow-up idea, then return to the charter. The charter keeps the session focused. Noting the side issue means it isn&#39;t lost, and it can become the charter for a later session.</em></li><li><span>Your session found that pasting a code with a trailing space rejects it. What should happen to that finding after the debrief?</span> <em>Report the bug, and add a scripted test case so the behaviour is checked on every run. Exploration finds the problem; a written test case keeps it found. Without one, catching a regression depends on someone happening to explore the same path again.</em></li></ol></div></div></article></section><section class="plan-sec plan-chapter" id="chapter-automation"><header class="pc-head"><span class="pc-n">3장</span><h2>자동화와 확장</h2><p>케이스를 코드로 바꾸고, 사람들이 믿는 스위트로 정리합니다. · 30 분</p></header><article class="pl-item pl-lesson" id="plan-test-cases-automation-unit-tests"><div class="pl-rail"><span class="pl-num">3.1</span><span class="pl-min">15분</span><span class="pl-min">▶ 1:28</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/automation/unit-tests/">테스트 케이스에서 자동 테스트로</a></h3><p class="pl-desc">작성한 테스트 케이스를 Arrange, Act, Assert로 코드로 바꾸고, 경계값 테스트가 진짜 버그를 잡는 것을 봅니다.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>Map a written test case onto Arrange, Act, Assert</li><li>Write a unit test with a test runner</li><li>Watch a test fail before trusting it to pass</li></ul></div><div><h4>핵심</h4><ul><li>The test name is the title, Arrange is the setup, Act is the step, Assert is the expected result.</li><li>A boundary test turns an off-by-one bug red in milliseconds.</li><li>See a test fail once before you trust it to pass.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>Which part of an automated test holds the expected result?</span> <em>Assert. expect(...).toBe(...) is the expected result, checked automatically.</em></li><li><span>Why watch a new test fail before making it pass?</span> <em>To prove the test can detect the bug. If the test never goes red, it may not be checking what you think.</em></li><li><span>applyDiscount(20, &quot;SAVE10&quot;) returned 20, but the rule says $20 or more gets 10% off. What&#39;s the likely bug?</span> <em>It uses total &lt;= 20 instead of total &lt; 20. Returning early when total &lt;= 20 skips the discount at exactly $20. The boundary test exposes it.</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-automation-suites"><div class="pl-rail"><span class="pl-num">3.2</span><span class="pl-min">15분</span><span class="pl-min">▶ 1:42</span></div><div class="pl-body"><h3><a href="/demo/ko/test-cases/automation/suites/">테스트 스위트 정리하기</a></h3><p class="pl-desc">테스트 피라미드, 요구사항 추적, 그리고 커지는 스위트를 건강하게 유지하기.</p><div class="pl-cols"><div><h4>학습 성과</h4><ul><li>Balance a suite with the test pyramid</li><li>Trace test cases to requirements and find gaps and orphans</li><li>Keep a suite healthy: names, flaky tests, ownership</li></ul></div><div><h4>핵심</h4><ul><li>Many fast unit tests, fewer integration tests, a handful of end-to-end tests.</li><li>A traceability matrix shows requirements with no tests and tests with no requirement.</li><li>Name tests by behavior and fix flaky tests quickly, or people learn to ignore red.</li></ul></div></div><div class="pl-check"><h4>자가 점검</h4><ol><li><span>Where should most of your automated tests sit in the pyramid?</span> <em>Unit. Unit tests are fast and precise, so they make up the wide base.</em></li><li><span>A requirement has no test cases linked to it. What is that called?</span> <em>A gap. It&#39;s a coverage gap. An orphan is the reverse: a test case with no requirement.</em></li><li><span>A test fails about one run in ten with no code change. What should you do?</span> <em>Find and fix the cause, or remove it. Flaky tests erode trust in the whole suite. Fix the cause (often timing or shared data) or remove the test.</em></li></ol></div></div></article></section></main><script type="module">var e=document.getElementById(`copy-plan`),t=document.getElementById(`plan-md`);e.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(t.content.textContent??``),e.textContent=e.dataset.lCopied}catch{e.textContent=e.dataset.lBlocked}setTimeout(()=>e.textContent=e.dataset.lCopy,2400)});</script><footer class="foot"><div class="foot-in"><div class="foot-about"><a class="brand" href="/demo/ko/"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><span>Testbench</span></a><p>Testbench는 짧은 해설 동영상, 읽기 좋은 강의, 실제 연습 앱에서 하는 실습으로 소프트웨어 테스트를 가르칩니다. 모든 실습에는 코딩 에이전트에게 맡길 수 있는 프롬프트가 있습니다.</p></div><div class="foot-col"><h2>배우기</h2><ul><li><a href="/demo/ko/test-cases/">테스트 케이스 작성법</a></li><li><a href="/demo/ko/performance-testing/">성능 테스트</a></li><li><a href="/demo/ko/api-testing/">API Testing</a></li><li><a href="/demo/ko/courses/">강좌</a></li><li><a href="/demo/ko/learning/">내 학습</a></li><li><a href="https://github.com/johnsonnoronathan/demo/issues/new?template=tutorial-proposal.yml" target="_blank" rel="noopener">튜토리얼 제안하기</a></li></ul></div><div class="foot-col"><h2>에이전트용</h2><ul><li><a href="/demo/ko/agents/">에이전트용</a></li><li><a href="/demo/llms.txt">llms.txt</a></li><li><a href="/demo/ko/test-cases/plan.md">이 페이지의 Markdown 버전</a></li></ul></div><div class="foot-col"><h2>언어</h2><ul class="foot-langs"><li><a href="/demo/test-cases/plan/" lang="en">English</a></li><li><a href="/demo/zh/test-cases/plan/" lang="zh-CN">简体中文</a></li><li><a href="/demo/ja/test-cases/plan/" lang="ja">日本語</a></li><li><a href="/demo/ko/test-cases/plan/" lang="ko">한국어</a></li><li><a href="/demo/es/test-cases/plan/" lang="es">Español</a></li><li><a href="/demo/fr/test-cases/plan/" lang="fr">Français</a></li><li><a href="/demo/de/test-cases/plan/" lang="de">Deutsch</a></li></ul></div></div><p class="foot-fine">강좌에 나오는 연습 앱과 회사는 가상입니다.</p></footer><script type="module" src="/demo/_astro/Base.astro_astro_type_script_index_0_lang.CEumv5Zm.js"></script></body></html>

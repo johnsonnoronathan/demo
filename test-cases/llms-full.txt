@@ -1,0 +1,666 @@
+# Lesson 1.1: What is a test case?
+
+Writing Test Cases · Chapter 1: Foundations · 15 min
+
+> The parts of a test case, built field by field and then run by hand against a real sign-in page.
+
+**You'll be able to:**
+- Name the fields of a test case and what each is for
+- Write a test case precise enough for anyone to repeat
+- Run a test case by hand and record the result
+
+## Transcript: What is a test case? (2:56)
+
+**0:00 Welcome.** Welcome to Writing Test Cases. In this first lesson, we answer one question: what exactly is a test case? By the end, you'll be able to read one, write one, and run one by hand.
+
+**0:15 A definition.** A test case is a written, repeatable check. It says: in this situation, when I do these exact things, this is what should happen. It has three jobs. First, it pins down a single behavior worth checking. Second, it's specific enough that anyone on the team gets the same result. And third, it records the outcome, so you know whether the software passed.
+
+**0:43 Anatomy.** Let's build one together. We're testing the sign-in page of Larkspur Books, a small online bookstore. Every test case gets an ID and a title. The title names the behavior: sign-in succeeds with a valid email and password. Preconditions describe the world before you start. Here, a customer account already exists. Test data lists the exact inputs. Not 'enter a valid email'. We write the actual address and password. Steps are numbered actions, one per line, written so a newcomer could follow them. And the expected result says precisely what should happen. Not 'it works', but the page and the message you'll see.
+
+**1:28 Run it by hand.** Now let's run it by hand. Step one: open the sign-in page. Steps two and three: type the email, then the password, exactly as the test data says. Step four: select Sign in. The page greets us: Welcome back, Ada. That matches the expected result. So we record the actual result, and mark the test case as passed.
+
+**1:55 When a case fails.** One test case rarely travels alone. Here's a small run of three sign-in cases. The second checks that a wrong password is rejected. It passes. The third expects the account to lock after five failed attempts. It didn't lock. That's a failure, and the actual result tells the developer exactly what went wrong. A failed test case isn't bad news. It's the test case doing its job: finding the bug before your customers do.
+
+**2:27 Recap.** Let's recap. A test case checks one behavior, and has an ID and a clear title. Preconditions, test data and steps make it repeatable. The expected result is decided before you run it. The actual result is recorded after. Next, we'll look at what separates a good test case from a weak one. The notes below include a template you can copy.
+
+## The lesson
+
+A test case is a written, repeatable check of one behavior. It states the situation, the exact actions, and the result you expect, so anyone can run it and reach the same verdict.
+
+## The fields
+
+| Field | What goes in it |
+| --- | --- |
+| **ID** | A stable, unique handle such as `TC-LOGIN-001`. Bug reports and test runs refer to it. |
+| **Title** | The behavior under test, phrased as an outcome: “Sign-in succeeds with a valid email and password.” |
+| **Preconditions** | What must be true before step 1: accounts, settings, data, the page you start on. |
+| **Test data** | The literal inputs. Write `ada@larkspur.test`, never “a valid email”. |
+| **Steps** | Numbered, one action each, specific enough for a newcomer. |
+| **Expected result** | What you will observe if the software is right. Decide it *before* running. |
+| **Actual result** | What really happened. Filled in during the run. |
+| **Status** | Pass, Fail, Blocked (could not run), or Not run. |
+
+## Template
+
+```text
+ID:              TC-<AREA>-<NNN>
+Title:           <behavior> when <condition>
+Requirement:     REQ-<NN>
+Preconditions:   - ...
+Test data:       - ...
+Steps:           1. ...
+                 2. ...
+Expected result: ...
+Actual result:   (filled in during the run)
+Status:          Pass | Fail | Blocked | Not run
+```
+
+## Try it
+
+Write a test case for Larkspur Books' **Sign out** link. It should end the session and return the customer to the home page. Check your draft against the fields above: could a colleague who has never seen the site run it without asking you a question?
+
+> **Tip.** **Fail is useful.** A failed case with a precise actual result (“6th attempt still allowed; no lock”) is half a bug report already.
+
+## Quiz
+
+1. Which expected result is written well?
+   a. The login works.
+   b. The account page opens with the heading “Welcome back, Ada”.
+   c. No errors occur.
+   d. The user is happy with the result.
+   Answer: b. It names something you can observe and compare. The others leave room for two testers to disagree.
+2. When should the expected result be written?
+   a. After running the test, from what you saw
+   b. Before running the test
+   c. Only when the test fails
+   d. By the developer after fixing a bug
+   Answer: b. If you write it afterwards, you tend to describe whatever happened, and bugs slip through as “expected”.
+3. A customer account must exist before step 1. Which field holds that?
+   a. Test data
+   b. Steps
+   c. Preconditions
+   d. Actual result
+   Answer: c. Preconditions describe the state of the world before you start. Test data lists the inputs you type or send.
+
+## Key points
+
+- A test case checks one behavior, with an ID and a clear title.
+- Preconditions, test data and steps make it repeatable.
+- Decide the expected result before running; record the actual result after.
+- A failed test case with a precise actual result is half a bug report.
+
+---
+
+Next: [Lesson 1.2: Good test cases, weak test cases](/demo/test-cases/foundations/good-cases.md)
+
+
+# Lesson 1.2: Good test cases, weak test cases
+
+Writing Test Cases · Chapter 1: Foundations · 15 min
+
+> Five habits that make a test case trustworthy, and the Given, When, Then shape many teams write them in.
+
+**You'll be able to:**
+- Spot vague wording in a test case and rewrite it
+- Apply five habits: atomic, independent, repeatable, specific, traceable
+- Write a scenario in Given, When, Then form
+
+## Transcript: Good test cases, weak test cases (1:55)
+
+**0:00 Introduction.** Two people can test the same feature and write very different test cases. In this lesson, we look at what makes one good.
+
+**0:10 Weak vs strong.** Here's a weak test case. Test login. Log in with a user. It works. Which user? Which password? What does 'works' look like? Two testers could run this and disagree on the result. Here's the same idea, rewritten. The title names one behavior: sign-in is rejected when the password is wrong. The data is exact, and the expected result is something you can see: an error message, and you stay on the sign-in page.
+
+**0:42 Five habits.** Good test cases share five habits. They're atomic: one behavior per case, so a failure points at one thing. They're independent: each case sets up its own preconditions, and doesn't rely on another case running first. They're repeatable: same inputs, same steps, same result, every time. They're specific: real values, observable outcomes, no 'should work'. And they're traceable: each one links back to the requirement it checks.
+
+**1:13 Given, When, Then.** Many teams write test cases in a Given, When, Then shape. Given sets up the world. That's your preconditions and test data. When is the single action under test. Then is the expected result. Keep it observable. This format reads like plain English, and later it can even drive automated tests.
+
+**1:37 Recap.** To recap: replace vague words with real values and observable results. Keep each case atomic, independent, repeatable, specific and traceable. In the next module, we'll stop asking how to write a case, and start asking which cases to write.
+
+## The lesson
+
+A good test case gives the same verdict no matter who runs it, and when it fails, it points at one thing.
+
+## Weak words to watch for
+
+| Weak | Rewrite as |
+| --- | --- |
+| “a valid user” | `ada@larkspur.test` / `Lark!2026` |
+| “it works” | “The account page opens with ‘Welcome back, Ada’.” |
+| “should show an error” | “‘Email or password is incorrect’ appears under the form.” |
+| “test the cart” | One case per behavior: add, remove, change quantity… |
+
+## The five habits
+
+1. **Atomic.** One behavior per case. If the title needs “and”, split it.
+2. **Independent.** Never rely on another case running first; set up your own preconditions.
+3. **Repeatable.** Fixed data, fixed steps. Avoid “today’s date” unless you pin it.
+4. **Specific.** Values and observable outcomes, not intentions.
+5. **Traceable.** Reference the requirement, such as `REQ-01`.
+
+## Given, When, Then
+
+```gherkin
+Scenario: Wrong password is rejected
+  Given a customer account "ada@larkspur.test" exists
+  And its password is "Lark!2026"
+  When I sign in with password "lark2026"
+  Then I see "Email or password is incorrect"
+  And I remain on the sign-in page
+```
+
+Keep exactly one **When** per scenario. Two actions usually means two scenarios.
+
+## Try it
+
+Rewrite this weak case: *“Check that search works.”* Pick one behavior (for example, searching “Middlemarch” lists that title first) and write it in Given, When, Then form.
+
+## Quiz
+
+1. A title reads “Add to cart and checkout and apply coupon”. Which habit does it break?
+   a. Traceable
+   b. Atomic
+   c. Repeatable
+   d. None, it is fine
+   Answer: b. Three behaviors in one case means a failure doesn't tell you which one broke. Split it into three cases.
+2. Case B only passes if case A ran first and created an order. What should change?
+   a. Always run A before B
+   b. Merge A and B into one case
+   c. B sets up its own order in its preconditions
+   d. Delete case B
+   Answer: c. Independent cases can run in any order, alone or in parallel. B should create the order it needs.
+3. In Given, When, Then, where does the expected result go?
+   a. Given
+   b. When
+   c. Then
+   d. Feature
+   Answer: c. Given is the setup, When is the one action, Then is what you expect to observe.
+
+## Key points
+
+- Replace vague words with real values and observable results.
+- Keep each case atomic, independent, repeatable, specific and traceable.
+- Given is the setup, When is the one action, Then is the expected result.
+
+---
+
+Previous: [Lesson 1.1: What is a test case?](/demo/test-cases/foundations/anatomy.md)
+Next: [Lesson 2.1: Partitions and boundaries](/demo/test-cases/design/partitions.md)
+
+
+# Lesson 2.1: Partitions and boundaries
+
+Writing Test Cases · Chapter 2: Designing test cases · 15 min
+
+> Equivalence partitioning and boundary value analysis: a few well-chosen inputs instead of thousands.
+
+**You'll be able to:**
+- Divide an input range into equivalence partitions
+- Pick boundary values and their neighbors
+- Turn partitions and boundaries into a compact set of test cases
+
+## Transcript: Partitions and boundaries (1:30)
+
+**0:00 Introduction.** Which inputs should you test? In this lesson, two techniques that turn thousands of possible inputs into a handful of good ones.
+
+**0:09 Too many inputs.** The cart at Larkspur Books lets you order between one and ten copies of a book. You can't test every possible number. So how do you choose? Group inputs that the software should treat the same way. These groups are called equivalence partitions.
+
+**0:29 One from each group.** There are three partitions here: too few, a valid amount, and too many. Pick one representative from each. Zero for too few. Five for valid. And fifteen for too many. Three test cases cover three behaviors.
+
+**0:46 Bugs live at the edges.** But bugs love edges. A developer might type less-than where they meant less-than-or-equal. Boundary value analysis tests right at each edge, and just outside it. Zero and one at the bottom. Ten and eleven at the top. The code here says quantity less than ten. Only the test with exactly ten copies catches it.
+
+**1:12 The resulting cases.** Put it together, and you get a compact set of test cases. Each row has a reason to exist. Nothing is duplicated, and nothing obvious is missed. Use this whenever an input has a range: ages, prices, name lengths, dates.
+
+## The lesson
+
+Equivalence partitioning groups inputs the software should treat alike, so you test one from each group. Boundary value analysis adds the edges of each group, where off-by-one bugs hide.
+
+## Step by step
+
+1. Find the rule: *quantity must be from 1 to 10*.
+2. List the partitions: below 1 (invalid), 1–10 (valid), above 10 (invalid).
+3. Pick one representative from each: 0, 5, 15.
+4. Add each boundary and its neighbor outside: 0 & 1, 10 & 11.
+5. Remove duplicates. You end with six cases.
+
+## Don't forget the other partitions
+
+Numbers are not the only invalid input. A quantity box can receive `-1`, `2.5`, `"three"`, or nothing at all. Each is its own partition with its own expected message. Lesson 2.2 covers these.
+
+```js
+// The bug from the video
+function isValidQuantity(qty) {
+  return qty >= 1 && qty < 10;   // 10 is rejected
+}
+// Fixed
+  return qty >= 1 && qty <= 10;
+```
+
+## Try it
+
+A Larkspur gift card can be loaded with $5 to $500, in whole dollars. List the partitions and boundary values, then write the expected result for each.
+
+## Quiz
+
+1. A field accepts ages 18 to 65. Which set covers all the boundaries?
+   a. 18, 65
+   b. 17, 18, 65, 66
+   c. 0, 40, 100
+   d. 18, 30, 45, 65
+   Answer: b. Each edge plus its neighbor just outside: 17 and 18 at the bottom, 65 and 66 at the top.
+2. Why test only one value from the middle of a partition?
+   a. The software should treat every value in it the same way
+   b. Middle values never have bugs
+   c. It saves typing
+   d. Testing tools allow one value per partition
+   Answer: a. That's what makes it an equivalence partition. If 5 works, 6 is very unlikely to behave differently.
+3. The code says qty < 10 but the rule is 1 to 10. Which test catches it?
+   a. Quantity 5
+   b. Quantity 0
+   c. Quantity 10
+   d. Quantity 15
+   Answer: c. Only the exact maximum hits the wrong comparison. 5, 0 and 15 give the same answer either way.
+
+## Key points
+
+- Group inputs the software should treat the same way, and test one from each group.
+- Bugs cluster at edges: test each boundary and the value just outside it.
+- An off-by-one comparison is only caught by the exact boundary value.
+
+---
+
+Previous: [Lesson 1.2: Good test cases, weak test cases](/demo/test-cases/foundations/good-cases.md)
+Next: [Lesson 2.2: Beyond the happy path](/demo/test-cases/design/negative.md)
+
+
+# Lesson 2.2: Beyond the happy path
+
+Writing Test Cases · Chapter 2: Designing test cases · 15 min
+
+> Negative cases, edge cases, and decision tables for rules that combine.
+
+**You'll be able to:**
+- List the usual ways input goes wrong
+- Write negative test cases with clear expected messages
+- Build a decision table and spot gaps in requirements
+
+## Transcript: Beyond the happy path (1:28)
+
+**0:00 Introduction.** The happy path is the journey where everything goes right. Customers don't always stay on it.
+
+**0:07 Negative cases.** Negative test cases check that the software handles bad input and misuse gracefully. Empty and missing values: a blank email field. Wrong types and formats: letters in a quantity box, or an email without an at sign. Extremes: a ten-thousand-character name, or a price of zero. And bad timing: double-clicking Pay, or a session that expires halfway through checkout.
+
+**0:34 Decision tables.** When rules combine, use a decision table. Here's the discount code SAVE10: ten percent off orders of twenty dollars or more. List each condition as a column, then every combination as a row. Valid code, not expired, cart of twenty dollars or more: the discount is applied. When a single condition fails, the customer should get a clear, different message. Each row becomes a test case, and gaps in the requirements jump out. What should an expired code on a small cart say? Ask before you test.
+
+**1:12 Recap.** To recap: for every happy path, ask how it could go wrong. Check empty values, wrong formats, extremes and bad timing. And when conditions combine, a decision table finds the cases, and the gaps.
+
+## The lesson
+
+Negative test cases prove the software fails gracefully: a clear message, no crash, no corrupted data. Most real bugs live here.
+
+## A checklist for any input
+
+- **Empty:** blank, whitespace only, missing entirely.
+- **Format:** wrong type, wrong pattern, leading zeros, unexpected characters (`' " < >`, emoji, accents).
+- **Size:** zero, negative, huge, very long text.
+- **Timing:** double submit, back button, expired session, two tabs at once.
+- **Permissions:** signed out, wrong account, admin-only pages.
+
+## Decision tables
+
+Write each condition as a column and list every combination. With three yes/no conditions you get up to eight rows; collapse rows where one condition decides the outcome on its own (an unknown code fails whatever the cart holds).
+
+| Known | Not expired | ≥ $20 | Expected |
+| --- | --- | --- | --- |
+| Y | Y | Y | 10% off |
+| Y | Y | N | “Add $X more…” |
+| Y | N | Y | “This code has expired” |
+| Y | N | N | *Ask the product owner* |
+| N | – | – | “We don't recognise that code” |
+
+> **Tip.** **A gap is a finding.** When the table shows a combination nobody specified, raise it before testing. That question is cheaper now than a bug later.
+
+## Try it
+
+Larkspur offers free delivery for members, or for anyone spending $50 or more, but never to overseas addresses. Build the decision table.
+
+## Quiz
+
+1. Which is a negative test case for the email field?
+   a. ada@larkspur.test is accepted
+   b. ada.larkspur.test shows “Enter a valid email”
+   c. The field has a label
+   d. The page loads in under a second
+   Answer: b. It feeds deliberately bad input and checks that the software rejects it clearly.
+2. Three yes/no conditions combine. How many rows can the full decision table have?
+   a. 3
+   b. 6
+   c. 8
+   d. 9
+   Answer: c. Each condition doubles the combinations: 2 × 2 × 2 = 8. Some rows may collapse.
+3. A decision table row has no specified outcome. What should you do?
+   a. Skip that row
+   b. Decide the outcome yourself
+   c. Ask the product owner before testing
+   d. Mark it as passed
+   Answer: c. It's a gap in the requirements. Raising it is part of testing.
+
+## Key points
+
+- Every happy path has unhappy siblings: empty, wrong format, extremes, bad timing.
+- Negative cases check that the software fails gracefully, with a clear message.
+- Decision tables list every combination of conditions and expose unspecified ones.
+
+---
+
+Previous: [Lesson 2.1: Partitions and boundaries](/demo/test-cases/design/partitions.md)
+Next: [Lesson 2.3: Exploratory testing](/demo/test-cases/design/exploratory.md)
+
+
+# Lesson 2.3: Exploratory testing
+
+Writing Test Cases · Chapter 2: Designing test cases · 15 min
+
+> Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.
+
+**You'll be able to:**
+- Write a charter that gives an exploratory session one clear mission
+- Run a time-boxed session and keep notes someone else can read
+- Turn findings from a session into bugs, questions and new test cases
+
+## Transcript: Exploratory testing (2:06)
+
+**0:00 Introduction.** Scripted test cases check what you already expect. Exploratory testing looks for what nobody thought to write down. You design the next test while you run the current one, and each result tells you where to look next.
+
+**0:16 Charters.** Exploring is not clicking around. Each session starts with a charter: one sentence that gives it a mission. The target is the feature you'll explore, as narrow as you can make it. The resources are what you bring: unusual data, a second tab, a slow network. And the information is what you want to learn, such as how errors are reported.
+
+**0:43 Time box.** Choose the length of the session before you start, for example sixty minutes, and stop when the time is up. Stay on the charter. When you spot something outside it, write it down and carry on. It may become the next session's charter.
+
+**1:02 Session notes.** Notes turn exploring into evidence. Keep them as you go. These findings are an example, not a real run. Covered lists what you tried, so a reviewer can see the gaps. Bugs are problems you could reproduce, like a pasted code with a trailing space being rejected. Questions are gaps in the requirements. Should codes be case-insensitive? Nobody said. And follow-up ideas are leads you didn't chase because they were off-charter.
+
+**1:34 Debrief.** After the session, go through the notes with someone and agree what each finding means. A bug gets reported and, once fixed, becomes a scripted test case. A question goes to the requirement's owner. A follow-up idea becomes a new charter.
+
+**1:51 Recap.** To recap: give every session a charter with one mission. Time-box it, and keep notes as you go. Then debrief, and turn what you found into test cases, questions and new charters.
+
+## The lesson
+
+Scripted test cases check what you already expect. Exploratory testing finds what nobody thought to write down: you design the next test while you run the current one, and each result tells you where to look next.
+
+Exploring is not clicking around. It has a mission, a time limit and a written record, so someone else can see what was covered and trust the result.
+
+## A charter gives the session a mission
+
+A charter is one sentence that says what this session is for. A common template is:
+
+> Explore **target** with **resources** to discover **information**.
+
+- **Target:** the feature or area, as narrow as you can make it.
+- **Resources:** the data, tools or tricks you'll bring, such as unusual inputs, a second browser tab, or a slow network.
+- **Information:** the kind of thing you want to learn, such as how errors are reported or whether totals stay correct.
+
+For example: *Explore the Larkspur discount code field with expired, misspelled and pasted codes to discover how errors are reported.*
+
+A charter that says only "test the checkout" is too wide to finish. One that lists exact steps is a scripted test case, not a charter.
+
+## Time-box the session
+
+Choose the length of the session before you start, for example 60 minutes, and stop when it ends. A fixed time box keeps sessions comparable and stops one interesting thread from eating the day.
+
+Stay on the charter. When you notice something outside it, write it down and carry on. It may become the next session's charter.
+
+## Keep session notes
+
+Notes are what turn exploring into evidence. Keep them as you go, not afterwards. A simple template:
+
+```text
+Charter:   Explore the discount code field with expired, misspelled
+           and pasted codes to discover how errors are reported
+Tester:    Ada
+Start:     <date and time>    Time box: 60 minutes
+Setup:     Signed in as a member, cart over $20, Chrome
+
+Covered:
+- Expired code SAVE10-2024
+- Misspelled codes (SAVE01, save10)
+- Code pasted with a trailing space
+
+Bugs:
+- Pasted code with a trailing space is rejected as unknown
+
+Questions:
+- Should codes be case-insensitive? Not in the requirements
+
+Follow-up ideas:
+- Delivery estimate changes when a code is applied: new charter?
+```
+
+The example findings above are illustrations, not results from a real run.
+
+- **Covered** shows what you tried, so a reviewer can see the gaps.
+- **Bugs** are problems you could reproduce. Report each one with its steps.
+- **Questions** are gaps in the requirements, just like the unspecified row in a decision table.
+- **Follow-up ideas** are leads you didn't chase because they were off-charter.
+
+## Debrief, then write the cases down
+
+After the session, spend a few minutes going through the notes with someone: a teammate, a lead or the product owner. Agree what each finding means and what happens next.
+
+Then turn the findings into lasting work. A bug becomes a report and, once it's fixed, a scripted test case that guards against it returning. A question goes to whoever owns the requirement. A follow-up idea becomes a new charter.
+
+> **Tip.** **Exploring and scripting work together.** Scripted cases check the behaviour you know about on every run. Exploratory sessions look for the behaviour you don't know about yet. Each good session adds a few scripted cases to the suite.
+
+## Try it
+
+Write a charter for a 30-minute session on the Larkspur sign-in page, using the template above. Then list three things you'd try in the session and one question you'd expect to raise.
+
+## Quiz
+
+1. Which is the best charter for one exploratory session?
+   a. Test the checkout
+   b. Explore the discount code field with expired, misspelled and pasted codes to discover how errors are reported
+   c. Make sure there are no bugs in Larkspur
+   d. Click around the site for an hour
+   Answer: b. It names a target, the resources (kinds of codes) and the information wanted. The others give no mission, so nobody can tell when the session is done or what it covered.
+2. Halfway through a session on the discount field, you notice the delivery estimate looks wrong. What should you do?
+   a. Switch to the delivery estimate for the rest of the session
+   b. Ignore it, it's off-charter
+   c. Write it in your notes as an issue or follow-up idea, then return to the charter
+   d. End the session early
+   Answer: c. The charter keeps the session focused. Noting the side issue means it isn't lost, and it can become the charter for a later session.
+3. Your session found that pasting a code with a trailing space rejects it. What should happen to that finding after the debrief?
+   a. Nothing, exploratory findings are informal
+   b. Report the bug, and add a scripted test case so the behaviour is checked on every run
+   c. Rerun the same session every week instead
+   d. Delete it from the notes once it's reported
+   Answer: b. Exploration finds the problem; a written test case keeps it found. Without one, catching a regression depends on someone happening to explore the same path again.
+
+## Key points
+
+- Exploratory testing is designing and running tests at the same time, learning as you go.
+- A charter names a target, the resources you'll use and the information you want: one mission per session.
+- Session notes record what you covered, what you found and what you'd explore next, so the session can be reviewed.
+- Good findings become scripted test cases, so the next run doesn't depend on memory.
+
+---
+
+Previous: [Lesson 2.2: Beyond the happy path](/demo/test-cases/design/negative.md)
+Next: [Lesson 3.1: From test case to automated test](/demo/test-cases/automation/unit-tests.md)
+
+
+# Lesson 3.1: From test case to automated test
+
+Writing Test Cases · Chapter 3: Automating and scaling · 15 min
+
+> Turn a written test case into code with Arrange, Act, Assert, then watch a boundary test catch a real bug.
+
+**You'll be able to:**
+- Map a written test case onto Arrange, Act, Assert
+- Write a unit test with a test runner
+- Watch a test fail before trusting it to pass
+
+## Transcript: From test case to automated test (1:28)
+
+**0:00 Introduction.** Manual test cases are a great start. When a check needs to run often, automate it. Let's turn a test case into code.
+
+**0:10 The code under test.** Here's the function behind the SAVE10 discount code. It takes an order total and a code, and returns the new total. Ten percent off, but only for orders of twenty dollars or more.
+
+**0:24 Arrange, Act, Assert.** An automated test is a test case written as code. The test case title becomes the test name. Arrange sets up the preconditions and test data. Act performs the one step under test. Assert is the expected result. We expect the total to be thirty-six.
+
+**0:46 Red, then green.** Let's add our boundary case from the partitions lesson. An order of exactly twenty dollars should get the discount. Run the tests. Red. We expected eighteen, but received twenty. The function uses less-than-or-equal. Change it to less-than, and run again. Green. Every passing test is a test case that now runs itself, in milliseconds, on every change.
+
+**1:13 Recap.** To recap: the test name is the title, Arrange is the setup, Act is the step, and Assert is the expected result. Watch a test fail before you trust it to pass. Red, then green.
+
+## The lesson
+
+An automated test is a test case the computer runs for you. The mapping is direct: title to test name, preconditions and data to *Arrange*, the step to *Act*, the expected result to *Assert*.
+
+## The mapping
+
+| Test case field | In code |
+| --- | --- |
+| Title | `test("SAVE10 takes 10% off a $40 order", …)` |
+| Preconditions, test data | Arrange: `const total = 40;` |
+| Steps | Act: `applyDiscount(total, "SAVE10")` |
+| Expected result | Assert: `expect(result).toBe(36)` |
+| Status | The runner's ✓ or ✗ |
+
+## Run it yourself
+
+```text
+npm install --save-dev vitest
+npx vitest run
+```
+
+```js
+// discount.test.js
+import { test, expect } from "vitest";
+import { applyDiscount } from "./discount.js";
+
+test.each([
+  [19.99, 19.99],  // just below the boundary
+  [20, 18],        // the boundary
+  [40, 36],        // valid partition
+])("SAVE10 on $%s gives $%s", (total, expected) => {
+  expect(applyDiscount(total, "SAVE10")).toBe(expected);
+});
+
+test("unknown codes leave the total alone", () => {
+  expect(applyDiscount(40, "SAVE99")).toBe(40);
+});
+```
+
+`test.each` turns a table of inputs, like the one from lesson 2.1, into one test per row.
+
+> **Tip.** **Red first.** A test you have never seen fail might not be testing anything. Break the code on purpose once and confirm the test goes red.
+
+## Quiz
+
+1. Which part of an automated test holds the expected result?
+   a. Arrange
+   b. Act
+   c. Assert
+   d. The import lines
+   Answer: c. expect(...).toBe(...) is the expected result, checked automatically.
+2. Why watch a new test fail before making it pass?
+   a. It's required by the test runner
+   b. To prove the test can detect the bug
+   c. Failing tests run faster
+   d. To fill the report
+   Answer: b. If the test never goes red, it may not be checking what you think.
+3. applyDiscount(20, "SAVE10") returned 20, but the rule says $20 or more gets 10% off. What's the likely bug?
+   a. Rounding
+   b. The code check is wrong
+   c. It uses total <= 20 instead of total < 20
+   d. The test imports the wrong file
+   Answer: c. Returning early when total <= 20 skips the discount at exactly $20. The boundary test exposes it.
+
+## Key points
+
+- The test name is the title, Arrange is the setup, Act is the step, Assert is the expected result.
+- A boundary test turns an off-by-one bug red in milliseconds.
+- See a test fail once before you trust it to pass.
+
+---
+
+Previous: [Lesson 2.3: Exploratory testing](/demo/test-cases/design/exploratory.md)
+Next: [Lesson 3.2: Organizing a test suite](/demo/test-cases/automation/suites.md)
+
+
+# Lesson 3.2: Organizing a test suite
+
+Writing Test Cases · Chapter 3: Automating and scaling · 15 min
+
+> The test pyramid, traceability to requirements, and keeping a growing suite healthy.
+
+**You'll be able to:**
+- Balance a suite with the test pyramid
+- Trace test cases to requirements and find gaps and orphans
+- Keep a suite healthy: names, flaky tests, ownership
+
+## Transcript: Organizing a test suite (1:42)
+
+**0:00 Introduction.** A suite of test cases is only useful if people can find, trust and run it. Let's organize one.
+
+**0:08 The test pyramid.** As test cases pile up, structure matters. A common guide is the test pyramid. At the base, many fast unit tests. They check small pieces of logic, like applyDiscount. In the middle, fewer integration tests. They check pieces working together, like the cart saving to the database. At the top, a handful of end-to-end tests. They drive the real app like a customer would, like our sign-in test case. Higher tests are slower and more brittle. Keep them few, and save them for the journeys that matter most.
+
+**0:47 Traceability.** Link test cases to requirements. This is a traceability matrix. Each requirement lists the test cases that check it. A requirement with no test cases is a gap in your testing. And a test case with no requirement may be testing something nobody asked for.
+
+**1:07 Keep it healthy.** Finally, keep the suite healthy. Name tests by behavior, so a failure reads like a bug report. Fix or remove flaky tests quickly. A test that fails at random teaches everyone to ignore red. And when a requirement changes, update its test cases in the same change.
+
+**1:29 Course wrap-up.** That's the course. You can now write test cases, choose them with partitions and boundaries, cover the unhappy paths, automate them, and organize a suite. Go find some bugs.
+
+## The lesson
+
+A suite is only useful if people trust it and can find their way around it. Shape it like a pyramid, trace it to requirements, and keep it free of noise.
+
+## The pyramid
+
+- **Unit**: one function or class, no network or database. Milliseconds. Hundreds of them.
+- **Integration**: a few real pieces together, such as the cart and its database. Fewer.
+- **End-to-end**: the whole app through the browser, like a customer. A handful, for critical journeys.
+
+Push each check as low as it can go. The boundary rules from lesson 2.1 belong in unit tests; “a customer can buy a book” belongs at the top.
+
+## Traceability matrix
+
+Keep a table of requirement → test cases, or tag tests with requirement IDs and generate it. Review it for two things: requirements with no cases (gaps) and cases with no requirement (orphans).
+
+## Keeping it healthy
+
+- **Names:** describe behavior. A failing test name should read like a bug title.
+- **Flaky tests:** quarantine is a last resort; find the cause (timing, shared data, order dependence) and fix it.
+- **Ownership:** when a requirement changes, its cases change in the same pull request.
+- **Prune:** delete cases that duplicate others or test removed features.
+
+> **Tip.** **Where to go next.** Pick one feature you work on, write its traceability table, and fill the first gap you find.
+
+## Quiz
+
+1. Where should most of your automated tests sit in the pyramid?
+   a. End-to-end
+   b. Integration
+   c. Unit
+   d. Spread evenly
+   Answer: c. Unit tests are fast and precise, so they make up the wide base.
+2. A requirement has no test cases linked to it. What is that called?
+   a. An orphan
+   b. A gap
+   c. A flake
+   d. A regression
+   Answer: b. It's a coverage gap. An orphan is the reverse: a test case with no requirement.
+3. A test fails about one run in ten with no code change. What should you do?
+   a. Re-run until it passes
+   b. Ignore it
+   c. Find and fix the cause, or remove it
+   d. Add more retries
+   Answer: c. Flaky tests erode trust in the whole suite. Fix the cause (often timing or shared data) or remove the test.
+
+## Key points
+
+- Many fast unit tests, fewer integration tests, a handful of end-to-end tests.
+- A traceability matrix shows requirements with no tests and tests with no requirement.
+- Name tests by behavior and fix flaky tests quickly, or people learn to ignore red.
+
+---
+
+Previous: [Lesson 3.1: From test case to automated test](/demo/test-cases/automation/unit-tests.md)

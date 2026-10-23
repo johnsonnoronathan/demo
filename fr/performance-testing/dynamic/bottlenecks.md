@@ -1,0 +1,186 @@
+# Leçon 3.4: Trouver le goulot d'étranglement
+
+Tests de performance · Chapitre 3: Tests dynamiques · 30 min
+
+> Profiler l'application sous charge, lire le flame graph, corriger le chemin critique et le prouver avec le même test.
+
+*Cette leçon n'est pas encore traduite en fr : vous lisez le texte anglais. Le titre et la navigation sont traduits.*
+
+**Vous saurez:**
+- Decide which resource is the bottleneck: CPU, database, network or waiting
+- Record a CPU profile of a Node.js app under load and open it as a flame graph
+- Fix a CPU hot path and prove the improvement with the same load test
+
+## Transcription: Finding the bottleneck (1:12)
+
+**0:00 Introduction.** The stress test showed that recommendations stall at about fifty-eight requests per second. Now let's find out why.
+
+**0:08 What ran out?.** First find which resource ran out. Under the stress test, the Node process sits at a hundred percent of one core. A pegged core means the code itself is the limit. Time for a CPU profile.
+
+**0:23 Reading the flame graph.** A CPU profiler samples the call stack about a thousand times a second while the app is under load. A flame graph merges those samples. Width is the share of time. Each layer up is a function called by the one below. recommend takes two thirds of the samples. Inside it, similarity and normalise re-parse every book's tags on every single request. Parse the tags once and keep them, and the hot frames shrink.
+
+**0:56 Do it once.** The fix: load the catalogue once, normalise each book's tags once into a set, and normalise the target's tags once per request. Same test, same machine: fifty-seven requests per second became six hundred and ninety-nine. Responses are identical.
+
+## La leçon
+
+The stress test showed that recommendations stall at about 58 requests per second. It didn't say why. For that you look inside the process while it's under the same load.
+
+## Which resource is saturated?
+
+Every request uses some CPU, waits for the database or disk, and waits for the network. Under load, one of these runs out first. Check before you profile:
+
+| Symptom under load | Likely bottleneck | Look with |
+| --- | --- | --- |
+| App process at ~100% of one core | CPU in your code | A CPU profile |
+| Low CPU, high latency | Waiting: database, locks, another service | Query logs, tracing |
+| Database CPU high | Queries | Query plans (lesson 2.3) |
+| Errors rise before latency | Limits: connections, file handles, memory | Server logs, metrics |
+
+Run the stress test and watch the Node process in `top` or your activity monitor: it sits at 100% of one core. Node runs your JavaScript on one thread, so a pegged core means the code itself is the limit. Time for a CPU profile.
+
+## Reading a flame graph
+
+> **Animation de concept: Reading a flame graph**
+>
+> 1. A CPU profiler samples the call stack about a thousand times a second while the app is under load.
+> 2. A flame graph merges those samples. Width is the share of time; each layer up is a function called by the one below.
+> 3. recommend takes 67% of the samples. Inside it, similarity and normalise re-parse every book's tags on every request.
+> 4. Parse the tags once and keep them: the hot frames shrink, and throughput at 10 users rises from 57 to 699 requests per second.
+
+`npm run profile` starts the app with Node's built-in sampling profiler. While load runs, it records the call stack about a thousand times a second. When the app exits it writes a `.cpuprofile` file you can open in Chrome DevTools (Performance panel, then **Load profile**) or drop onto [speedscope.app](https://www.speedscope.app).
+
+Read a flame graph from the bottom up. Each bar is a function; the bars on top of it are what it called. **Width is time.** Look for wide bars that belong to your code:
+
+| Function | Share of samples | What it's doing |
+| --- | --- | --- |
+| `recommend` | 67% | The whole endpoint |
+| `similarity` | 36% | Comparing the target book with each of 5,000 books |
+| `normalise` | 27% | Splitting, trimming, lowercasing and sorting tag strings |
+| `all` | 11% | Loading all 5,000 books from SQLite, on every request |
+
+Here is the code that `similarity` and `normalise` come from:
+
+```js title="src/routes/recommendations.mjs"
+function similarity(a, b) {
+  const left = normalise(a);   // the same target tags, re-parsed 5,000 times
+  const right = normalise(b);  // every book's tags, re-parsed on every request
+  // …
+}
+```
+
+Nothing in it is wrong, exactly. It just does the same work over and over: the target's tags are normalised 5,000 times per request, and every book's tags are normalised again on every request, even though books rarely change. No static check flagged it, because there's no slow pattern to match, only a lot of repetition.
+
+## The fix: do it once
+
+Load the catalogue once, normalise each book's tags once into a `Set`, and normalise the target's tags once per request:
+
+```js title="src/routes/recommendations.mjs (after)"
+let cached;
+function catalogue() {
+  return (cached ??= query("SELECT id, title, tags FROM books").all()
+    .map((b) => ({ ...b, tagSet: new Set(normalise(b.tags)) })));
+}
+
+export function recommend(params) {
+  // …
+  const mine = normalise(target.tags);
+  const scored = catalogue()
+    .filter((b) => b.id !== id)
+    .map((b) => ({ id: b.id, title: b.title, score: similarity(mine, b.tagSet) }))
+  // …
+}
+```
+
+> **A cache is a decision.** This cache never expires, which is fine for a practice app and wrong for a real shop that adds books. In production, refresh it on a timer or when the catalogue changes, and say so in the code.
+
+| Same test, 10 users | Before | After |
+| --- | --- | --- |
+| Throughput | 57 req/s | 699 req/s |
+| p95 | 347 ms | 26 ms |
+| p95 at 32 users | 957 ms | 77 ms |
+
+## Hands-on: Profile /api/recommendations and fix its hot path
+
+**Pratique · 25 min.** Objectif. Record a CPU profile while loading /api/recommendations, identify the hot functions, remove the repeated work, and show the throughput ceiling rise with the same test.
+
+1. Stop the app if it's running, then start it with the profiler and put it under load from a second terminal:
+
+   ```bash
+   npm run profile
+   npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --vus 10 --duration 10
+   ```
+
+2. Press Ctrl+C in the app's terminal. The app exits cleanly, and that clean exit is what lets the profiler write `profiles/CPU.….cpuprofile`. (If you kill it with `kill -9`, no profile is written.)
+3. Open the profile in Chrome DevTools: **Performance** panel, **Load profile**, then switch to the bottom-up or flame chart view.
+
+![Chrome DevTools Performance panel showing a loaded CPU profile as a flame chart. Repeated stacks show recommend at the base, with similarity and normalise stacked above it taking most of the width, and short calls to split, map and filter at the top.](screenshot-pending)
+*Screenshot (DevTools · Performance · CPU.cpuprofile): recommend → similarity → normalise, over and over.*
+
+4. Save the current responses, apply the fix, restart normally and compare:
+
+   ```bash
+   curl -s "http://localhost:3000/api/recommendations?book_id=7" > /tmp/rec-before.json
+   ```
+
+5. Rerun the exact load command from step 1 and compare with your numbers from lesson 3.3.
+
+![Two result rows from the mini load tool for /api/recommendations with 10 virtual users. Before: about 57 requests per second, p95 around 347 ms. After: about 699 requests per second, p95 around 26 ms.](screenshot-pending)
+*Screenshot (npm run load): Same test, same machine: twelve times the throughput.*
+
+**C'est terminé quand**
+- The profile summary names the functions that dominated, with percentages
+- Responses for book_id=7 and book_id=1234 are identical before and after the fix
+- The same load command shows higher req/s and lower p95 than before the fix
+
+**La part de l'agent : déléguez l'implémentation**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 3.4, "Finding the bottleneck".
+
+Exercise: Profile /api/recommendations and fix its hot path
+Goal: Record a CPU profile while loading /api/recommendations, identify the hot functions, remove the repeated work, and show the throughput ceiling rise with the same test.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Stop any running instance of the app. Start it with the profiler: `npm run profile` (in the background).
+2. Run `npm run load -- --url "http://localhost:3000/api/recommendations?book_id=7" --vus 10 --duration 10` and capture the result.
+3. Stop the app with SIGINT (Ctrl+C) so it writes `profiles/*.cpuprofile`.
+4. Summarise the profile with a short Node script: for each function name, total the sample time where it appears on the stack (inclusive), and print the top 10 as percentages.
+5. In `src/routes/recommendations.mjs`, load all books once and cache them with their tags already normalised into a Set; normalise the target's tags once per request; compute similarity against the cached Set. Keep the response identical.
+6. Start the app normally, compare the response for book_id=7 and book_id=1234 with the pre-fix responses, and rerun the same load command.
+
+Done when:
+- The profile summary names the functions that dominated, with percentages
+- Responses for book_id=7 and book_id=1234 are identical before and after the fix
+- The same load command shows higher req/s and lower p95 than before the fix
+
+Report back:
+- Top functions from the profile, before the fix
+- The diff of recommendations.mjs
+- Load results before and after
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/3-dynamic/4-bottlenecks.mdx
+```
+
+## Points clés
+
+- A load test tells you that something is slow; a profile taken under the same load tells you where the time goes.
+- First find the saturated resource: CPU at 100% points to code; low CPU with high latency points to waiting on something else.
+- In a flame graph, width is time. Look for wide frames near the top that belong to your code.
+- Work that repeats the same computation on every request is a classic hot path. Do it once and cache the result.
+- Prove a fix by rerunning the exact test that found the problem, on the same machine.
+
+---
+
+Précédent: [Leçon 3.3: Tests de stress, de pic et d'endurance](/demo/fr/performance-testing/dynamic/stress-spike-soak.md)
+Suivant: [Chapitre 3 · Résumé: Tests dynamiques : résumé](/demo/fr/performance-testing/dynamic/summary.md)

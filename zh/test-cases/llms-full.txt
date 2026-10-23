@@ -1,0 +1,668 @@
+# 第 1.1 课: 什么是测试用例？
+
+编写测试用例 · 第 1 章: 基础 · 15 分钟
+
+> 逐个字段构建一个测试用例，再对着真实的登录页面手工执行它。
+
+**学完本课你将能够:**
+- 说出测试用例的各个字段及其用途
+- 写出足够精确、任何人都能重复执行的测试用例
+- 手工执行测试用例并记录结果
+
+## 文字稿: 什么是测试用例？ (2:55)
+
+**0:00 欢迎.** 欢迎学习《编写测试用例》。在第一课里，我们只回答一个问题：测试用例到底是什么？ 学完之后，你将能够读懂测试用例、编写测试用例，并且手工执行它。
+
+**0:15 定义.** 测试用例是一份书面的、可重复的检查。它说的是：在这种情况下，当我做了这些具体操作，应该发生这样的结果。 它有三项任务。第一，锁定一个值得检查的行为。 第二，写得足够具体，团队里任何人执行都能得到相同的结果。 第三，记录结果，让你知道软件是否通过了测试。
+
+**0:43 测试用例的组成.** 我们一起来写一个。被测对象是 Larkspur Books 的登录页面，这是一家小型网上书店。 每个测试用例都有一个 ID 和一个标题。标题写明行为：使用有效的邮箱和密码登录成功。 前置条件描述开始之前的状态。这里是：已经存在一个客户账户。 测试数据列出具体的输入。不写“输入一个有效的邮箱”，而是写出真实的地址和密码。 测试步骤是编号的操作，每行一步，写到新人也能照着做。 预期结果要精确说明应该发生什么。不是“能用”，而是你会看到的页面和提示文字。
+
+**1:28 手工执行.** 现在我们手工执行它。第一步：打开登录页面。 第二步和第三步：按照测试数据，先输入邮箱，再输入密码。 第四步：点击“登录”。 页面显示：欢迎回来，Ada。这和预期结果一致。 于是我们记录实际结果，并把这个测试用例标记为通过。
+
+**1:52 用例失败时.** 测试用例很少单独出现。这里是一次小规模执行，包含三个登录用例。 第二个用例检查错误的密码会被拒绝。它通过了。 第三个用例预期连续失败五次后账户会被锁定。结果没有锁定。这是一次失败，而实际结果准确地告诉开发者哪里出了问题。 测试用例失败并不是坏消息。这正是测试用例在履行职责：赶在顾客之前发现缺陷。
+
+**2:25 小结.** 我们来总结一下。 一个测试用例只检查一个行为，并有 ID 和清晰的标题。 前置条件、测试数据和测试步骤让它可以重复执行。 预期结果在执行之前确定，实际结果在执行之后记录。 接下来，我们会看看好的测试用例和弱的测试用例有什么区别。下面的笔记里有一个可以直接复制的模板。
+
+## 课文
+
+测试用例是对某一个行为的书面、可重复的检查。它写明所处的情境、具体的操作以及你期望的结果，让任何人执行它都能得出相同的结论。
+
+## 字段
+
+| 字段 | 填写内容 |
+| --- | --- |
+| **ID** | 稳定且唯一的标识，例如 `TC-LOGIN-001`。缺陷报告和测试执行记录都会引用它。 |
+| **标题** | 被测的行为，用结果的形式表述：“使用有效的邮箱和密码登录成功。” |
+| **前置条件** | 第 1 步之前必须成立的条件：账户、设置、数据、起始页面。 |
+| **测试数据** | 具体的输入值。要写 `ada@larkspur.test`，而不是“一个有效的邮箱”。 |
+| **测试步骤** | 编号，每步一个操作，具体到新人也能照做。 |
+| **预期结果** | 软件正确时你会观察到什么。要在执行*之前*确定。 |
+| **实际结果** | 实际发生了什么。在执行过程中填写。 |
+| **状态** | 通过（Pass）、失败（Fail）、阻塞（Blocked，无法执行）或未执行（Not run）。 |
+
+## 模板
+
+```text
+ID:              TC-<AREA>-<NNN>
+Title:           <behavior> when <condition>
+Requirement:     REQ-<NN>
+Preconditions:   - ...
+Test data:       - ...
+Steps:           1. ...
+                 2. ...
+Expected result: ...
+Actual result:   (filled in during the run)
+Status:          Pass | Fail | Blocked | Not run
+```
+
+## 动手试试
+
+为 Larkspur Books 的**退出登录**链接写一个测试用例。它应该结束会话，并把顾客带回首页。对照上面的字段检查你的草稿：一位从没见过这个网站的同事，能不能不问你任何问题就执行它？
+
+> **提示.** **失败是有价值的。** 一个写明了精确实际结果的失败用例（“第 6 次尝试仍被允许；账户未锁定”），已经是半份缺陷报告了。
+
+## Quiz
+
+1. 哪个预期结果写得好？
+   a. 登录成功。
+   b. 打开账户页面，标题为“欢迎回来，Ada”。
+   c. 没有出现错误。
+   d. 用户对结果感到满意。
+   Answer: b. 它写出了可以观察、可以比对的东西。其他选项都会让两名测试人员得出不同的结论。
+2. 预期结果应该在什么时候写？
+   a. 执行测试之后，根据看到的情况写
+   b. 执行测试之前
+   c. 只在测试失败时写
+   d. 由开发者在修复缺陷后写
+   Answer: b. 如果事后再写，你往往会照着实际发生的情况去描述，缺陷就被当成“预期”放过去了。
+3. 第 1 步之前必须已经存在一个客户账户。这应该写在哪个字段？
+   a. 测试数据
+   b. 测试步骤
+   c. 前置条件
+   d. 实际结果
+   Answer: c. 前置条件描述开始之前系统所处的状态。测试数据列出你要输入或发送的内容。
+
+## 要点
+
+- 一个测试用例只检查一个行为，并有 ID 和清晰的标题。
+- 前置条件、测试数据和测试步骤让它可以重复执行。
+- 执行前先确定预期结果，执行后记录实际结果。
+- 一个写明了精确实际结果的失败用例，已经是半份缺陷报告。
+
+---
+
+下一页: [第 1.2 课: 好的测试用例与弱的测试用例](/demo/zh/test-cases/foundations/good-cases.md)
+
+
+# 第 1.2 课: 好的测试用例与弱的测试用例
+
+编写测试用例 · 第 1 章: 基础 · 15 分钟
+
+> 让测试用例值得信赖的五个习惯，以及许多团队采用的 Given、When、Then 写法。
+
+**学完本课你将能够:**
+- 发现测试用例中含糊的措辞并加以改写
+- 运用五个习惯：原子性、独立性、可重复、具体、可追溯
+- 用 Given、When、Then 的形式编写场景
+
+## 文字稿: 好的测试用例与弱的测试用例 (1:53)
+
+**0:00 引言.** 两个人测试同一个功能，写出的测试用例可能截然不同。这节课我们来看看，什么样的测试用例才算好。
+
+**0:10 弱用例与强用例.** 这是一个弱的测试用例。测试登录。用一个用户登录。能用。 哪个用户？什么密码？“能用”是什么样子？两名测试人员执行它，可能会得出不同的结论。 这是同一个想法改写后的版本。标题只写一个行为：密码错误时登录被拒绝。 数据是确切的，预期结果是看得见的：出现一条错误提示，并且停留在登录页面。
+
+**0:41 五个习惯.** 好的测试用例都有五个共同的习惯。 原子性：每个用例只测一个行为，失败时只指向一个问题。 独立：每个用例自己准备前置条件，不依赖其他用例先执行。 可重复：同样的输入、同样的步骤，每次都得到同样的结果。 具体：真实的值、可观察的结果，不写“应该能用”。 可追溯：每个用例都能对应回它所检查的需求。
+
+**1:13 Given、When、Then.** 许多团队用 Given、When、Then 的形式来写测试用例。 Given 负责准备环境，也就是前置条件和测试数据。 When 是被测的那一个操作。 Then 是预期结果，要写得可以观察。 这种格式读起来就像日常语言，以后还能直接驱动自动化测试。
+
+**1:35 小结.** 总结一下：用真实的值和可观察的结果代替含糊的措辞。 让每个用例保持原子性、独立、可重复、具体、可追溯。 下一章，我们不再问怎么写用例，而是开始问：应该写哪些用例。
+
+## 课文
+
+好的测试用例无论由谁执行，都会给出相同的结论；当它失败时，它指向的只有一个问题。
+
+## 需要警惕的含糊措辞
+
+| 含糊的写法 | 改写为 |
+| --- | --- |
+| “一个有效的用户” | `ada@larkspur.test` / `Lark!2026` |
+| “能用” | “打开账户页面，显示‘欢迎回来，Ada’。” |
+| “应该显示错误” | “表单下方出现‘邮箱或密码不正确’。” |
+| “测试购物车” | 每个行为一个用例：添加、移除、修改数量…… |
+
+## 五个习惯
+
+1. **原子性。** 每个用例只测一个行为。如果标题里需要用“并且”，就拆开。
+2. **独立。** 不依赖其他用例先执行；自己准备前置条件。
+3. **可重复。** 固定的数据，固定的步骤。除非把日期固定下来，否则不要用“今天的日期”。
+4. **具体。** 写具体的值和可观察的结果，而不是意图。
+5. **可追溯。** 引用对应的需求，例如 `REQ-01`。
+
+## Given、When、Then
+
+```gherkin
+Scenario: 错误的密码被拒绝
+  Given 存在客户账户 "ada@larkspur.test"
+  And 它的密码是 "Lark!2026"
+  When 我使用密码 "lark2026" 登录
+  Then 我看到 "邮箱或密码不正确"
+  And 我仍停留在登录页面
+```
+
+每个场景只保留一个 **When**。出现两个操作，通常意味着应该是两个场景。
+
+## 动手试试
+
+改写这个弱用例：*“检查搜索功能是否正常。”* 选择一个行为（例如，搜索“Middlemarch”时该书排在第一位），用 Given、When、Then 的形式写出来。
+
+## Quiz
+
+1. 某个标题写着“加入购物车并结账并使用优惠券”。它违反了哪个习惯？
+   a. 可追溯
+   b. 原子性
+   c. 可重复
+   d. 都没有违反，没问题
+   Answer: b. 一个用例包含三个行为，失败时你无法知道是哪一个出了问题。应该拆成三个用例。
+2. 用例 B 只有在用例 A 先执行并创建了订单时才能通过。应该怎么改？
+   a. 总是先执行 A 再执行 B
+   b. 把 A 和 B 合并成一个用例
+   c. B 在自己的前置条件中准备好所需的订单
+   d. 删除用例 B
+   Answer: c. 独立的用例可以按任意顺序执行，可以单独执行，也可以并行执行。B 应该自己创建需要的订单。
+3. 在 Given、When、Then 中，预期结果写在哪里？
+   a. Given
+   b. When
+   c. Then
+   d. Feature
+   Answer: c. Given 是准备，When 是那一个操作，Then 是你期望观察到的结果。
+
+## 要点
+
+- 用真实的值和可观察的结果代替含糊的措辞。
+- 让每个用例保持原子性、独立、可重复、具体、可追溯。
+- Given 是准备，When 是那一个操作，Then 是预期结果。
+
+---
+
+上一页: [第 1.1 课: 什么是测试用例？](/demo/zh/test-cases/foundations/anatomy.md)
+下一页: [第 2.1 课: 等价类与边界值](/demo/zh/test-cases/design/partitions.md)
+
+
+# 第 2.1 课: 等价类与边界值
+
+编写测试用例 · 第 2 章: 设计测试用例 · 15 分钟
+
+> 等价类划分和边界值分析：用几个精心挑选的输入代替成千上万个。
+
+**学完本课你将能够:**
+- 把一个输入范围划分为若干等价类
+- 选出边界值及其相邻值
+- 把等价类和边界值转化为一组精简的测试用例
+
+## 文字稿: 等价类与边界值 (1:25)
+
+**0:00 引言.** 应该测试哪些输入？这节课介绍两种技术，把成千上万种可能的输入，变成少数几个好输入。
+
+**0:09 输入太多.** 在 Larkspur Books 的购物车里，一本书可以订购一到十本。 你不可能把每个数字都测一遍。那该怎么选呢？ 把软件应该同等对待的输入归为一组。这些组就叫等价类。
+
+**0:25 每组选一个.** 这里有三个等价类：太少、数量有效、太多。 每个等价类选一个代表值。太少的，选零。 有效的，选五。 太多的，选十五。三个测试用例覆盖三种行为。
+
+**0:41 缺陷藏在边缘.** 但缺陷偏爱边缘。开发者本想写小于等于，却可能写成了小于。 边界值分析就是在每个边界上测一次，再在紧挨着它的外侧测一次。 下限是零和一。 上限是十和十一。 这里的代码写的是数量小于十。只有恰好订购十本的测试才能发现它。
+
+**1:07 得出的用例.** 把这些放在一起，就得到一组精简的测试用例。 每一行都有存在的理由。没有重复，也没有遗漏明显的情况。 只要输入有范围，就可以用这个方法：年龄、价格、姓名长度、日期。
+
+## 课文
+
+等价类划分把软件应该同等对待的输入归为一组，每组只测一个。边界值分析再补上每组的边缘，差一错误（off-by-one）正藏在那里。
+
+## 分步操作
+
+1. 找出规则：*数量必须在 1 到 10 之间*。
+2. 列出等价类：小于 1（无效）、1–10（有效）、大于 10（无效）。
+3. 每个等价类选一个代表值：0、5、15。
+4. 加上每个边界值及其外侧相邻值：0 和 1、10 和 11。
+5. 去掉重复项。最终得到六个用例。
+
+## 别忘了其他等价类
+
+无效输入不只是数字。数量输入框可能收到 `-1`、`2.5`、`"three"`，或者什么都没有。每一种都是单独的等价类，有各自的预期提示信息。第 2.2 课会讲到这些。
+
+```js
+// 视频中的缺陷
+function isValidQuantity(qty) {
+  return qty >= 1 && qty < 10;   // 10 被拒绝了
+}
+// 修复后
+  return qty >= 1 && qty <= 10;
+```
+
+## 动手试试
+
+Larkspur 礼品卡可以充值 $5 到 $500，金额必须是整数美元。列出等价类和边界值，再为每一个写出预期结果。
+
+## Quiz
+
+1. 某个字段接受 18 到 65 岁。哪组值覆盖了所有边界？
+   a. 18, 65
+   b. 17, 18, 65, 66
+   c. 0, 40, 100
+   d. 18, 30, 45, 65
+   Answer: b. 每个边界加上紧挨着它的外侧值：下限是 17 和 18，上限是 65 和 66。
+2. 为什么一个等价类的中间只测一个值？
+   a. 软件应该以相同方式对待其中的每一个值
+   b. 中间的值永远不会有缺陷
+   c. 可以少打几个字
+   d. 测试工具规定每个等价类只能测一个值
+   Answer: a. 这正是等价类的含义。如果 5 没问题，6 的表现几乎不可能不同。
+3. 代码写的是 qty < 10，但规则是 1 到 10。哪个测试能发现这个问题？
+   a. 数量 5
+   b. 数量 0
+   c. 数量 10
+   d. 数量 15
+   Answer: c. 只有恰好等于最大值的输入才会触发错误的比较。5、0 和 15 无论哪种写法，结果都一样。
+
+## 要点
+
+- 把软件应该同等对待的输入归为一组，每组测一个。
+- 缺陷往往聚集在边缘：测试每个边界值，以及紧挨着它的外侧值。
+- 差一错误（off-by-one）的比较，只有恰好落在边界上的值才能发现。
+
+---
+
+上一页: [第 1.2 课: 好的测试用例与弱的测试用例](/demo/zh/test-cases/foundations/good-cases.md)
+下一页: [第 2.2 课: 超越正常路径](/demo/zh/test-cases/design/negative.md)
+
+
+# 第 2.2 课: 超越正常路径
+
+编写测试用例 · 第 2 章: 设计测试用例 · 15 分钟
+
+> 反向用例、极端用例，以及用于组合规则的判定表。
+
+**学完本课你将能够:**
+- 列出输入出错的常见方式
+- 编写带有明确预期提示信息的反向用例
+- 构建判定表并发现需求中的遗漏
+
+## 文字稿: 超越正常路径 (1:30)
+
+**0:00 引言.** 正常路径指的是一切顺利的那条流程。可顾客并不总是走在这条路上。
+
+**0:07 反向用例.** 反向用例检查软件能否得体地处理错误输入和误操作。 空值和缺失值：比如邮箱字段留空。 类型和格式错误：数量框里填了字母，或者邮箱里没有 @ 符号。 极端值：一个一万个字符的名字，或者价格为零。 还有时机不对：连点两次“支付”，或者结账到一半会话过期了。
+
+**0:35 判定表.** 当多条规则组合在一起时，就用判定表。以优惠码 SAVE10 为例：订单满二十美元，打九折。 把每个条件列成一列，再把每种组合列成一行。 优惠码有效、没有过期、购物车满二十美元：应用折扣。 只要有一个条件不满足，顾客就应该看到一条清晰的、各不相同的提示。 每一行都变成一个测试用例，需求中的遗漏也会一目了然。购物车金额不够、优惠码又过期了，应该提示什么？测试之前先问清楚。
+
+**1:13 小结.** 总结一下：对每一条正常路径，都要问一问它会怎样出错。 检查空值、格式错误、极端值和时机问题。 当条件组合在一起时，判定表既能找出用例，也能找出遗漏。
+
+## 课文
+
+反向用例证明软件能够得体地失败：给出清晰的提示，不崩溃，不损坏数据。大多数真实的缺陷都藏在这里。
+
+## 适用于任何输入的检查清单
+
+- **空值：** 留空、只有空格、完全缺失。
+- **格式：** 类型错误、模式错误、前导零、意外字符（`' " < >`、emoji、带重音的字母）。
+- **大小：** 零、负数、极大值、超长文本。
+- **时机：** 重复提交、后退按钮、会话过期、同时打开两个标签页。
+- **权限：** 未登录、用错账户、仅限管理员的页面。
+
+## 判定表
+
+把每个条件写成一列，再列出所有组合。三个是/否条件最多有八行；如果某个条件单独就能决定结果，就把相应的行合并（未知的优惠码无论购物车里有什么都会失败）。
+
+| 优惠码已知 | 未过期 | ≥ $20 | 预期结果 |
+| --- | --- | --- | --- |
+| Y | Y | Y | 优惠 10% |
+| Y | Y | N | “再买 $X 即可……” |
+| Y | N | Y | “该优惠码已过期” |
+| Y | N | N | *询问产品负责人* |
+| N | – | – | “无法识别该优惠码” |
+
+> **提示.** **遗漏本身就是发现。** 当判定表显示出一个没人定义过的组合时，在测试之前就把它提出来。现在问一个问题，比以后修一个缺陷便宜得多。
+
+## 动手试试
+
+Larkspur 为会员或消费满 $50 的顾客提供免费配送，但海外地址一律不免运费。请构建这张判定表。
+
+## Quiz
+
+1. 下面哪个是邮箱字段的反向用例？
+   a. ada@larkspur.test 被接受
+   b. ada.larkspur.test 显示“请输入有效的邮箱”
+   c. 该字段有标签
+   d. 页面在一秒内加载完成
+   Answer: b. 它故意输入错误的数据，并检查软件是否清楚地拒绝它。
+2. 三个是/否条件组合在一起，完整的判定表最多有多少行？
+   a. 3
+   b. 6
+   c. 8
+   d. 9
+   Answer: c. 每增加一个条件，组合数就翻一倍：2 × 2 × 2 = 8。其中有些行可以合并。
+3. 判定表中有一行没有定义结果。你应该怎么做？
+   a. 跳过这一行
+   b. 自己决定结果
+   c. 测试前先询问产品负责人
+   d. 把它标记为通过
+   Answer: c. 这是需求中的遗漏。把它提出来，本身就是测试工作的一部分。
+
+## 要点
+
+- 每条正常路径都有不顺利的“兄弟”：空值、格式错误、极端值、时机不对。
+- 反向用例检查软件能否得体地失败，并给出清晰的提示。
+- 判定表列出所有条件组合，暴露出没有被定义的情况。
+
+---
+
+上一页: [第 2.1 课: 等价类与边界值](/demo/zh/test-cases/design/partitions.md)
+下一页: [第 2.3 课: Exploratory testing](/demo/zh/test-cases/design/exploratory.md)
+
+
+# 第 2.3 课: Exploratory testing
+
+编写测试用例 · 第 2 章: 设计测试用例 · 15 分钟
+
+> Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.
+
+*这节课还没有翻译成zh，下面是英文原文。标题和导航已翻译。*
+
+**学完本课你将能够:**
+- Write a charter that gives an exploratory session one clear mission
+- Run a time-boxed session and keep notes someone else can read
+- Turn findings from a session into bugs, questions and new test cases
+
+## 文字稿: Exploratory testing (2:06)
+
+**0:00 Introduction.** Scripted test cases check what you already expect. Exploratory testing looks for what nobody thought to write down. You design the next test while you run the current one, and each result tells you where to look next.
+
+**0:16 Charters.** Exploring is not clicking around. Each session starts with a charter: one sentence that gives it a mission. The target is the feature you'll explore, as narrow as you can make it. The resources are what you bring: unusual data, a second tab, a slow network. And the information is what you want to learn, such as how errors are reported.
+
+**0:43 Time box.** Choose the length of the session before you start, for example sixty minutes, and stop when the time is up. Stay on the charter. When you spot something outside it, write it down and carry on. It may become the next session's charter.
+
+**1:02 Session notes.** Notes turn exploring into evidence. Keep them as you go. These findings are an example, not a real run. Covered lists what you tried, so a reviewer can see the gaps. Bugs are problems you could reproduce, like a pasted code with a trailing space being rejected. Questions are gaps in the requirements. Should codes be case-insensitive? Nobody said. And follow-up ideas are leads you didn't chase because they were off-charter.
+
+**1:34 Debrief.** After the session, go through the notes with someone and agree what each finding means. A bug gets reported and, once fixed, becomes a scripted test case. A question goes to the requirement's owner. A follow-up idea becomes a new charter.
+
+**1:51 Recap.** To recap: give every session a charter with one mission. Time-box it, and keep notes as you go. Then debrief, and turn what you found into test cases, questions and new charters.
+
+## 课文
+
+Scripted test cases check what you already expect. Exploratory testing finds what nobody thought to write down: you design the next test while you run the current one, and each result tells you where to look next.
+
+Exploring is not clicking around. It has a mission, a time limit and a written record, so someone else can see what was covered and trust the result.
+
+## A charter gives the session a mission
+
+A charter is one sentence that says what this session is for. A common template is:
+
+> Explore **target** with **resources** to discover **information**.
+
+- **Target:** the feature or area, as narrow as you can make it.
+- **Resources:** the data, tools or tricks you'll bring, such as unusual inputs, a second browser tab, or a slow network.
+- **Information:** the kind of thing you want to learn, such as how errors are reported or whether totals stay correct.
+
+For example: *Explore the Larkspur discount code field with expired, misspelled and pasted codes to discover how errors are reported.*
+
+A charter that says only "test the checkout" is too wide to finish. One that lists exact steps is a scripted test case, not a charter.
+
+## Time-box the session
+
+Choose the length of the session before you start, for example 60 minutes, and stop when it ends. A fixed time box keeps sessions comparable and stops one interesting thread from eating the day.
+
+Stay on the charter. When you notice something outside it, write it down and carry on. It may become the next session's charter.
+
+## Keep session notes
+
+Notes are what turn exploring into evidence. Keep them as you go, not afterwards. A simple template:
+
+```text
+Charter:   Explore the discount code field with expired, misspelled
+           and pasted codes to discover how errors are reported
+Tester:    Ada
+Start:     <date and time>    Time box: 60 minutes
+Setup:     Signed in as a member, cart over $20, Chrome
+
+Covered:
+- Expired code SAVE10-2024
+- Misspelled codes (SAVE01, save10)
+- Code pasted with a trailing space
+
+Bugs:
+- Pasted code with a trailing space is rejected as unknown
+
+Questions:
+- Should codes be case-insensitive? Not in the requirements
+
+Follow-up ideas:
+- Delivery estimate changes when a code is applied: new charter?
+```
+
+The example findings above are illustrations, not results from a real run.
+
+- **Covered** shows what you tried, so a reviewer can see the gaps.
+- **Bugs** are problems you could reproduce. Report each one with its steps.
+- **Questions** are gaps in the requirements, just like the unspecified row in a decision table.
+- **Follow-up ideas** are leads you didn't chase because they were off-charter.
+
+## Debrief, then write the cases down
+
+After the session, spend a few minutes going through the notes with someone: a teammate, a lead or the product owner. Agree what each finding means and what happens next.
+
+Then turn the findings into lasting work. A bug becomes a report and, once it's fixed, a scripted test case that guards against it returning. A question goes to whoever owns the requirement. A follow-up idea becomes a new charter.
+
+> **提示.** **Exploring and scripting work together.** Scripted cases check the behaviour you know about on every run. Exploratory sessions look for the behaviour you don't know about yet. Each good session adds a few scripted cases to the suite.
+
+## Try it
+
+Write a charter for a 30-minute session on the Larkspur sign-in page, using the template above. Then list three things you'd try in the session and one question you'd expect to raise.
+
+## Quiz
+
+1. Which is the best charter for one exploratory session?
+   a. Test the checkout
+   b. Explore the discount code field with expired, misspelled and pasted codes to discover how errors are reported
+   c. Make sure there are no bugs in Larkspur
+   d. Click around the site for an hour
+   Answer: b. It names a target, the resources (kinds of codes) and the information wanted. The others give no mission, so nobody can tell when the session is done or what it covered.
+2. Halfway through a session on the discount field, you notice the delivery estimate looks wrong. What should you do?
+   a. Switch to the delivery estimate for the rest of the session
+   b. Ignore it, it's off-charter
+   c. Write it in your notes as an issue or follow-up idea, then return to the charter
+   d. End the session early
+   Answer: c. The charter keeps the session focused. Noting the side issue means it isn't lost, and it can become the charter for a later session.
+3. Your session found that pasting a code with a trailing space rejects it. What should happen to that finding after the debrief?
+   a. Nothing, exploratory findings are informal
+   b. Report the bug, and add a scripted test case so the behaviour is checked on every run
+   c. Rerun the same session every week instead
+   d. Delete it from the notes once it's reported
+   Answer: b. Exploration finds the problem; a written test case keeps it found. Without one, catching a regression depends on someone happening to explore the same path again.
+
+## 要点
+
+- Exploratory testing is designing and running tests at the same time, learning as you go.
+- A charter names a target, the resources you'll use and the information you want: one mission per session.
+- Session notes record what you covered, what you found and what you'd explore next, so the session can be reviewed.
+- Good findings become scripted test cases, so the next run doesn't depend on memory.
+
+---
+
+上一页: [第 2.2 课: 超越正常路径](/demo/zh/test-cases/design/negative.md)
+下一页: [第 3.1 课: 从测试用例到自动化测试](/demo/zh/test-cases/automation/unit-tests.md)
+
+
+# 第 3.1 课: 从测试用例到自动化测试
+
+编写测试用例 · 第 3 章: 自动化与规模化 · 15 分钟
+
+> 用 Arrange、Act、Assert 把写好的测试用例变成代码，看边界值测试抓住一个真实的缺陷。
+
+**学完本课你将能够:**
+- 把书面测试用例对应到 Arrange、Act、Assert
+- 用测试运行器编写单元测试
+- 先看到测试失败，再相信它的通过
+
+## 文字稿: 从测试用例到自动化测试 (1:22)
+
+**0:00 引言.** 手工测试用例是很好的起点。当某项检查需要经常执行时，就把它自动化。我们来把一个测试用例变成代码。
+
+**0:11 被测代码.** 这是优惠码 SAVE10 背后的函数。 它接收订单总额和优惠码，返回新的总额。打九折，但只适用于满二十美元的订单。
+
+**0:22 Arrange、Act、Assert.** 自动化测试就是用代码写成的测试用例。 测试用例的标题变成测试名。 Arrange 负责准备前置条件和测试数据。 Act 执行被测的那一个步骤。 Assert 就是预期结果。我们期望总额是三十六。
+
+**0:42 先红后绿.** 我们把等价类那节课里的边界值用例加进来。恰好二十美元的订单应该享受折扣。 运行测试。 红了。我们期望十八，实际得到二十。函数用的是小于等于。 把它改成小于，再运行一次。 绿了。每一个通过的测试，都是一个会在每次改动时自动执行、只需几毫秒的测试用例。
+
+**1:11 小结.** 总结一下：测试名就是标题，Arrange 是准备，Act 是操作步骤，Assert 是预期结果。 先看到测试失败，再相信它的通过。先红，后绿。
+
+## 课文
+
+自动化测试就是由计算机替你执行的测试用例。两者的对应关系很直接：标题对应测试名，前置条件和测试数据对应 *Arrange*，测试步骤对应 *Act*，预期结果对应 *Assert*。
+
+## 对应关系
+
+| 测试用例字段 | 在代码中 |
+| --- | --- |
+| 标题 | `test("SAVE10 takes 10% off a $40 order", …)` |
+| 前置条件、测试数据 | Arrange：`const total = 40;` |
+| 测试步骤 | Act：`applyDiscount(total, "SAVE10")` |
+| 预期结果 | Assert：`expect(result).toBe(36)` |
+| 状态 | 测试运行器给出的 ✓ 或 ✗ |
+
+## 亲自运行
+
+```text
+npm install --save-dev vitest
+npx vitest run
+```
+
+```js
+// discount.test.js
+import { test, expect } from "vitest";
+import { applyDiscount } from "./discount.js";
+
+test.each([
+  [19.99, 19.99],  // 刚好低于边界
+  [20, 18],        // 边界值
+  [40, 36],        // 有效等价类
+])("SAVE10 on $%s gives $%s", (total, expected) => {
+  expect(applyDiscount(total, "SAVE10")).toBe(expected);
+});
+
+test("unknown codes leave the total alone", () => {
+  expect(applyDiscount(40, "SAVE99")).toBe(40);
+});
+```
+
+`test.each` 把一张输入表（就像第 2.1 课中的那张）变成每行一个测试。
+
+> **提示.** **先看到红色。** 一个你从没见它失败过的测试，可能什么都没在测。故意把代码改坏一次，确认测试会变红。
+
+## Quiz
+
+1. 自动化测试的哪一部分包含预期结果？
+   a. Arrange
+   b. Act
+   c. Assert
+   d. import 语句
+   Answer: c. expect(...).toBe(...) 就是预期结果，由程序自动检查。
+2. 为什么要先看到新测试失败，再让它通过？
+   a. 测试运行器要求这样做
+   b. 为了证明这个测试能发现缺陷
+   c. 失败的测试运行得更快
+   d. 为了充实报告
+   Answer: b. 如果测试从来没有变红过，它检查的可能并不是你以为的东西。
+3. applyDiscount(20, "SAVE10") 返回了 20，但规则是满 $20 就打九折。最可能的缺陷是什么？
+   a. 四舍五入
+   b. 优惠码检查写错了
+   c. 用了 total <= 20 而不是 total < 20
+   d. 测试导入了错误的文件
+   Answer: c. 当 total <= 20 时提前返回，恰好 $20 的订单就拿不到折扣。边界值测试暴露了这个问题。
+
+## 要点
+
+- 测试名就是标题，Arrange 是准备，Act 是操作步骤，Assert 是预期结果。
+- 边界值测试能在几毫秒内让差一错误变红。
+- 先看到测试失败一次，再相信它的通过。
+
+---
+
+上一页: [第 2.3 课: Exploratory testing](/demo/zh/test-cases/design/exploratory.md)
+下一页: [第 3.2 课: 组织测试套件](/demo/zh/test-cases/automation/suites.md)
+
+
+# 第 3.2 课: 组织测试套件
+
+编写测试用例 · 第 3 章: 自动化与规模化 · 15 分钟
+
+> 测试金字塔、需求追溯，以及如何让不断增长的测试套件保持健康。
+
+**学完本课你将能够:**
+- 用测试金字塔平衡测试套件
+- 把测试用例追溯到需求，找出遗漏和孤儿用例
+- 让测试套件保持健康：命名、不稳定的测试、责任归属
+
+## 文字稿: 组织测试套件 (1:46)
+
+**0:00 引言.** 测试用例攒成一套，只有大家找得到、信得过、跑得动，才真正有用。我们来把它整理好。
+
+**0:08 测试金字塔.** 测试用例越积越多，结构就变得重要。一个常用的指导模型是测试金字塔。 底层是大量快速的单元测试。它们检查小块逻辑，比如 applyDiscount。 中间是数量较少的集成测试。它们检查部件之间的协作，比如购物车把数据保存到数据库。 顶层是少数几个端到端测试。它们像顾客一样操作真实的应用，比如我们的登录测试用例。 越往上的测试越慢，也越脆弱。让它们保持少量，只留给最重要的流程。
+
+**0:47 需求追溯.** 把测试用例和需求关联起来。这就是追溯矩阵。 每个需求都列出检查它的测试用例。 没有测试用例的需求，就是测试中的遗漏。 而没有对应需求的测试用例，可能在测试一个根本没人要的东西。
+
+**1:08 保持健康.** 最后，让测试套件保持健康。 按行为给测试命名，这样失败信息读起来就像一份缺陷报告。 尽快修复或删除不稳定的测试。随机失败的测试，会让所有人学会无视红色。 需求变化时，在同一次改动中更新相应的测试用例。
+
+**1:31 课程总结.** 课程到此结束。现在你已经能够编写测试用例，用等价类和边界值选择用例，覆盖异常路径，把它们自动化，并组织好测试套件。 去找出一些缺陷吧。
+
+## 课文
+
+只有当大家信任测试套件、并且能在其中找到方向时，它才有用。把它塑造成金字塔，追溯到需求，并清除其中的噪音。
+
+## 金字塔
+
+- **单元测试**：一个函数或类，不涉及网络或数据库。毫秒级。数以百计。
+- **集成测试**：几个真实的部件组合在一起，例如购物车和它的数据库。数量较少。
+- **端到端测试**：像顾客一样通过浏览器操作整个应用。只有少数几个，用于关键流程。
+
+把每项检查尽量放在最低的层级。第 2.1 课中的边界规则属于单元测试；“顾客可以买到一本书”则属于顶层。
+
+## 追溯矩阵
+
+维护一张“需求 → 测试用例”的表，或者给测试打上需求 ID 标签并自动生成这张表。检查它时关注两件事：没有用例的需求（遗漏），以及没有需求的用例（孤儿用例）。
+
+## 保持健康
+
+- **命名：** 描述行为。失败的测试名读起来应该像一个缺陷标题。
+- **不稳定的测试：** 隔离只是最后手段；找到原因（时序、共享数据、顺序依赖）并修复它。
+- **责任归属：** 需求变化时，相应的测试用例在同一个 pull request 中一起修改。
+- **精简：** 删除与其他用例重复的用例，以及测试已移除功能的用例。
+
+> **提示.** **下一步做什么。** 选一个你负责的功能，写出它的追溯表，然后补上你发现的第一个遗漏。
+
+## Quiz
+
+1. 大部分自动化测试应该位于测试金字塔的哪一层？
+   a. 端到端测试
+   b. 集成测试
+   c. 单元测试
+   d. 平均分布
+   Answer: c. 单元测试快速而精确，所以构成宽阔的底座。
+2. 某个需求没有关联任何测试用例。这叫什么？
+   a. 孤儿用例
+   b. 遗漏
+   c. 不稳定的测试
+   d. 回归
+   Answer: b. 这是覆盖上的遗漏。孤儿用例正好相反：没有对应需求的测试用例。
+3. 代码没有任何改动，某个测试却大约每十次执行失败一次。你应该怎么做？
+   a. 反复重跑直到通过
+   b. 忽略它
+   c. 找到并修复原因，或者删除它
+   d. 增加更多重试次数
+   Answer: c. 不稳定的测试会侵蚀大家对整个测试套件的信任。修复原因（通常是时序或共享数据问题），或者删除这个测试。
+
+## 要点
+
+- 大量快速的单元测试，较少的集成测试，少数几个端到端测试。
+- 追溯矩阵能显示没有测试的需求，以及没有对应需求的测试。
+- 按行为给测试命名，并尽快修复不稳定的测试，否则大家会学会无视红色。
+
+---
+
+上一页: [第 3.1 课: 从测试用例到自动化测试](/demo/zh/test-cases/automation/unit-tests.md)

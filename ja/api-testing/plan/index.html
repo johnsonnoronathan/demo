@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>指導案 · API Testing</title><meta name="description" content="A short introduction to testing HTTP APIs. Learn the three things to check on every response (the status code, the shape of the body, and what happens when the request is wrong), try them by hand with curl, then turn them into automated checks that run against your own API."><link rel="alternate" type="text/markdown" href="/demo/ja/api-testing/plan.md" title="Markdown"><link rel="alternate" hreflang="en" href="/demo/api-testing/plan/"><link rel="alternate" hreflang="zh-CN" href="/demo/zh/api-testing/plan/"><link rel="alternate" hreflang="ja" href="/demo/ja/api-testing/plan/"><link rel="alternate" hreflang="ko" href="/demo/ko/api-testing/plan/"><link rel="alternate" hreflang="es" href="/demo/es/api-testing/plan/"><link rel="alternate" hreflang="fr" href="/demo/fr/api-testing/plan/"><link rel="alternate" hreflang="de" href="/demo/de/api-testing/plan/"><link rel="icon" href="/demo/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&amp;family=JetBrains+Mono:wght@400..600&amp;family=Public+Sans:ital,wght@0,400..700;1,400&amp;family=Noto+Sans+JP:wght@400..800&amp;display=swap"><script>
+      try {
+        const t = localStorage.getItem("testbench:theme");
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script><link rel="stylesheet" href="/demo/_astro/_..w5xLQPFL.css"></head><body data-locale="ja"><a class="skip" href="#main">レッスン本文</a><header class="topbar"><div class="topbar-in"><a class="brand" href="/demo/ja/" aria-label="Testbench"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path><path d="M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><span>Testbench</span></a><nav class="mainnav" aria-label="Testbench"><a href="/demo/ja/courses/" aria-current="page">コース</a><a href="/demo/ja/learning/">マイ学習</a><a href="/demo/ja/agents/">エージェント向け</a></nav><nav class="modes" aria-label="API Testing"><a href="/demo/ja/api-testing/">教室</a><a href="/demo/ja/api-testing/plan/" aria-current="page">指導案</a></nav><div class="topbar-end"><details class="lang"><summary aria-label="言語"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg><span>日本語</span></summary><ul><li><a href="/demo/api-testing/plan/" lang="en" hreflang="en">English</a></li><li><a href="/demo/zh/api-testing/plan/" lang="zh-CN" hreflang="zh-CN">简体中文</a></li><li><a href="/demo/ja/api-testing/plan/" lang="ja" hreflang="ja" aria-current="true">日本語</a></li><li><a href="/demo/ko/api-testing/plan/" lang="ko" hreflang="ko">한국어</a></li><li><a href="/demo/es/api-testing/plan/" lang="es" hreflang="es">Español</a></li><li><a href="/demo/fr/api-testing/plan/" lang="fr" hreflang="fr">Français</a></li><li><a href="/demo/de/api-testing/plan/" lang="de" hreflang="de">Deutsch</a></li></ul></details><button class="theme-btn" type="button" id="theme-toggle" data-l-light="ライトテーマに切り替え" data-l-dark="ダークテーマに切り替え"><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.4 8.4 0 0 1 9.4 4a8.4 8.4 0 1 0 10.6 10.6z" fill="currentColor"></path></svg></button></div></div></header><main class="plan wrap" id="main"><header class="plan-head"><p class="eyebrow">指導案</p><h1>API Testing</h1><p class="plan-lede">A short introduction to testing HTTP APIs. Learn the three things to check on every response (the status code, the shape of the body, and what happens when the request is wrong), try them by hand with curl, then turn them into automated checks that run against your own API.</p><dl class="plan-facts"><div><dt>合計時間</dt><dd>55 分</dd></div><div><dt>動画</dt><dd>3:33</dd></div><div><dt>章</dt><dd>2</dd></div><div><dt>レッスン</dt><dd>2</dd></div><div><dt>ハンズオン</dt><dd>1</dd></div></dl><div class="plan-actions"><button type="button" class="btn btn-primary" id="copy-plan" data-l-copy="指導案を Markdown でコピー" data-l-copied="コピーしました" data-l-blocked="コピーできません：Markdown で開いてください">指導案を Markdown でコピー</button><a class="btn" href="/demo/ja/api-testing/plan.md">Markdown で開く</a><a class="btn btn-ghost" href="/demo/ja/api-testing/">教室へ</a></div><template id="plan-md"># 指導案: API Testing
+
+A short introduction to testing HTTP APIs. Learn the three things to check on every response (the status code, the shape of the body, and what happens when the request is wrong), try them by hand with curl, then turn them into automated checks that run against your own API.
+
+- 合計時間: 55 分
+- 動画: 2 (3:33)
+- Developers and testers who have used a terminal and can read a little JavaScript. No previous API testing experience needed.
+
+## コースの目標
+
+- Read an HTTP response and say whether its status code fits the request
+- Check the shape of a JSON response, not only that one came back
+- Choose error cases for an endpoint and say what each should return
+- Write automated API checks with Node&#39;s built-in test runner
+- Apply the checks to your own API, with an agent implementing the fixes
+
+## 始める前に
+
+- Node.js 22 or later
+- curl
+- An HTTP API of your own to test, for lesson 2.1
+
+## 構成
+
+1. **What to check** (20 min): Status codes, response shape and error cases, checked by hand with curl.
+2. **Checks for your own API** (35 min): Turn the hand checks into automated tests and run them against your own API.
+
+## 第 1 章: What to check
+
+Status codes, response shape and error cases, checked by hand with curl. (20 分)
+
+### レッスン 1.1: What to check in an HTTP API (20 分, ▶ 1:42)
+
+The three checks for every API response: the status code, the shape of the body, and what happens when the request is wrong.
+
+/demo/ja/api-testing/basics/what-to-check.md
+
+学習成果:
+- Say which status code a request should get, and spot one that doesn&#39;t fit
+- Check the shape of a JSON body: its fields and their types
+- List the error cases for an endpoint and what each should return
+- Run all three checks by hand with curl
+
+概念:
+- Status codes
+- Response shape
+- Error cases
+
+要点:
+- Check the status code first: it is the API&#39;s own summary of what happened, and clients act on it.
+- A 200 with the wrong body is still a bug. Check that the fields you rely on are there and have the right types.
+- Every endpoint has error cases: something missing, something malformed. Each should get a 4xx with a readable error, never a 500.
+- A 500 means the server broke. A bad request from the client should never cause one.
+
+## 第 2 章: Checks for your own API
+
+Turn the hand checks into automated tests and run them against your own API. (35 分)
+
+### レッスン 2.1: Automated checks for your own API (35 分, ▶ 1:51)
+
+Turn the three hand checks into automated tests with Node&#39;s built-in test runner, watch one fail, then apply them to your own API.
+
+/demo/ja/api-testing/own-api/first-checks.md
+
+学習成果:
+- Write an API check that asserts status code, content type and body shape
+- Cover an endpoint&#39;s error cases with one test each
+- See a check fail on purpose before trusting it to pass
+- Have an agent write checks for your own API, then verify them with your own run
+
+概念:
+- One test per behaviour
+- Red first
+
+ハンズオン · 25 分: **Write checks for one endpoint of your API**. One endpoint of your API has automated checks for its status codes, response shape and error cases, and you have run them yourself.
+
+```text
+You are doing a hands-on exercise from the &quot;API Testing&quot; course: Lesson 2.1, &quot;Automated checks for your own API&quot;.
+
+Exercise: Write checks for one endpoint of your API
+Goal: One endpoint of your API has automated checks for its status codes, response shape and error cases, and you have run them yourself.
+
+Project: the learner&#39;s own repository, which is your current working directory. Before anything else, read its README and build files to learn the stack.
+
+Steps:
+1. Identify how the API is built and started from the repository (framework, start command, port), and whether it already has a test runner. Quote the files you read.
+2. Work on the endpoint the learner names. If none is named, pick one read endpoint (a GET that returns one item by id) and say which you chose.
+3. Create a new branch. Write API tests for that endpoint using the project&#39;s existing test runner, or Node&#39;s built-in node:test with fetch if it has none. Read the base URL from an API_URL environment variable with a sensible local default.
+4. Write one test per behaviour: the success case (assert the status code, the content type, and that each field the client uses is present with the right type), a missing item, and a malformed input. Use the status codes the API documents; if it documents none, use 404 for missing and 400 or 422 for malformed, and say so.
+5. Start the API and run the tests. Quote the full output and the exit code.
+6. If a test fails, do not change the test&#39;s expected status or shape to make it pass. Report the failure as a finding, with the request, the expected and actual response, and the line in the API that causes it. Fix the API only if the learner asked you to.
+7. Do not push, merge or deploy, and do not add dependencies without asking.
+
+Done when:
+- The endpoint has at least three tests: success, missing and malformed
+- The tests read the base URL from API_URL
+- The tests ran against the running API, with the output quoted
+
+Report back:
+- The command to start the API and the command to run the tests
+- The full test output and exit code, quoted
+- Every failure, as request, expected response and actual response
+- The branch name and the list of changed files
+
+Ground rules:
+- Work on a new branch. Don&#39;t commit to the main branch, push, or deploy unless the learner asks.
+- Ask before adding a dependency or changing configuration that production uses.
+- Never loosen a budget, threshold or acceptance criterion to make a check pass. If you think one is wrong, say so and stop.
+- Base every number you report on command output you actually ran. Quote it; don&#39;t estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: https://johnsonnoronathan.github.io/demo/api-testing/own-api/first-checks.md
+```
+
+要点:
+- An API test is the hand check written down: send the request, then assert the status, the content type and the shape of the body.
+- Write one test per behaviour: the happy path, then each error case. A failing test&#39;s name then tells you which promise broke.
+- Read the base URL from an environment variable, so the same tests run against your laptop, a staging server or CI.
+- Break the API on purpose once and watch the test go red. A test you&#39;ve never seen fail may not be checking anything.
+- A failing check is information. Fix the API, or agree that the expectation was wrong, but never loosen the check just to make it pass.
+</template></header><section class="plan-sec"><h2>構成</h2><div class="arc arc-plain" aria-label="コースの構成" style="--n:2"><ol class="arc-row"><li class="arc-ch arc-plain"><a href="/demo/ja/api-testing/basics/what-to-check/" data-chapter-link="basics"><span class="arc-n">第 1 章</span><b>What to check</b><span class="arc-role">20 分</span></a></li><li class="arc-ch arc-plain"><a href="/demo/ja/api-testing/own-api/first-checks/" data-chapter-link="own-api"><span class="arc-n">第 2 章</span><b>Checks for your own API</b><span class="arc-role">35 分</span></a></li></ol></div></section><section class="plan-sec plan-grid"><div><h2>コースの目標</h2><ul class="check-list"><li>Read an HTTP response and say whether its status code fits the request</li><li>Check the shape of a JSON response, not only that one came back</li><li>Choose error cases for an endpoint and say what each should return</li><li>Write automated API checks with Node's built-in test runner</li><li>Apply the checks to your own API, with an agent implementing the fixes</li></ul></div><div><h2>対象者と準備</h2><p>Developers and testers who have used a terminal and can read a little JavaScript. No previous API testing experience needed.</p><ul class="plain-list"><li>Node.js 22 or later</li><li>curl</li><li>An HTTP API of your own to test, for lesson 2.1</li></ul></div></section><section class="plan-sec"><h2>時間割</h2><div class="table-wrap"><table class="schedule"><thead><tr><th>開始</th><th>パート</th><th>タイトル</th><th>分</th><th>動画</th><th>概念</th><th>ハンズオン</th></tr></thead><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">第 1 章 · What to check </th><td>20</td><td class="mono">1:42</td><td></td><td></td></tr><tr><td class="mono">0:00</td><td class="mono">1.1</td><td><a href="#plan-api-testing-basics-what-to-check">What to check in an HTTP API</a></td><td class="mono">20</td><td class="mono">▶ 1:42</td><td>Status codes, Response shape, Error cases</td><td>–</td></tr></tbody><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">第 2 章 · Checks for your own API </th><td>35</td><td class="mono">1:51</td><td></td><td></td></tr><tr><td class="mono">0:20</td><td class="mono">2.1</td><td><a href="#plan-api-testing-own-api-first-checks">Automated checks for your own API</a></td><td class="mono">35</td><td class="mono">▶ 1:51</td><td>One test per behaviour, Red first</td><td>Write checks for one endpoint of your API</td></tr></tbody></table></div></section><section class="plan-sec plan-chapter" id="chapter-basics"><header class="pc-head"><span class="pc-n">第 1 章</span><h2>What to check</h2><p>Status codes, response shape and error cases, checked by hand with curl. · 20 分</p></header><article class="pl-item pl-lesson" id="plan-api-testing-basics-what-to-check"><div class="pl-rail"><span class="pl-num">1.1</span><span class="pl-min">20 分</span><span class="pl-min">▶ 1:42</span></div><div class="pl-body"><h3><a href="/demo/ja/api-testing/basics/what-to-check/">What to check in an HTTP API</a></h3><p class="pl-desc">The three checks for every API response: the status code, the shape of the body, and what happens when the request is wrong.</p><div class="pl-cols"><div><h4>学習成果</h4><ul><li>Say which status code a request should get, and spot one that doesn't fit</li><li>Check the shape of a JSON body: its fields and their types</li><li>List the error cases for an endpoint and what each should return</li><li>Run all three checks by hand with curl</li></ul></div><div><h4>概念</h4><ul><li>Status codes</li><li>Response shape</li><li>Error cases</li></ul></div><div><h4>要点</h4><ul><li>Check the status code first: it is the API's own summary of what happened, and clients act on it.</li><li>A 200 with the wrong body is still a bug. Check that the fields you rely on are there and have the right types.</li><li>Every endpoint has error cases: something missing, something malformed. Each should get a 4xx with a readable error, never a 500.</li><li>A 500 means the server broke. A bad request from the client should never cause one.</li></ul></div></div><div class="pl-check"><h4>セルフチェック</h4><ol><li><span>GET /books/abc, where ids are numbers, returns 500 Internal Server Error. What&#39;s wrong?</span> <em>The server should answer 400: the client sent a bad id, and the server should say so instead of crashing. The request is wrong, so a 4xx is right, and 400 says exactly that. A 500 means the server itself failed, which tells the client nothing it can fix. 404 is defensible for a missing book, but abc is not a valid id at all.</em></li><li><span>An endpoint returns 200 and the body {&quot;id&quot;: &quot;1&quot;, &quot;title&quot;: &quot;Dune&quot;}. Your app adds the price to a total. Which check finds the problem?</span> <em>A shape check that price is present and is a number. The status is fine, so only a shape check catches that price is missing. It would also catch that id is a string, not a number.</em></li><li><span>Which list of requests covers the error cases for GET /books/:id best?</span> <em>/books/1, /books/999, /books/abc. One that exists, one that doesn&#39;t, and one that isn&#39;t a valid id: three different behaviours. Three valid ids test the same behaviour three times.</em></li></ol></div></div></article></section><section class="plan-sec plan-chapter" id="chapter-own-api"><header class="pc-head"><span class="pc-n">第 2 章</span><h2>Checks for your own API</h2><p>Turn the hand checks into automated tests and run them against your own API. · 35 分</p></header><article class="pl-item pl-lesson" id="plan-api-testing-own-api-first-checks"><div class="pl-rail"><span class="pl-num">2.1</span><span class="pl-min">35 分</span><span class="pl-min">▶ 1:51</span></div><div class="pl-body"><h3><a href="/demo/ja/api-testing/own-api/first-checks/">Automated checks for your own API</a></h3><p class="pl-desc">Turn the three hand checks into automated tests with Node&#39;s built-in test runner, watch one fail, then apply them to your own API.</p><div class="pl-cols"><div><h4>学習成果</h4><ul><li>Write an API check that asserts status code, content type and body shape</li><li>Cover an endpoint's error cases with one test each</li><li>See a check fail on purpose before trusting it to pass</li><li>Have an agent write checks for your own API, then verify them with your own run</li></ul></div><div><h4>概念</h4><ul><li>One test per behaviour</li><li>Red first</li></ul></div><div><h4>要点</h4><ul><li>An API test is the hand check written down: send the request, then assert the status, the content type and the shape of the body.</li><li>Write one test per behaviour: the happy path, then each error case. A failing test's name then tells you which promise broke.</li><li>Read the base URL from an environment variable, so the same tests run against your laptop, a staging server or CI.</li><li>Break the API on purpose once and watch the test go red. A test you've never seen fail may not be checking anything.</li><li>A failing check is information. Fix the API, or agree that the expectation was wrong, but never loosen the check just to make it pass.</li></ul></div></div><div class="pl-ex"><p><span class="tag tag-ex">ハンズオン · 25 分</span> <b>Write checks for one endpoint of your API.</b> One endpoint of your API has automated checks for its status codes, response shape and error cases, and you have run them yourself.</p><div class="agent-prompt" data-copied="コピーしました" data-selected="選択しました。Ctrl+C を押してください"><div class="ap-head"><svg class="ap-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"></rect><path d="M7 10l3 2-3 2M12 15h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg><div class="ap-text"><b>エージェントの担当：実装を任せる</b><span>Claude Code などのコーディングエージェントに貼り付けます。エージェントが変更を行い、実際の出力を引用して報告します。そのあと自分でチェックを再実行してください。判断に使うのは、あなたが見た数値です。</span></div><button class="ap-copy" type="button" data-copy-label="プロンプトをコピー">プロンプトをコピー</button></div><details class="ap-details"><summary>プロンプトを表示</summary><pre class="ap-pre" data-agent-prompt="Write checks for one endpoint of your API" lang="en"><code>You are doing a hands-on exercise from the &quot;API Testing&quot; course: Lesson 2.1, &quot;Automated checks for your own API&quot;.
+
+Exercise: Write checks for one endpoint of your API
+Goal: One endpoint of your API has automated checks for its status codes, response shape and error cases, and you have run them yourself.
+
+Project: the learner&#39;s own repository, which is your current working directory. Before anything else, read its README and build files to learn the stack.
+
+Steps:
+1. Identify how the API is built and started from the repository (framework, start command, port), and whether it already has a test runner. Quote the files you read.
+2. Work on the endpoint the learner names. If none is named, pick one read endpoint (a GET that returns one item by id) and say which you chose.
+3. Create a new branch. Write API tests for that endpoint using the project&#39;s existing test runner, or Node&#39;s built-in node:test with fetch if it has none. Read the base URL from an API_URL environment variable with a sensible local default.
+4. Write one test per behaviour: the success case (assert the status code, the content type, and that each field the client uses is present with the right type), a missing item, and a malformed input. Use the status codes the API documents; if it documents none, use 404 for missing and 400 or 422 for malformed, and say so.
+5. Start the API and run the tests. Quote the full output and the exit code.
+6. If a test fails, do not change the test&#39;s expected status or shape to make it pass. Report the failure as a finding, with the request, the expected and actual response, and the line in the API that causes it. Fix the API only if the learner asked you to.
+7. Do not push, merge or deploy, and do not add dependencies without asking.
+
+Done when:
+- The endpoint has at least three tests: success, missing and malformed
+- The tests read the base URL from API_URL
+- The tests ran against the running API, with the output quoted
+
+Report back:
+- The command to start the API and the command to run the tests
+- The full test output and exit code, quoted
+- Every failure, as request, expected response and actual response
+- The branch name and the list of changed files
+
+Ground rules:
+- Work on a new branch. Don&#39;t commit to the main branch, push, or deploy unless the learner asks.
+- Ask before adding a dependency or changing configuration that production uses.
+- Never loosen a budget, threshold or acceptance criterion to make a check pass. If you think one is wrong, say so and stop.
+- Base every number you report on command output you actually ran. Quote it; don&#39;t estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: https://johnsonnoronathan.github.io/demo/api-testing/own-api/first-checks.md</code></pre></details></div><script type="module">document.querySelectorAll(`.agent-prompt`).forEach(e=>{let t=e.querySelector(`.ap-copy`),n=e.querySelector(`.ap-pre`);t.dataset.bound||(t.dataset.bound=`1`,t.addEventListener(`click`,async()=>{let r=!1;try{await navigator.clipboard.writeText(n.textContent??``),r=!0}catch{e.querySelector(`details`).open=!0;let t=document.createRange();t.selectNodeContents(n);let r=window.getSelection();r?.removeAllRanges(),r?.addRange(t)}t.textContent=r?e.dataset.copied:e.dataset.selected,t.classList.toggle(`is-done`,r),setTimeout(()=>{t.textContent=t.dataset.copyLabel,t.classList.remove(`is-done`)},2200)}))});</script></div></div></article></section></main><script type="module">var e=document.getElementById(`copy-plan`),t=document.getElementById(`plan-md`);e.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(t.content.textContent??``),e.textContent=e.dataset.lCopied}catch{e.textContent=e.dataset.lBlocked}setTimeout(()=>e.textContent=e.dataset.lCopy,2400)});</script><footer class="foot"><div class="foot-in"><div class="foot-about"><a class="brand" href="/demo/ja/"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><span>Testbench</span></a><p>Testbench は、短いナレーション付き動画、読みやすいレッスン、実際の練習アプリでのハンズオンでソフトウェアテストを教えます。どの演習にもコーディングエージェントに渡せるプロンプトが付いています。</p></div><div class="foot-col"><h2>学ぶ</h2><ul><li><a href="/demo/ja/test-cases/">テストケースの書き方</a></li><li><a href="/demo/ja/performance-testing/">パフォーマンステスト</a></li><li><a href="/demo/ja/api-testing/">API Testing</a></li><li><a href="/demo/ja/courses/">コース</a></li><li><a href="/demo/ja/learning/">マイ学習</a></li><li><a href="https://github.com/johnsonnoronathan/demo/issues/new?template=tutorial-proposal.yml" target="_blank" rel="noopener">チュートリアルを提案する</a></li></ul></div><div class="foot-col"><h2>エージェント向け</h2><ul><li><a href="/demo/ja/agents/">エージェント向け</a></li><li><a href="/demo/llms.txt">llms.txt</a></li><li><a href="/demo/ja/api-testing/plan.md">このページの Markdown 版</a></li></ul></div><div class="foot-col"><h2>言語</h2><ul class="foot-langs"><li><a href="/demo/api-testing/plan/" lang="en">English</a></li><li><a href="/demo/zh/api-testing/plan/" lang="zh-CN">简体中文</a></li><li><a href="/demo/ja/api-testing/plan/" lang="ja">日本語</a></li><li><a href="/demo/ko/api-testing/plan/" lang="ko">한국어</a></li><li><a href="/demo/es/api-testing/plan/" lang="es">Español</a></li><li><a href="/demo/fr/api-testing/plan/" lang="fr">Français</a></li><li><a href="/demo/de/api-testing/plan/" lang="de">Deutsch</a></li></ul></div></div><p class="foot-fine">コースに登場する練習アプリと企業は架空のものです。</p></footer><script type="module" src="/demo/_astro/Base.astro_astro_type_script_index_0_lang.CEumv5Zm.js"></script></body></html>

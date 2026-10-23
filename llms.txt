@@ -1,0 +1,64 @@
+# Testbench
+
+> Video tutorials on software testing, written for people and for agents. Every page below is Markdown and
+> starts with its video's transcript. Hands-on exercises include a self-contained agent prompt (steps, done-when
+> criteria, what to report) in a ```text block. Agent prompts are always in English.
+
+Languages: English (/), 简体中文 (/zh/), 日本語 (/ja/), 한국어 (/ko/), Español (/es/), Français (/fr/), Deutsch (/de/).
+
+## Writing Test Cases
+
+Write test cases anyone can run, and that find bugs.
+
+- [Course outline](/test-cases.md)
+- [Lesson plan](/test-cases/plan.md)
+- [Whole course in one file](/test-cases/llms-full.txt)
+- [Lesson 1.1: What is a test case?](/demo/test-cases/foundations/anatomy.md): The parts of a test case, built field by field and then run by hand against a real sign-in page.
+- [Lesson 1.2: Good test cases, weak test cases](/demo/test-cases/foundations/good-cases.md): Five habits that make a test case trustworthy, and the Given, When, Then shape many teams write them in.
+- [Lesson 2.1: Partitions and boundaries](/demo/test-cases/design/partitions.md): Equivalence partitioning and boundary value analysis: a few well-chosen inputs instead of thousands.
+- [Lesson 2.2: Beyond the happy path](/demo/test-cases/design/negative.md): Negative cases, edge cases, and decision tables for rules that combine.
+- [Lesson 2.3: Exploratory testing](/demo/test-cases/design/exploratory.md): Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.
+- [Lesson 3.1: From test case to automated test](/demo/test-cases/automation/unit-tests.md): Turn a written test case into code with Arrange, Act, Assert, then watch a boundary test catch a real bug.
+- [Lesson 3.2: Organizing a test suite](/demo/test-cases/automation/suites.md): The test pyramid, traceability to requirements, and keeping a growing suite healthy.
+
+## Performance Testing
+
+Find what makes software slow before your users do.
+
+- [Course outline](/performance-testing.md)
+- [Lesson plan](/performance-testing/plan.md)
+- [Whole course in one file](/performance-testing/llms-full.txt)
+- [Chapter 1 · Opening: Overview](/demo/performance-testing/overview.md): What this course covers, how it is built, and how to use the classroom and its agent prompts.
+- [Lesson 1.1: What performance testing measures](/demo/performance-testing/overview/what-it-measures.md): Latency, throughput and errors: the three numbers every performance test reports, and why latency is quoted as percentiles.
+- [Lesson 1.2: Static and dynamic testing](/demo/performance-testing/overview/static-and-dynamic.md): The two families of performance tests, what each can and can't find, and how to plan which questions to ask before you test.
+- [Chapter 1 · Summary: Overview: summary](/demo/performance-testing/overview/summary.md): The vocabulary and the plan you'll use for the rest of the course.
+- [Chapter 2 · Opening: Static testing](/demo/performance-testing/static.md): Find performance problems by reading what you built, before anything runs.
+- [Lesson 2.1: Performance budgets](/demo/performance-testing/static/budgets.md): Agree on limits before you measure, then let a check enforce them on every change.
+- [Lesson 2.2: Code review for N+1 queries](/demo/performance-testing/static/n-plus-one.md): The most common performance bug in database-backed code, how to find it by reading, and how to remove it.
+- [Lesson 2.3: Reading query plans](/demo/performance-testing/static/query-plans.md): Ask the database how it would run a query, without running it, and fix full table scans with the right index.
+- [Lesson 2.4: Asset weight](/demo/performance-testing/static/asset-weight.md): Find what makes a page heavy by weighing its files, and bring it under budget without changing what users see.
+- [Chapter 2 · Summary: Static testing: summary](/demo/performance-testing/static/summary.md): What you found without running the app, and what static checks can't tell you.
+- [Chapter 3 · Opening: Dynamic testing](/demo/performance-testing/dynamic.md): Run the system, put traffic through it, and measure what users actually feel.
+- [Lesson 3.1: Lab measurement with Lighthouse](/demo/performance-testing/dynamic/lighthouse.md): Load the page on a simulated phone and measure what the user sees, and when.
+- [Lesson 3.2: Load testing with k6](/demo/performance-testing/dynamic/load-testing.md): Simulate a busy evening of shoppers, and let thresholds decide whether the app meets its budgets.
+- [Lesson 3.3: Stress, spike and soak tests](/demo/performance-testing/dynamic/stress-spike-soak.md): Push past the expected load to find the ceiling, survive a surge, and catch slow drift over hours.
+- [Lesson 3.4: Finding the bottleneck](/demo/performance-testing/dynamic/bottlenecks.md): Profile the app while it's under load, read the flame graph, fix the hot path and prove it with the same test.
+- [Chapter 3 · Summary: Dynamic testing: summary](/demo/performance-testing/dynamic/summary.md): What running the app taught you that reading it couldn't.
+- [Chapter 4 · Opening: Summary](/demo/performance-testing/review.md): Put static and dynamic testing together into a routine, report the results, run acceptance, apply it to your own project, and review the course.
+- [Lesson 4.1: A performance testing workflow](/demo/performance-testing/review/workflow.md): Decide what runs where: static gates on every pull request, dynamic tests before release, monitoring in production.
+- [Lesson 4.2: Reporting results](/demo/performance-testing/review/reporting.md): Write up performance results so that people can make a decision and someone else can repeat the test.
+- [Lesson 4.3: Performance acceptance](/demo/performance-testing/review/acceptance.md): Turn budgets into acceptance criteria, run the acceptance test with one command, and make a go/no-go decision that someone signs.
+- [Lesson 4.4: Static testing on your own project](/demo/performance-testing/review/your-project.md): Run the course's static checks on a real codebase yourself, read the numbers, set first budgets, and hand the fixes to an agent.
+- [Chapter 4 · Summary: Course summary](/demo/performance-testing/review/summary.md): Everything the course covered, in one place, and where to go next.
+
+Full text also in: 简体中文 ([outline](/demo/zh/performance-testing.md), [one file](/demo/zh/performance-testing/llms-full.txt)).
+
+## API Testing
+
+Check that an HTTP API answers the way it promises.
+
+- [Course outline](/api-testing.md)
+- [Lesson plan](/api-testing/plan.md)
+- [Whole course in one file](/api-testing/llms-full.txt)
+- [Lesson 1.1: What to check in an HTTP API](/demo/api-testing/basics/what-to-check.md): The three checks for every API response: the status code, the shape of the body, and what happens when the request is wrong.
+- [Lesson 2.1: Automated checks for your own API](/demo/api-testing/own-api/first-checks.md): Turn the three hand checks into automated tests with Node's built-in test runner, watch one fail, then apply them to your own API.

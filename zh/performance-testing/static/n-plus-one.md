@@ -1,0 +1,182 @@
+# 第 2.2 课: 代码审查：N+1 查询
+
+性能测试 · 第 2 章: 静态测试 · 25 分钟
+
+> 使用数据库的代码中最常见的性能缺陷：如何通过阅读发现它，以及如何消除它。
+
+**学完本课你将能够:**
+- 在代码中识别 N+1 查询模式
+- 用静态检查标记循环中的数据库调用
+- 把 N+1 循环改写为一条带 JOIN 的查询，并验证查询次数
+
+## 文字稿: 代码审查：N+1 查询 (1:03)
+
+**0:00 简介.** 这是使用数据库的代码中最常见的性能缺陷，我们来看看怎样只靠阅读就发现它。
+
+**0:08 阅读代码.** 这是图书接口。它用一次查询取回一页 50 本书。 然后遍历这些书。在循环里，它向数据库查询每本书的作者， 还有每本书的评分。页面上的每本书都要多两次查询。
+
+**0:25 放到时间线上.** 放到时间线上是这样的。一次查询取列表， 然后是一百次小查询，一个接一个。 一页就要往返 101 次。每次都很快，加起来却占了大部分响应时间。 一条带 JOIN 的查询只需一次往返，就能取回完全相同的数据。
+
+**0:47 发现并修复.** 这种模式很容易静态发现：循环中的数据库调用。练习应用自带一个小 linter，专门找它。 在练习中，你会把循环改写成一次查询，看着查询次数从 101 降到 1，而响应完全相同。
+
+## 课文
+
+这是店面调用的图书接口。继续往下读之前先看一遍代码，问题就摆在那里。
+
+```js title="src/routes/books.mjs"
+export function listBooks(params) {
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const books = query(
+    "SELECT id, title, author_id, price_cents FROM books ORDER BY id LIMIT 50 OFFSET ?"
+  ).all((page - 1) * 50);
+
+  for (const book of books) {
+    const author = query("SELECT name FROM authors WHERE id = ?").get(book.author_id);
+    book.author = author.name;
+    const rating = query("SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?").get(book.id);
+    book.rating = rating.avg ? Math.round(rating.avg * 10) / 10 : null;
+    book.reviews = rating.n;
+  }
+  return { page, books };
+}
+```
+
+## N+1 模式
+
+一次查询取回列表。然后循环**为每一项**再执行两次查询。50 本书就是 1 + 50 × 2 = 101 次查询，只为了一页。
+
+> **概念动画: N+1 查询模式**
+>
+> 1. 图书接口向数据库请求一页 50 本书。一次查询。
+> 2. 然后它遍历这些书，为每本书查询作者和评分：每本书再多两次查询。
+> 3. 一页就要往返 101 次。每次都很小，加起来却占了大部分响应时间。
+> 4. 一条带 JOIN 的查询只需一次往返就能取回同样的数据。
+
+每次查询单独看都很便宜，这就是 N+1 能躲过代码审查和本地测试的原因：在只有 10 行数据的笔记本电脑上，没人会注意到。它随页面大小和数据量增长，而在真实网络中，每次查询都要多一次往返。ORM 让人很容易无意中写出它，因为 `book.author.name` 可能悄悄地执行一次查询。
+
+## 静态发现
+
+它的形态很有辨识度：**循环体内**的数据库调用。这不需要运行任何东西就能检查。Larkspur 自带一个小 linter，做的正是这件事：
+
+```bash
+npm run lint:queries
+```
+
+```text
+src/routes/books.mjs:11  query inside a loop (possible N+1)
+    const author = query("SELECT name FROM authors WHERE id = ?").get(book.author_id);
+src/routes/books.mjs:13  query inside a loop (possible N+1)
+    const rating = query("SELECT avg(stars) AS avg, count(*) AS n FROM reviews WHERE book_id = ?").get(book.id);
+
+2 possible N+1 pattern(s).
+```
+
+这是一种启发式方法。它读取源代码文本并追踪循环体，所以可能漏掉藏在辅助函数后面的查询，也可能标记一个只会执行一次的循环。把每条发现当作代码审查中要提出的问题。真实项目会在更大规模上使用同样的思路：针对特定 ORM 的 lint 规则，或者在接口执行超过 N 次查询时失败的测试。
+
+## 修复
+
+一次性向数据库要全部数据。SQL 天生就擅长这个：JOIN 作者表，聚合评论，再按书分组。
+
+```js title="src/routes/books.mjs (after)"
+export function listBooks(params) {
+  const page = Math.max(1, Number(params.get("page")) || 1);
+  const books = query(`
+    SELECT b.id, b.title, b.author_id, b.price_cents, a.name AS author,
+           round(avg(r.stars), 1) AS rating, count(r.id) AS reviews
+    FROM (SELECT * FROM books ORDER BY id LIMIT 50 OFFSET ?) AS b
+    JOIN authors a ON a.id = b.author_id
+    LEFT JOIN reviews r ON r.book_id = b.id
+    GROUP BY b.id
+    ORDER BY b.id`).all((page - 1) * 50);
+  return { page, books };
+}
+```
+
+如果 JOIN 不现实（比如数据在另一个服务里），那就改用**批量查询**：收集所有 ID，用一次 `WHERE id IN (...)` 查询取回。无论哪种方式，查询次数都不再取决于页面大小。
+
+| | 每个请求的查询次数 | 单个请求的服务器耗时 |
+| --- | --- | --- |
+| 修复前 | 101 | 60 ms |
+| 改用 JOIN 后 | 1 | 26 ms |
+
+好多了，但 50 行数据要 26 ms 仍然很慢。这次 JOIN 读取 reviews 表的方式需要一个索引。那是第 2.3 课的内容。
+
+## 动手练习：找出并消除 /api/books 中的 N+1
+
+**动手练习 · 20 分钟.** 目标： 用查询 linter 找出图书接口中的 N+1，把它改写为一次查询，并证明查询次数从 101 降到 1，而响应不变。
+
+1. 运行 `npm run lint:queries`。你应该看到上面那两条发现。
+2. 启动应用并保存当前响应，以便证明修复没有改变任何可见内容：
+
+   ```bash
+   curl -s http://localhost:3000/api/books > /tmp/books-before.json
+   curl -s -i http://localhost:3000/api/books | grep -i -E "x-query-count|server-timing"
+   ```
+
+3. 把 `listBooks` 替换为单次查询的版本，重启应用，再把响应保存到 `/tmp/books-after.json`。
+4. 比较这两个文件。它们应该完全相同：
+
+   ```bash
+   node -e 'const a=require("/tmp/books-before.json"),b=require("/tmp/books-after.json");console.log(JSON.stringify(a)===JSON.stringify(b)?"identical":"DIFFERENT")'
+   ```
+
+![终端显示 /api/books 的 x-query-count: 1 和约 26 ms 的 server-timing，比较结果输出 'identical'，linter 输出 'No queries inside loops found.'。](screenshot-pending)
+*Screenshot (curl and lint:queries): 一次查询，响应不变，linter 无报错。*
+
+5. 再次运行 `npm run lint:queries`。它应该没有任何报告，并以 0 退出。
+
+**完成标准**
+- `npm run lint:queries` reports no queries inside loops and exits 0
+- `x-query-count` for /api/books is 1
+- The before and after JSON responses are identical
+
+**智能体的部分：把实现交给它**
+
+```text
+You are doing a hands-on exercise from the "Performance Testing" course: Lesson 2.2, "Code review for N+1 queries".
+
+Exercise: Find and remove the N+1 in /api/books
+Goal: Use the query linter to find the N+1 in the books endpoint, rewrite it as one query, and show the query count drop from 101 to 1 with the same response.
+
+Project: academy/practice/larkspur (A Node.js 22 bookshop with a storefront and three JSON endpoints over SQLite. No dependencies. Slow on purpose.)
+Setup, if not done already:
+  cd academy/practice/larkspur
+  npm run seed
+  npm start   # leave it running in its own terminal; http://localhost:3000
+
+Steps:
+1. Run `npm run lint:queries` and capture the findings.
+2. Start the app (`npm start` in the background), save the current response with `curl -s http://localhost:3000/api/books > /tmp/books-before.json`, and note the `x-query-count` header.
+3. Rewrite `listBooks` in `src/routes/books.mjs` so it runs a single query: select the page of 50 books in a subquery, JOIN authors, LEFT JOIN reviews, GROUP BY book, and compute `rating` as avg(stars) rounded to one decimal (null when there are no reviews) and `reviews` as the review count. Keep the response shape: page, books[] with id, title, author_id, price_cents, author, rating, reviews.
+4. Restart the app, fetch the endpoint again into /tmp/books-after.json, and compare it with the before file using `node -e` (parse both and deep-compare).
+5. Run `npm run lint:queries` again.
+
+Done when:
+- `npm run lint:queries` reports no queries inside loops and exits 0
+- `x-query-count` for /api/books is 1
+- The before and after JSON responses are identical
+
+Report back:
+- The new listBooks function
+- x-query-count and server-timing before and after
+- The result of the JSON comparison
+
+Ground rules:
+- Work inside academy/practice/larkspur. Don't add dependencies unless a step asks for one.
+- Base every number you report on command output you actually ran. Quote it; don't estimate.
+- If a step fails or a tool is missing, stop and report the exact error instead of working around it.
+
+Lesson text, if you need more context: academy/src/content/lessons/en/performance-testing/2-static/2-n-plus-one.mdx
+```
+
+## 要点
+
+- N+1 指先用一次查询取列表，再为每一项多查一次。代价随列表增长，在快速的本地数据库中很难察觉。
+- 从静态角度看，它表现为循环或 .map 回调中的数据库调用。一条简单的 lint 规则就能抓住大多数情况。
+- 修复方法是用一次查询取回全部数据（JOIN、GROUP BY），或用一次批量查询（WHERE id IN (...)）。
+- 统计每个请求的查询次数。随页面大小增长的查询次数就是 N+1 的特征。
+
+---
+
+上一页: [第 2.1 课: 性能预算](/demo/zh/performance-testing/static/budgets.md)
+下一页: [第 2.3 课: 阅读查询计划](/demo/zh/performance-testing/static/query-plans.md)

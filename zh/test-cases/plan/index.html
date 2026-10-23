@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>教案 · 编写测试用例</title><meta name="description" content="用几节短课学习测试的基础：什么是测试用例、怎样的测试用例才可靠，用等价类划分和边界值选择输入，覆盖异常路径，把写好的用例变成自动化测试，并让不断增长的测试套件保持健康。"><link rel="alternate" type="text/markdown" href="/demo/zh/test-cases/plan.md" title="Markdown"><link rel="alternate" hreflang="en" href="/demo/test-cases/plan/"><link rel="alternate" hreflang="zh-CN" href="/demo/zh/test-cases/plan/"><link rel="alternate" hreflang="ja" href="/demo/ja/test-cases/plan/"><link rel="alternate" hreflang="ko" href="/demo/ko/test-cases/plan/"><link rel="alternate" hreflang="es" href="/demo/es/test-cases/plan/"><link rel="alternate" hreflang="fr" href="/demo/fr/test-cases/plan/"><link rel="alternate" hreflang="de" href="/demo/de/test-cases/plan/"><link rel="icon" href="/demo/favicon.svg" type="image/svg+xml"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&amp;family=JetBrains+Mono:wght@400..600&amp;family=Public+Sans:ital,wght@0,400..700;1,400&amp;family=Noto+Sans+SC:wght@400..800&amp;display=swap"><script>
+      try {
+        const t = localStorage.getItem("testbench:theme");
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script><link rel="stylesheet" href="/demo/_astro/_..w5xLQPFL.css"></head><body data-locale="zh"><a class="skip" href="#main">课文</a><header class="topbar"><div class="topbar-in"><a class="brand" href="/demo/zh/" aria-label="Testbench"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path><path d="M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><span>Testbench</span></a><nav class="mainnav" aria-label="Testbench"><a href="/demo/zh/courses/" aria-current="page">课程</a><a href="/demo/zh/learning/">我的学习</a><a href="/demo/zh/agents/">面向智能体</a></nav><nav class="modes" aria-label="编写测试用例"><a href="/demo/zh/test-cases/">课堂</a><a href="/demo/zh/test-cases/plan/" aria-current="page">教案</a></nav><div class="topbar-end"><details class="lang"><summary aria-label="语言"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg><span>简体中文</span></summary><ul><li><a href="/demo/test-cases/plan/" lang="en" hreflang="en">English</a></li><li><a href="/demo/zh/test-cases/plan/" lang="zh-CN" hreflang="zh-CN" aria-current="true">简体中文</a></li><li><a href="/demo/ja/test-cases/plan/" lang="ja" hreflang="ja">日本語</a></li><li><a href="/demo/ko/test-cases/plan/" lang="ko" hreflang="ko">한국어</a></li><li><a href="/demo/es/test-cases/plan/" lang="es" hreflang="es">Español</a></li><li><a href="/demo/fr/test-cases/plan/" lang="fr" hreflang="fr">Français</a></li><li><a href="/demo/de/test-cases/plan/" lang="de" hreflang="de">Deutsch</a></li></ul></details><button class="theme-btn" type="button" id="theme-toggle" data-l-light="切换到浅色主题" data-l-dark="切换到深色主题"><svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg><svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.4 8.4 0 0 1 9.4 4a8.4 8.4 0 1 0 10.6 10.6z" fill="currentColor"></path></svg></button></div></div></header><main class="plan wrap" id="main"><header class="plan-head"><p class="eyebrow">教案</p><h1>编写测试用例</h1><p class="plan-lede">用几节短课学习测试的基础：什么是测试用例、怎样的测试用例才可靠，用等价类划分和边界值选择输入，覆盖异常路径，把写好的用例变成自动化测试，并让不断增长的测试套件保持健康。</p><dl class="plan-facts"><div><dt>总时长</dt><dd>1 小时 45 分钟</dd></div><div><dt>视频</dt><dd>12:57</dd></div><div><dt>章</dt><dd>3</dd></div><div><dt>课</dt><dd>7</dd></div></dl><div class="plan-actions"><button type="button" class="btn btn-primary" id="copy-plan" data-l-copy="以 Markdown 复制教案" data-l-copied="已复制" data-l-blocked="无法复制：请点“以 Markdown 打开”">以 Markdown 复制教案</button><a class="btn" href="/demo/zh/test-cases/plan.md">以 Markdown 打开</a><a class="btn btn-ghost" href="/demo/zh/test-cases/">进入课堂</a></div><template id="plan-md"># 教案: 编写测试用例
+
+用几节短课学习测试的基础：什么是测试用例、怎样的测试用例才可靠，用等价类划分和边界值选择输入，覆盖异常路径，把写好的用例变成自动化测试，并让不断增长的测试套件保持健康。
+
+- 总时长: 1 小时 45 分钟
+- 视频: 7 (12:57)
+- 所有测试软件或想学习测试的人：开发者、测试人员、产品人员。不需要测试经验；第 3.1 课会读一点 JavaScript。
+
+## 课程目标
+
+- 阅读、编写并手工执行测试用例
+- 把含糊的测试用例改写得具体、可重复
+- 用等价类划分和边界值选择测试输入
+- 覆盖反向用例，并用判定表找出遗漏
+- 用 Arrange、Act、Assert 把测试用例变成自动化测试
+- 用测试金字塔和追溯矩阵组织测试套件
+
+## 开始之前
+
+- 对软件如何出错的好奇心
+- Node.js，仅当你想亲自运行第 3.1 课的测试时需要
+
+## 结构
+
+1. **基础** (30 min): 什么是测试用例，好用例和弱用例的区别在哪里。
+2. **设计测试用例** (45 min): 用等价类、边界值和判定表决定要写哪些用例。
+3. **自动化与规模化** (30 min): 把用例变成代码，再组织成大家信任的测试套件。
+
+## 第 1 章: 基础
+
+什么是测试用例，好用例和弱用例的区别在哪里。 (30 分钟)
+
+### 第 1.1 课: 什么是测试用例？ (15 分钟, ▶ 2:55)
+
+逐个字段构建一个测试用例，再对着真实的登录页面手工执行它。
+
+/demo/zh/test-cases/foundations/anatomy.md
+
+学习成果:
+- 说出测试用例的各个字段及其用途
+- 写出足够精确、任何人都能重复执行的测试用例
+- 手工执行测试用例并记录结果
+
+要点:
+- 一个测试用例只检查一个行为，并有 ID 和清晰的标题。
+- 前置条件、测试数据和测试步骤让它可以重复执行。
+- 执行前先确定预期结果，执行后记录实际结果。
+- 一个写明了精确实际结果的失败用例，已经是半份缺陷报告。
+
+### 第 1.2 课: 好的测试用例与弱的测试用例 (15 分钟, ▶ 1:53)
+
+让测试用例值得信赖的五个习惯，以及许多团队采用的 Given、When、Then 写法。
+
+/demo/zh/test-cases/foundations/good-cases.md
+
+学习成果:
+- 发现测试用例中含糊的措辞并加以改写
+- 运用五个习惯：原子性、独立性、可重复、具体、可追溯
+- 用 Given、When、Then 的形式编写场景
+
+要点:
+- 用真实的值和可观察的结果代替含糊的措辞。
+- 让每个用例保持原子性、独立、可重复、具体、可追溯。
+- Given 是准备，When 是那一个操作，Then 是预期结果。
+
+## 第 2 章: 设计测试用例
+
+用等价类、边界值和判定表决定要写哪些用例。 (45 分钟)
+
+### 第 2.1 课: 等价类与边界值 (15 分钟, ▶ 1:25)
+
+等价类划分和边界值分析：用几个精心挑选的输入代替成千上万个。
+
+/demo/zh/test-cases/design/partitions.md
+
+学习成果:
+- 把一个输入范围划分为若干等价类
+- 选出边界值及其相邻值
+- 把等价类和边界值转化为一组精简的测试用例
+
+要点:
+- 把软件应该同等对待的输入归为一组，每组测一个。
+- 缺陷往往聚集在边缘：测试每个边界值，以及紧挨着它的外侧值。
+- 差一错误（off-by-one）的比较，只有恰好落在边界上的值才能发现。
+
+### 第 2.2 课: 超越正常路径 (15 分钟, ▶ 1:30)
+
+反向用例、极端用例，以及用于组合规则的判定表。
+
+/demo/zh/test-cases/design/negative.md
+
+学习成果:
+- 列出输入出错的常见方式
+- 编写带有明确预期提示信息的反向用例
+- 构建判定表并发现需求中的遗漏
+
+要点:
+- 每条正常路径都有不顺利的“兄弟”：空值、格式错误、极端值、时机不对。
+- 反向用例检查软件能否得体地失败，并给出清晰的提示。
+- 判定表列出所有条件组合，暴露出没有被定义的情况。
+
+### 第 2.3 课: Exploratory testing (15 分钟, ▶ 2:06)
+
+Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.
+
+/demo/zh/test-cases/design/exploratory.md
+
+学习成果:
+- Write a charter that gives an exploratory session one clear mission
+- Run a time-boxed session and keep notes someone else can read
+- Turn findings from a session into bugs, questions and new test cases
+
+要点:
+- Exploratory testing is designing and running tests at the same time, learning as you go.
+- A charter names a target, the resources you&#39;ll use and the information you want: one mission per session.
+- Session notes record what you covered, what you found and what you&#39;d explore next, so the session can be reviewed.
+- Good findings become scripted test cases, so the next run doesn&#39;t depend on memory.
+
+## 第 3 章: 自动化与规模化
+
+把用例变成代码，再组织成大家信任的测试套件。 (30 分钟)
+
+### 第 3.1 课: 从测试用例到自动化测试 (15 分钟, ▶ 1:22)
+
+用 Arrange、Act、Assert 把写好的测试用例变成代码，看边界值测试抓住一个真实的缺陷。
+
+/demo/zh/test-cases/automation/unit-tests.md
+
+学习成果:
+- 把书面测试用例对应到 Arrange、Act、Assert
+- 用测试运行器编写单元测试
+- 先看到测试失败，再相信它的通过
+
+要点:
+- 测试名就是标题，Arrange 是准备，Act 是操作步骤，Assert 是预期结果。
+- 边界值测试能在几毫秒内让差一错误变红。
+- 先看到测试失败一次，再相信它的通过。
+
+### 第 3.2 课: 组织测试套件 (15 分钟, ▶ 1:46)
+
+测试金字塔、需求追溯，以及如何让不断增长的测试套件保持健康。
+
+/demo/zh/test-cases/automation/suites.md
+
+学习成果:
+- 用测试金字塔平衡测试套件
+- 把测试用例追溯到需求，找出遗漏和孤儿用例
+- 让测试套件保持健康：命名、不稳定的测试、责任归属
+
+要点:
+- 大量快速的单元测试，较少的集成测试，少数几个端到端测试。
+- 追溯矩阵能显示没有测试的需求，以及没有对应需求的测试。
+- 按行为给测试命名，并尽快修复不稳定的测试，否则大家会学会无视红色。
+</template></header><section class="plan-sec"><h2>结构</h2><div class="arc arc-plain" aria-label="课程结构" style="--n:3"><ol class="arc-row"><li class="arc-ch arc-plain"><a href="/demo/zh/test-cases/foundations/anatomy/" data-chapter-link="foundations"><span class="arc-n">第 1 章</span><b>基础</b><span class="arc-role">30 分钟</span></a></li><li class="arc-ch arc-plain"><a href="/demo/zh/test-cases/design/partitions/" data-chapter-link="design"><span class="arc-n">第 2 章</span><b>设计测试用例</b><span class="arc-role">45 分钟</span></a></li><li class="arc-ch arc-plain"><a href="/demo/zh/test-cases/automation/unit-tests/" data-chapter-link="automation"><span class="arc-n">第 3 章</span><b>自动化与规模化</b><span class="arc-role">30 分钟</span></a></li></ol></div></section><section class="plan-sec plan-grid"><div><h2>课程目标</h2><ul class="check-list"><li>阅读、编写并手工执行测试用例</li><li>把含糊的测试用例改写得具体、可重复</li><li>用等价类划分和边界值选择测试输入</li><li>覆盖反向用例，并用判定表找出遗漏</li><li>用 Arrange、Act、Assert 把测试用例变成自动化测试</li><li>用测试金字塔和追溯矩阵组织测试套件</li></ul></div><div><h2>适合人群与准备</h2><p>所有测试软件或想学习测试的人：开发者、测试人员、产品人员。不需要测试经验；第 3.1 课会读一点 JavaScript。</p><ul class="plain-list"><li>对软件如何出错的好奇心</li><li>Node.js，仅当你想亲自运行第 3.1 课的测试时需要</li></ul></div></section><section class="plan-sec"><h2>课时安排</h2><div class="table-wrap"><table class="schedule"><thead><tr><th>开始</th><th>部分</th><th>标题</th><th>分钟</th><th>视频</th><th>概念</th><th>动手练习</th></tr></thead><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">第 1 章 · 基础 </th><td>30</td><td class="mono">4:48</td><td></td><td></td></tr><tr><td class="mono">0:00</td><td class="mono">1.1</td><td><a href="#plan-test-cases-foundations-anatomy">什么是测试用例？</a></td><td class="mono">15</td><td class="mono">▶ 2:55</td><td>–</td><td>–</td></tr><tr><td class="mono">0:15</td><td class="mono">1.2</td><td><a href="#plan-test-cases-foundations-good-cases">好的测试用例与弱的测试用例</a></td><td class="mono">15</td><td class="mono">▶ 1:53</td><td>–</td><td>–</td></tr></tbody><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">第 2 章 · 设计测试用例 </th><td>45</td><td class="mono">5:01</td><td></td><td></td></tr><tr><td class="mono">0:30</td><td class="mono">2.1</td><td><a href="#plan-test-cases-design-partitions">等价类与边界值</a></td><td class="mono">15</td><td class="mono">▶ 1:25</td><td>–</td><td>–</td></tr><tr><td class="mono">0:45</td><td class="mono">2.2</td><td><a href="#plan-test-cases-design-negative">超越正常路径</a></td><td class="mono">15</td><td class="mono">▶ 1:30</td><td>–</td><td>–</td></tr><tr><td class="mono">1:00</td><td class="mono">2.3</td><td><a href="#plan-test-cases-design-exploratory">Exploratory testing</a></td><td class="mono">15</td><td class="mono">▶ 2:06</td><td>–</td><td>–</td></tr></tbody><tbody><tr class="sch-chapter"><th colspan="3" scope="rowgroup">第 3 章 · 自动化与规模化 </th><td>30</td><td class="mono">3:08</td><td></td><td></td></tr><tr><td class="mono">1:15</td><td class="mono">3.1</td><td><a href="#plan-test-cases-automation-unit-tests">从测试用例到自动化测试</a></td><td class="mono">15</td><td class="mono">▶ 1:22</td><td>–</td><td>–</td></tr><tr><td class="mono">1:30</td><td class="mono">3.2</td><td><a href="#plan-test-cases-automation-suites">组织测试套件</a></td><td class="mono">15</td><td class="mono">▶ 1:46</td><td>–</td><td>–</td></tr></tbody></table></div></section><section class="plan-sec plan-chapter" id="chapter-foundations"><header class="pc-head"><span class="pc-n">第 1 章</span><h2>基础</h2><p>什么是测试用例，好用例和弱用例的区别在哪里。 · 30 分钟</p></header><article class="pl-item pl-lesson" id="plan-test-cases-foundations-anatomy"><div class="pl-rail"><span class="pl-num">1.1</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 2:55</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/foundations/anatomy/">什么是测试用例？</a></h3><p class="pl-desc">逐个字段构建一个测试用例，再对着真实的登录页面手工执行它。</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>说出测试用例的各个字段及其用途</li><li>写出足够精确、任何人都能重复执行的测试用例</li><li>手工执行测试用例并记录结果</li></ul></div><div><h4>要点</h4><ul><li>一个测试用例只检查一个行为，并有 ID 和清晰的标题。</li><li>前置条件、测试数据和测试步骤让它可以重复执行。</li><li>执行前先确定预期结果，执行后记录实际结果。</li><li>一个写明了精确实际结果的失败用例，已经是半份缺陷报告。</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>哪个预期结果写得好？</span> <em>打开账户页面，标题为“欢迎回来，Ada”。. 它写出了可以观察、可以比对的东西。其他选项都会让两名测试人员得出不同的结论。</em></li><li><span>预期结果应该在什么时候写？</span> <em>执行测试之前. 如果事后再写，你往往会照着实际发生的情况去描述，缺陷就被当成“预期”放过去了。</em></li><li><span>第 1 步之前必须已经存在一个客户账户。这应该写在哪个字段？</span> <em>前置条件. 前置条件描述开始之前系统所处的状态。测试数据列出你要输入或发送的内容。</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-foundations-good-cases"><div class="pl-rail"><span class="pl-num">1.2</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 1:53</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/foundations/good-cases/">好的测试用例与弱的测试用例</a></h3><p class="pl-desc">让测试用例值得信赖的五个习惯，以及许多团队采用的 Given、When、Then 写法。</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>发现测试用例中含糊的措辞并加以改写</li><li>运用五个习惯：原子性、独立性、可重复、具体、可追溯</li><li>用 Given、When、Then 的形式编写场景</li></ul></div><div><h4>要点</h4><ul><li>用真实的值和可观察的结果代替含糊的措辞。</li><li>让每个用例保持原子性、独立、可重复、具体、可追溯。</li><li>Given 是准备，When 是那一个操作，Then 是预期结果。</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>某个标题写着“加入购物车并结账并使用优惠券”。它违反了哪个习惯？</span> <em>原子性. 一个用例包含三个行为，失败时你无法知道是哪一个出了问题。应该拆成三个用例。</em></li><li><span>用例 B 只有在用例 A 先执行并创建了订单时才能通过。应该怎么改？</span> <em>B 在自己的前置条件中准备好所需的订单. 独立的用例可以按任意顺序执行，可以单独执行，也可以并行执行。B 应该自己创建需要的订单。</em></li><li><span>在 Given、When、Then 中，预期结果写在哪里？</span> <em>Then. Given 是准备，When 是那一个操作，Then 是你期望观察到的结果。</em></li></ol></div></div></article></section><section class="plan-sec plan-chapter" id="chapter-design"><header class="pc-head"><span class="pc-n">第 2 章</span><h2>设计测试用例</h2><p>用等价类、边界值和判定表决定要写哪些用例。 · 45 分钟</p></header><article class="pl-item pl-lesson" id="plan-test-cases-design-partitions"><div class="pl-rail"><span class="pl-num">2.1</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 1:25</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/design/partitions/">等价类与边界值</a></h3><p class="pl-desc">等价类划分和边界值分析：用几个精心挑选的输入代替成千上万个。</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>把一个输入范围划分为若干等价类</li><li>选出边界值及其相邻值</li><li>把等价类和边界值转化为一组精简的测试用例</li></ul></div><div><h4>要点</h4><ul><li>把软件应该同等对待的输入归为一组，每组测一个。</li><li>缺陷往往聚集在边缘：测试每个边界值，以及紧挨着它的外侧值。</li><li>差一错误（off-by-one）的比较，只有恰好落在边界上的值才能发现。</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>某个字段接受 18 到 65 岁。哪组值覆盖了所有边界？</span> <em>17, 18, 65, 66. 每个边界加上紧挨着它的外侧值：下限是 17 和 18，上限是 65 和 66。</em></li><li><span>为什么一个等价类的中间只测一个值？</span> <em>软件应该以相同方式对待其中的每一个值. 这正是等价类的含义。如果 5 没问题，6 的表现几乎不可能不同。</em></li><li><span>代码写的是 qty &lt; 10，但规则是 1 到 10。哪个测试能发现这个问题？</span> <em>数量 10. 只有恰好等于最大值的输入才会触发错误的比较。5、0 和 15 无论哪种写法，结果都一样。</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-design-negative"><div class="pl-rail"><span class="pl-num">2.2</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 1:30</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/design/negative/">超越正常路径</a></h3><p class="pl-desc">反向用例、极端用例，以及用于组合规则的判定表。</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>列出输入出错的常见方式</li><li>编写带有明确预期提示信息的反向用例</li><li>构建判定表并发现需求中的遗漏</li></ul></div><div><h4>要点</h4><ul><li>每条正常路径都有不顺利的“兄弟”：空值、格式错误、极端值、时机不对。</li><li>反向用例检查软件能否得体地失败，并给出清晰的提示。</li><li>判定表列出所有条件组合，暴露出没有被定义的情况。</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>下面哪个是邮箱字段的反向用例？</span> <em>ada.larkspur.test 显示“请输入有效的邮箱”. 它故意输入错误的数据，并检查软件是否清楚地拒绝它。</em></li><li><span>三个是/否条件组合在一起，完整的判定表最多有多少行？</span> <em>8. 每增加一个条件，组合数就翻一倍：2 × 2 × 2 = 8。其中有些行可以合并。</em></li><li><span>判定表中有一行没有定义结果。你应该怎么做？</span> <em>测试前先询问产品负责人. 这是需求中的遗漏。把它提出来，本身就是测试工作的一部分。</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-design-exploratory"><div class="pl-rail"><span class="pl-num">2.3</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 2:06</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/design/exploratory/">Exploratory testing</a></h3><p class="pl-desc">Learn without a script: steer a time-boxed session with a charter, keep session notes, and turn what you find into test cases.</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>Write a charter that gives an exploratory session one clear mission</li><li>Run a time-boxed session and keep notes someone else can read</li><li>Turn findings from a session into bugs, questions and new test cases</li></ul></div><div><h4>要点</h4><ul><li>Exploratory testing is designing and running tests at the same time, learning as you go.</li><li>A charter names a target, the resources you'll use and the information you want: one mission per session.</li><li>Session notes record what you covered, what you found and what you'd explore next, so the session can be reviewed.</li><li>Good findings become scripted test cases, so the next run doesn't depend on memory.</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>Which is the best charter for one exploratory session?</span> <em>Explore the discount code field with expired, misspelled and pasted codes to discover how errors are reported. It names a target, the resources (kinds of codes) and the information wanted. The others give no mission, so nobody can tell when the session is done or what it covered.</em></li><li><span>Halfway through a session on the discount field, you notice the delivery estimate looks wrong. What should you do?</span> <em>Write it in your notes as an issue or follow-up idea, then return to the charter. The charter keeps the session focused. Noting the side issue means it isn&#39;t lost, and it can become the charter for a later session.</em></li><li><span>Your session found that pasting a code with a trailing space rejects it. What should happen to that finding after the debrief?</span> <em>Report the bug, and add a scripted test case so the behaviour is checked on every run. Exploration finds the problem; a written test case keeps it found. Without one, catching a regression depends on someone happening to explore the same path again.</em></li></ol></div></div></article></section><section class="plan-sec plan-chapter" id="chapter-automation"><header class="pc-head"><span class="pc-n">第 3 章</span><h2>自动化与规模化</h2><p>把用例变成代码，再组织成大家信任的测试套件。 · 30 分钟</p></header><article class="pl-item pl-lesson" id="plan-test-cases-automation-unit-tests"><div class="pl-rail"><span class="pl-num">3.1</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 1:22</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/automation/unit-tests/">从测试用例到自动化测试</a></h3><p class="pl-desc">用 Arrange、Act、Assert 把写好的测试用例变成代码，看边界值测试抓住一个真实的缺陷。</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>把书面测试用例对应到 Arrange、Act、Assert</li><li>用测试运行器编写单元测试</li><li>先看到测试失败，再相信它的通过</li></ul></div><div><h4>要点</h4><ul><li>测试名就是标题，Arrange 是准备，Act 是操作步骤，Assert 是预期结果。</li><li>边界值测试能在几毫秒内让差一错误变红。</li><li>先看到测试失败一次，再相信它的通过。</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>自动化测试的哪一部分包含预期结果？</span> <em>Assert. expect(...).toBe(...) 就是预期结果，由程序自动检查。</em></li><li><span>为什么要先看到新测试失败，再让它通过？</span> <em>为了证明这个测试能发现缺陷. 如果测试从来没有变红过，它检查的可能并不是你以为的东西。</em></li><li><span>applyDiscount(20, &quot;SAVE10&quot;) 返回了 20，但规则是满 $20 就打九折。最可能的缺陷是什么？</span> <em>用了 total &lt;= 20 而不是 total &lt; 20. 当 total &lt;= 20 时提前返回，恰好 $20 的订单就拿不到折扣。边界值测试暴露了这个问题。</em></li></ol></div></div></article><article class="pl-item pl-lesson" id="plan-test-cases-automation-suites"><div class="pl-rail"><span class="pl-num">3.2</span><span class="pl-min">15 分钟</span><span class="pl-min">▶ 1:46</span></div><div class="pl-body"><h3><a href="/demo/zh/test-cases/automation/suites/">组织测试套件</a></h3><p class="pl-desc">测试金字塔、需求追溯，以及如何让不断增长的测试套件保持健康。</p><div class="pl-cols"><div><h4>学习成果</h4><ul><li>用测试金字塔平衡测试套件</li><li>把测试用例追溯到需求，找出遗漏和孤儿用例</li><li>让测试套件保持健康：命名、不稳定的测试、责任归属</li></ul></div><div><h4>要点</h4><ul><li>大量快速的单元测试，较少的集成测试，少数几个端到端测试。</li><li>追溯矩阵能显示没有测试的需求，以及没有对应需求的测试。</li><li>按行为给测试命名，并尽快修复不稳定的测试，否则大家会学会无视红色。</li></ul></div></div><div class="pl-check"><h4>自测</h4><ol><li><span>大部分自动化测试应该位于测试金字塔的哪一层？</span> <em>单元测试. 单元测试快速而精确，所以构成宽阔的底座。</em></li><li><span>某个需求没有关联任何测试用例。这叫什么？</span> <em>遗漏. 这是覆盖上的遗漏。孤儿用例正好相反：没有对应需求的测试用例。</em></li><li><span>代码没有任何改动，某个测试却大约每十次执行失败一次。你应该怎么做？</span> <em>找到并修复原因，或者删除它. 不稳定的测试会侵蚀大家对整个测试套件的信任。修复原因（通常是时序或共享数据问题），或者删除这个测试。</em></li></ol></div></div></article></section></main><script type="module">var e=document.getElementById(`copy-plan`),t=document.getElementById(`plan-md`);e.addEventListener(`click`,async()=>{try{await navigator.clipboard.writeText(t.content.textContent??``),e.textContent=e.dataset.lCopied}catch{e.textContent=e.dataset.lBlocked}setTimeout(()=>e.textContent=e.dataset.lCopy,2400)});</script><footer class="foot"><div class="foot-in"><div class="foot-about"><a class="brand" href="/demo/zh/"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="15" r="10.5" fill="none" stroke="currentColor" stroke-width="2.4"></circle><path d="M14 15l5-5M11 2.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg><span>Testbench</span></a><p>Testbench 通过简短的讲解视频、适合阅读的课文和基于真实练习应用的动手练习来教授软件测试。每个练习都附带一段可以直接交给编码智能体的提示词。</p></div><div class="foot-col"><h2>学习</h2><ul><li><a href="/demo/zh/test-cases/">编写测试用例</a></li><li><a href="/demo/zh/performance-testing/">性能测试</a></li><li><a href="/demo/zh/api-testing/">API Testing</a></li><li><a href="/demo/zh/courses/">课程</a></li><li><a href="/demo/zh/learning/">我的学习</a></li><li><a href="https://github.com/johnsonnoronathan/demo/issues/new?template=tutorial-proposal.yml" target="_blank" rel="noopener">提议新教程</a></li></ul></div><div class="foot-col"><h2>面向智能体</h2><ul><li><a href="/demo/zh/agents/">面向智能体</a></li><li><a href="/demo/llms.txt">llms.txt</a></li><li><a href="/demo/zh/test-cases/plan.md">本页的 Markdown 版本</a></li></ul></div><div class="foot-col"><h2>语言</h2><ul class="foot-langs"><li><a href="/demo/test-cases/plan/" lang="en">English</a></li><li><a href="/demo/zh/test-cases/plan/" lang="zh-CN">简体中文</a></li><li><a href="/demo/ja/test-cases/plan/" lang="ja">日本語</a></li><li><a href="/demo/ko/test-cases/plan/" lang="ko">한국어</a></li><li><a href="/demo/es/test-cases/plan/" lang="es">Español</a></li><li><a href="/demo/fr/test-cases/plan/" lang="fr">Français</a></li><li><a href="/demo/de/test-cases/plan/" lang="de">Deutsch</a></li></ul></div></div><p class="foot-fine">课程中的练习应用和公司均为虚构。</p></footer><script type="module" src="/demo/_astro/Base.astro_astro_type_script_index_0_lang.CEumv5Zm.js"></script></body></html>
