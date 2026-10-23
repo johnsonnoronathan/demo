@@ -36,7 +36,10 @@ export function lessonToMarkdown(view: LessonView, all: LessonView[]): string {
   const d = view.entry.data;
   let body = view.entry.body ?? "";
 
-  body = body.replace(/^import .*$/gm, "");
+  // Code blocks pass through untouched: none of the rewrites below may change an example.
+  const fences: string[] = [];
+  body = body.replace(/^([ \t]*)(```|~~~)[\s\S]*?^\1\2[ \t]*$/gm, (m) => `\u0000fence${fences.push(m) - 1}\u0000`);
+  const restore = (text: string) => text.replace(/\u0000fence(\d+)\u0000/g, (_, i) => fences[Number(i)]);
 
   body = body.replace(/<Scene\s+([^>]*?)\/>/g, (_, a) => {
     const name = attrs(a).name;
@@ -118,5 +121,5 @@ export function lessonToMarkdown(view: LessonView, all: LessonView[]): string {
   if (prev) foot.push(`${t(L, "lesson.prev")}: [${prev.label}: ${prev.title}](${prev.mdUrl})`);
   if (next) foot.push(`${t(L, "lesson.next")}: [${next.label}: ${next.title}](${next.mdUrl})`);
 
-  return [...head, "", transcript(view), `## ${t(L, "lesson.readIntro")}`, "", body.replace(/\n{3,}/g, "\n\n").trim(), "", ...foot, ""].join("\n");
+  return [...head, "", transcript(view), `## ${t(L, "lesson.readIntro")}`, "", restore(body.replace(/\n{3,}/g, "\n\n").trim()), "", ...foot, ""].join("\n");
 }

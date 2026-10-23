@@ -25,7 +25,8 @@ Translations are optional. They go in the same places under another locale, plus
 | --- | --- |
 | C1 | The course entry has an id, title, tagline, summary, audience, a level (beginner, intermediate or advanced), at least 3 outcomes and at least 2 chapters. No two courses share an `order`. |
 | C2 | Every chapter has at least one lesson, and no two pages in a chapter share an `order`. |
-| C3 | Either every chapter has a `role` (`overall` or `specific`) or none does. If they do, the course runs overall → specific → overall, and every chapter has an **opening** page (what you'll get) and a **summary** page. |
+| C3 | Either every chapter has a `role` (`overall` or `specific`) or none does. If they do, the course runs overall → specific → overall, and every chapter has an **opening** page (what you'll get) and a **summary** page. A course without roles is a plain sequence of lessons; it needs no openings or summaries, and a chapter may hold a single lesson. |
+| C4 | Course text (tagline, summary, audience, chapter summaries) states no counts of lessons, pages or chapters, such as "six short lessons". The site shows the real counts; a written one goes stale with the next lesson. |
 | R1 | **Learning, method, validation.** The course teaches the concepts, shows the method as steps the learner can repeat, and ends with a way to verify the result: an acceptance test, a self-check, or a quiz that tests the method, not trivia. |
 | R2 | **Real projects.** A course that teaches a practice skill ends by applying it to the learner's own work (an exercise with `target: own`), not only to the practice app. |
 
@@ -38,7 +39,7 @@ Translations are optional. They go in the same places under another locale, plus
 | P3 | **Every page has a video**: `src/videos/en/<course>/<chapter>/<slug>.ts`, or `opening.ts` for an opening. |
 | P4 | **Every lesson can be checked.** A lesson has a hands-on exercise, or a quiz of at least 2 questions, each with an explanation (`why`). A summary has at least 2 self-check questions (`check`). |
 | P5 | **The learner/agent split.** Each exercise appears exactly once in the body as `<Exercise id="…">` with numbered steps inside: the learner's part. Its frontmatter `agent` block has at least 2 steps, a "done when" and a "report back": the agent's part. A course without a practice app uses `target: own`. |
-| P6 | Every scene a page names is registered in `src/scenes/index.ts`. Every `<Screenshot>` has an `alt` of at least 20 characters that says what the image shows, because agents read it. A screenshot with `src` points at a file in `public/`. |
+| P6 | A concept doesn't need an animation; `scene` is optional. Every scene a page names is registered in `src/scenes/index.ts`. Every `<Screenshot>` has an `alt` of at least 20 characters that says what the image shows, because agents read it. A screenshot with `src` points at a file in `public/`. |
 | R3 | **Real numbers.** Every *measurement* in a lesson (a latency, a size, a count from a tool) comes from a run someone can repeat, with the command shown. Suggested values (a 60-minute time box) and illustrations (a sample date) are fine, labelled as examples. |
 | R4 | **The agent implements; the learner decides.** The learner's steps include running the check and reading its output. The agent prompt never lets the agent loosen a budget, threshold or criterion to make a check pass. After the agent reports, the learner reruns the check. For a judgement skill with no check to rerun (exploratory testing, writing a test plan), the learner produces the judgement, the agent turns it into artifacts (bug reports, automated tests), and the learner reviews them against criteria stated in the exercise. |
 | R5 | **Pacing for reading.** Short paragraphs, one idea each. A concept comes before the exercise that uses it. A lesson takes 10 to 45 minutes. |
@@ -51,7 +52,7 @@ Translations are optional. They go in the same places under another locale, plus
 | V2 | Every pane timing (`at`, `until`, `subAt`…) is in cue units and lies between 0 and the scene's number of cues. A cue is at most 320 characters, so its caption fits. Concept panes name a registered scene. |
 | V3 | A video runs between 20 seconds and 10 minutes. Duration comes from the narration, so write the cues and the length follows. |
 | V4 | A title card that names a lesson number (`Lesson 2.3`, `第 2.3 课`) names this page's actual number: chapter position, then position among the chapter's lessons. Insert a lesson and the check tells you which cards to renumber. |
-| R6 | **Narration and picture agree.** Nothing appears on screen before the narration mentions it. Terminal panes show real output. |
+| R6 | **Narration and picture agree.** Nothing appears on screen before the narration mentions it. Terminal panes show real output. You may shorten it to fit (drop lines, cut a stack trace) as long as you change no line you keep. Timings that differ on every run can be left out. |
 
 ## Translation rules
 

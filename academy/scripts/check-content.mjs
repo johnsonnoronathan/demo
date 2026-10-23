@@ -48,6 +48,14 @@ for (const c of courses) {
   const roles = (c.chapters ?? []).map((ch) => ch.role).filter(Boolean);
   if (roles.length && roles.length !== c.chapters.length) fail("C3", at, "either every chapter has a role (overall/specific) or none does");
 }
+// C4: no hard-coded counts of lessons, pages or chapters in course text; the site shows real counts.
+const COUNT = /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty)\s+(?:short\s+|more\s+)?(lessons?|pages?|chapters?)\b/i;
+for (const c of courses) {
+  for (const [field, text] of [["tagline", c.tagline], ["summary", c.summary], ["audience", c.audience], ...(c.chapters ?? []).map((ch) => [`chapter ${ch.id}`, ch.summary])]) {
+    const m = String(text ?? "").match(COUNT);
+    if (m) fail("C4", `courses.yaml#${c.id}`, `${field} says "${m[0]}"; drop the count, the site shows it and it goes stale`);
+  }
+}
 const orders = courses.map((c) => c.order);
 if (new Set(orders).size !== orders.length) fail("C1", "courses.yaml", "two courses share the same order");
 
@@ -255,7 +263,10 @@ for (const [locale, tr] of Object.entries(translations)) {
 
 await vite.close();
 const counts = `${courses.length} courses, ${en.size} English pages, ${pages.length - en.size} translated pages, ${videos.size} videos`;
-for (const w of warnings) console.log(`warn ${w}`);
+// Warnings are informational: missing translations fall back to English.
+const grouped = new Map();
+for (const w of warnings) { const k = w.split(":")[0]; grouped.set(k, [...(grouped.get(k) ?? []), w.slice(k.length + 2)]); }
+for (const [k, list] of grouped) console.log(`warn ${k}: ${list.length === 1 ? list[0] : `${list.length} items show in English until translated (optional)`}`);
 if (errors.length) {
   for (const e of errors) console.log(`FAIL ${e}`);
   console.log(`\n${errors.length} problem(s) in ${counts}. See STANDARD.md for each rule.`);

@@ -29,7 +29,7 @@ const fr: ContentTranslation = {
     "test-cases": {
       title: "Écrire des cas de test",
       tagline: "Écrivez des cas de test que tout le monde peut exécuter et qui trouvent des bugs.",
-      summary: "Les fondamentaux du test en six courtes leçons. Découvrez ce qu'est un cas de test et ce qui le rend fiable, choisissez les entrées avec les partitions et les valeurs limites, couvrez les chemins d'erreur, transformez un cas écrit en test automatisé et gardez en bonne santé une suite qui grandit.",
+      summary: "Les fondamentaux du test, en courtes leçons. Découvrez ce qu'est un cas de test et ce qui le rend fiable, choisissez les entrées avec les partitions et les valeurs limites, couvrez les chemins d'erreur, transformez un cas écrit en test automatisé et gardez en bonne santé une suite qui grandit.",
       audience: "Toute personne qui teste du logiciel ou veut s'y mettre : développeurs, testeurs, équipes produit. Aucune expérience nécessaire ; la leçon 3.1 lit un peu de JavaScript.",
       prerequisites: ["De la curiosité pour la façon dont les logiciels cassent", "Node.js, seulement pour exécuter vous-même les tests de la leçon 3.1"],
       outcomes: [

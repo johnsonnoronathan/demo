@@ -6,11 +6,11 @@
 
 | | |
 | --- | --- |
-| **For learners** | Two courses. *Writing Test Cases* is for beginners: 6 lessons, each ending with a quiz. *Performance Testing* is intermediate: 4 chapters and 22 pages, from a first measurement to a formal acceptance test and then your own project. Progress, watched video time and quiz scores are saved in your browser. |
+| **For learners** | *Writing Test Cases* is for beginners: short lessons, each ending with a quiz. *Performance Testing* is intermediate: from a first measurement to a formal acceptance test, then the same checks on your own project. The catalog on the site lists every course with its length. Progress, watched video time and quiz scores are saved in your browser. |
 | **For agents** | Each exercise has a **Copy prompt** button that hands the implementation to Claude Code or another coding agent. Every page is also published as Markdown, and the site's `/llms.txt` lists them all. |
 | **For contributors** | A new tutorial is content, not code: one Markdown file and one video script per page. A pull request adds it, automatic checks keep it from breaking the layout, and merging publishes it. |
 
-**Languages.** The site's menus and buttons are in 7 languages (English, Chinese, Japanese, Korean, Spanish, French, German). The course text and videos are complete in English and Chinese. In the other five, titles and navigation are translated and the lesson text is in English, with a notice saying so.
+**Languages.** The site's menus and buttons are in 7 languages (English, Chinese, Japanese, Korean, Spanish, French, German). English is the source language for every course, and the courses are translated into Chinese as well. Anything not yet translated, including the other five languages' lesson text, shows in English with a notice saying so.
 
 **Words used below.** A *course* has *chapters*, and a chapter has *pages*. Most pages are *lessons*. A chapter can also start with an *opening* page (what you'll get) and end with a *summary* page. "Lesson 4.3" means chapter 4, lesson 3.
 
